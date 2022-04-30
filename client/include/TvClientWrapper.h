@@ -8,7 +8,7 @@
  */
 
 #ifndef _TVCLIENT_WRAPPER_H__
-#define _TVCLIENT_WRAPPER_H_
+#define _TVCLIENT_WRAPPER_H__
 
 #include "TvCommon.h"
 
@@ -60,7 +60,7 @@ typedef struct {
 } SourceConnectCallback_t;
 
 typedef void (*EventCallback)(event_type_t eventType, void *eventData);
-EventCallback mEventCallback;
+extern EventCallback mEventCallback;
 struct TvClientWrapper_t;
 
 extern struct TvClientWrapper_t *GetInstance(void);

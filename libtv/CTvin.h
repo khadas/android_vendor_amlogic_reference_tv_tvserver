@@ -105,6 +105,64 @@ typedef struct tvin_frontend_info_s {
 	unsigned int colordepth;
 } tvin_frontend_info_t;
 
+enum tvin_sync_pol_e {
+	TVIN_SYNC_POL_NULL = 0,
+	TVIN_SYNC_POL_NEGATIVE,
+	TVIN_SYNC_POL_POSITIVE,
+};
+
+enum tvin_scan_mode_e {
+	TVIN_SCAN_MODE_NULL = 0,
+	TVIN_SCAN_MODE_PROGRESSIVE,
+	TVIN_SCAN_MODE_INTERLACED,
+};
+
+/* ************************************************************************* */
+/* *** structure definitions ********************************************* */
+/* ************************************************************************* */
+/* Hs_cnt        Pixel_Clk(Khz/10) */
+
+struct tvin_format_s {
+	/* Th in the unit of pixel */
+	unsigned short         h_active;
+	 /* Tv in the unit of line */
+	unsigned short         v_active;
+	/* Th in the unit of T, while 1/T = 24MHz or 27MHz or even 100MHz */
+	unsigned short         h_cnt;
+	/* Tolerance of h_cnt */
+	unsigned short         h_cnt_offset;
+	/* Tolerance of v_cnt */
+	unsigned short         v_cnt_offset;
+	/* Ths in the unit of T, while 1/T = 24MHz or 27MHz or even 100MHz */
+	unsigned short         hs_cnt;
+	/* Tolerance of hs_cnt */
+	unsigned short         hs_cnt_offset;
+	/* Th in the unit of pixel */
+	unsigned short         h_total;
+	/* Tv in the unit of line */
+	unsigned short         v_total;
+	/* h front proch */
+	unsigned short         hs_front;
+	 /* HS in the unit of pixel */
+	unsigned short         hs_width;
+	 /* HS in the unit of pixel */
+	unsigned short         hs_bp;
+	/* vs front proch in the unit of line */
+	unsigned short         vs_front;
+	 /* VS width in the unit of line */
+	unsigned short         vs_width;
+	/* vs back proch in the unit of line */
+	unsigned short         vs_bp;
+	enum tvin_sync_pol_e   hs_pol;
+	enum tvin_sync_pol_e   vs_pol;
+	enum tvin_scan_mode_e  scan_mode;
+	/* (Khz/10) */
+	unsigned short         pixel_clk;
+	unsigned short         vbi_line_start;
+	unsigned short         vbi_line_end;
+	unsigned int           duration;
+};
+
 // ***************************************************************************
 // *** AFE module definition/enum/struct *************************************
 // ***************************************************************************
@@ -224,6 +282,7 @@ typedef enum tv_path_status_e {
 enum {
     TV_PATH_VDIN_AMLVIDEO2_PPMGR_DEINTERLACE_AMVIDEO,
     TV_PATH_DECODER_AMLVIDEO2_PPMGR_DEINTERLACE_AMVIDEO,
+	TV_PATH_VDIN_DEINTERLACE_VIDEOQUEUE,//LGE tvin video path
 };
 
 // ***************************************************************************
@@ -241,6 +300,7 @@ enum {
 #define TVIN_IOC_G_SIG_INFO         _IOR(TVIN_IOC_MAGIC, 0x07, struct tvin_info_s)
 #define TVIN_IOC_G_BUF_INFO         _IOR(TVIN_IOC_MAGIC, 0x08, struct tvin_buf_info_s)
 #define TVIN_IOC_START_GET_BUF      _IO( TVIN_IOC_MAGIC, 0x09)
+#define TVIN_IOC_G_EVENT_INFO       _IOW(TVIN_IOC_MAGIC, 0x0a, struct vdin_event_info_s)
 #define TVIN_IOC_GET_BUF            _IOR(TVIN_IOC_MAGIC, 0x10, struct tvin_video_buf_s)
 #define TVIN_IOC_PAUSE_DEC          _IO(TVIN_IOC_MAGIC, 0x41)
 #define TVIN_IOC_RESUME_DEC         _IO(TVIN_IOC_MAGIC, 0x42)
@@ -256,7 +316,7 @@ enum {
 #define TVIN_IOC_SET_AUTO_RATIO_EN  _IOW(TVIN_IOC_MAGIC, 0x4c, unsigned int)
 #define TVIN_IOC_GET_LATENCY_MODE   _IOR(TVIN_IOC_MAGIC, 0X4d, struct tvin_latency_s)
 #define TVIN_IOC_G_FRONTEND_INFO    _IOR(TVIN_IOC_MAGIC, 0x4e, struct tvin_frontend_info_s)
-#define TVIN_IOC_G_EVENT_INFO       _IOW(TVIN_IOC_MAGIC, 0x0a, struct vdin_event_info_s)
+#define TVIN_IOC_G_INPUT_TIMING		_IOR(TVIN_IOC_MAGIC, 0x52, struct tvin_format_s)
 
 //TVAFE
 #define TVIN_IOC_S_AFE_ADC_CAL      _IOW(TVIN_IOC_MAGIC, 0x11, struct tvafe_adc_cal_s)

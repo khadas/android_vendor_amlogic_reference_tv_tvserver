@@ -426,7 +426,7 @@ int CTvin::Tvin_GetFrontendInfo(tvin_frontend_info_t *frontendInfo)
 }
 
 int CTvin::Tvin_SetColorRangeMode(tvin_color_range_t range_mode)
-{
+{
     return VDIN_SetColorRangeMode(range_mode);
 }
 
@@ -596,7 +596,7 @@ int CTvin::VDIN_AddPath ( const char *videopath )
 }
 
 int CTvin::VDIN_RemovePath(tv_path_type_t pathtype)
-{
+{
     int ret = -1;
     switch (pathtype) {
         case TV_PATH_TYPE_DEFAULT:
@@ -633,6 +633,13 @@ int CTvin::Tvin_AddVideoPath(int selPath)
         else
             vdinPath = "add default decoder ppmgr ";
         break;
+
+    case TV_PATH_VDIN_DEINTERLACE_VIDEOQUEUE:
+        suffixVideoPath = "deinterlace videoqueue.0";
+        //suffixVideoPath = "videoqueue.0";
+        vdinPath = "add tvpath vdin0 ";
+        break;
+
     default:
         break;
     }
