@@ -46,6 +46,7 @@ public:
 
     TvClient();
     ~TvClient();
+    void Release();
     static TvClient *GetInstance();
     int setTvClientObserver(TvClientIObserver *observer);
     int StartTv(tv_source_input_t source);
@@ -70,7 +71,7 @@ private:
     static int HandSignalDetectEvent(const void *param);
     int SendTvClientEvent(CTvEvent &event);
 
-    static TvClient *mInstance;
+    static sp<TvClient> mInstance;
     std::map<int, TvClientIObserver *> mTvClientObserver;
 
     sp<IBinder> tvServicebinder;

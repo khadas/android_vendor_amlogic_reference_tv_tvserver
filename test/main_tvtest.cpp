@@ -53,7 +53,7 @@ public:
 
     ~TvTest()
     {
-
+      mpTvClient->Release();
     }
     void onTvClientEvent(CTvEvent &event)
     {
@@ -179,6 +179,7 @@ int main(int argc, char **argv) {
               test->EdidVer = 2;
               test->SendCmd("EDID_set");
               break;
+          }
           case '7': {
               test->SendCmd("stop");
               SetOsdBlankStatus("/sys/class/graphics/fb0/blank", 0);
@@ -200,6 +201,8 @@ int main(int argc, char **argv) {
         }
         fflush (stdout);
     }
+
+    delete test;
 
     return 0;
 }

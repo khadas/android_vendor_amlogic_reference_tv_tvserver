@@ -29,13 +29,13 @@ const int EVENT_SOURCE_CONNECT = 10;
 
 pthread_mutex_t tvclient_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-TvClient *TvClient::mInstance;
+sp<TvClient> TvClient::mInstance;
 TvClient *TvClient::GetInstance() {
-    if (mInstance == NULL) {
+    if (mInstance.get() == nullptr) {
         mInstance = new TvClient();
     }
 
-    return mInstance;
+    return mInstance.get();
 }
 
 TvClient::TvClient() {
@@ -60,14 +60,20 @@ TvClient::TvClient() {
 
 TvClient::~TvClient() {
     LOGD("%s.\n", __FUNCTION__);
+    mInstance = nullptr;
+}
+
+void TvClient::Release() {
+    LOGD("%s.\n", __FUNCTION__);
     pthread_mutex_lock(&tvclient_mutex);
     if (tvServicebinder != NULL) {
         Parcel send, reply;
         send.writeInt32(tvServicebinderId);
         tvServicebinder->transact(CMD_CLR_TV_CB, send, &reply);
+        tvServicebinder = NULL;
     }
-    tvServicebinder = NULL;
     pthread_mutex_unlock(&tvclient_mutex);
+    mInstance = nullptr;
 }
 
 int TvClient::SendMethodCall(char *CmdString)

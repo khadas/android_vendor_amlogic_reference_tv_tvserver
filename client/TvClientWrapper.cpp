@@ -30,7 +30,7 @@ public:
     ~TvClientWrapper() {
         LOGD("%s.\n", __FUNCTION__);
         if (mpTvClient != NULL) {
-            delete mpTvClient;
+            mpTvClient->Release();
             mpTvClient = NULL;
         }
     }
