@@ -37,11 +37,14 @@ int __tv_log_print(const char *moudle_tag, const char *level_tag, const char *cl
     va_start(ap, fmt);
     vsnprintf(buf, DEFAULT_LOG_BUFFER_LEN, fmt, ap);
 
-    return printf("%s %d %ld %s %s [%s]: %s", timeBuf,
-                                                getpid(),
-                                                syscall(SYS_gettid),
-                                                level_tag,
-                                                moudle_tag,
-                                                class_tag,
-                                                buf);
+     printf("%s %d %ld %s %s [%s]: %s", timeBuf,
+                                            getpid(),
+                                            syscall(SYS_gettid),
+                                            level_tag,
+                                            moudle_tag,
+                                            class_tag,
+                                            buf);
+
+    va_end(ap);
+    return 0;
 }
