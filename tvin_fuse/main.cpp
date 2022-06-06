@@ -10,6 +10,7 @@
 #include "av/av_fuse.h"
 #include "vbi/vbi_fuse.h"
 #include "vbe/vbe_fuse.h"
+#include "pq/pq_fuse.h"
 
 int isRunning = 1;
 
@@ -17,6 +18,7 @@ extern struct cuse_obj av_cuse;
 extern struct cuse_obj vbi_cuse;
 extern struct cuse_obj vbe_cuse;
 extern struct cuse_obj hdmirx_cuse;
+extern struct cuse_obj pq_cuse;
 
 struct cuse_obj *tvin_cuse[] = {
 	&av_cuse,
@@ -24,6 +26,7 @@ struct cuse_obj *tvin_cuse[] = {
 	&vbe_cuse,
 	&hdmirx_cuse,
 	//&vt_cuse,
+	&pq_cuse,
 };
 
 static void sig_handler(int signo)
@@ -115,7 +118,6 @@ int main(int argc, char **argv)
 
 	printf("lht,%s:%d\n", __func__, __LINE__);
 	for (i = 0;i < sizeof(tvin_cuse) / sizeof(tvin_cuse[0]);i++) {
-
 		memset(&tvin_cuse[i]->ci, 0, sizeof(tvin_cuse[i]->ci));
 		tvin_cuse[i]->ci.dev_major = param.major;
 		tvin_cuse[i]->ci.dev_minor = param.minor;

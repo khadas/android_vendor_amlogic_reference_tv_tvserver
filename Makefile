@@ -71,6 +71,8 @@ tvin_fuse_SRCS  = \
 	$(LOCAL_PATH)/tvin_fuse/vbi/vbi_fuse.cpp \
 	$(LOCAL_PATH)/tvin_fuse/av/av_drv.cpp \
 	$(LOCAL_PATH)/tvin_fuse/av/av_fuse.cpp \
+	$(LOCAL_PATH)/tvin_fuse/pq/pq_drv.cpp \
+	$(LOCAL_PATH)/tvin_fuse/pq/pq_fuse.cpp \
 	$(LOCAL_PATH)/tvin_fuse/main.cpp \
 	$(NULL)
 
@@ -102,10 +104,17 @@ hdmirxtest_SRCS  = \
 	$(LOCAL_PATH)/tvin_fuse/hdmi/hdmirx_test.cpp \
 	$(NULL)
 
+################################################################################
+# pqfusetest - src files
+################################################################################
+pqfusetest_SRCS  = \
+	$(LOCAL_PATH)/tvin_fuse/pq/pq_fuse_test.cpp \
+	$(NULL)
+
 # ---------------------------------------------------------------------
 #  Build rules
 BUILD_TARGETS  = libtvclient.so libtv.so tvservice tvtest
-BUILD_TARGETS += tvin_fuse_app avtest vbitest vbetest hdmirxtest
+BUILD_TARGETS += tvin_fuse_app avtest vbitest vbetest hdmirxtest pqfusetest
 
 .PHONY: all install clean
 
@@ -151,6 +160,11 @@ hdmirxtest: $(hdmirxtest_SRCS)
 	-I$(LOCAL_PATH)/libtv -I$(LOCAL_PATH)/libtv/tvutils -I$(LOCAL_PATH)/tvin_fuse/include \
 	-L$(LOCAL_PATH) -L$(LOCAL_PATH)/tvin_fuse/lib -lfuse3 -o $@ $^ $(LDLIBS)
 
+pqfusetest: $(pqfusetest_SRCS)
+	$(CXX) $(CXXFLAGS) $(CFLAGS) $(LDFLAGS) -I$(tvclient_HEADERS) \
+	-I$(LOCAL_PATH)/libtv -I$(LOCAL_PATH)/libtv/tvutils -I$(LOCAL_PATH)/tvin_fuse/include \
+	-L$(LOCAL_PATH) -L$(LOCAL_PATH)/tvin_fuse/lib -lfuse3 -o $@ $^ $(LDLIBS)
+
 all: $(BUILD_TARGETS)
 
 clean:
@@ -167,6 +181,7 @@ clean:
 	rm -rf $(TARGET_DIR)/usr/bin/vbitest
 	rm -rf $(TARGET_DIR)/usr/bin/vbetest
 	rm -rf $(TARGET_DIR)/usr/bin/hdmirxtest
+	rm -rf $(TARGET_DIR)/usr/bin/pqfusetest
 
 install:
 	install -m 0644 libtvclient.so $(TARGET_DIR)/usr/lib
@@ -178,3 +193,4 @@ install:
 	install -m 0755 vbitest $(TARGET_DIR)/usr/bin
 	install -m 0755 vbetest $(TARGET_DIR)/usr/bin
 	install -m 0755 hdmirxtest $(TARGET_DIR)/usr/bin
+	install -m 0755 pqfusetest $(TARGET_DIR)/usr/bin
