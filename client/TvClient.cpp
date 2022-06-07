@@ -73,6 +73,7 @@ void TvClient::Release() {
         tvServicebinder = NULL;
     }
     pthread_mutex_unlock(&tvclient_mutex);
+    IPCThreadState::self()->stopProcess();
     mInstance = nullptr;
 }
 
