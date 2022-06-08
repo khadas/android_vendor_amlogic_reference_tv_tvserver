@@ -10,6 +10,15 @@
 #ifndef _C_HDMI_RX_MANAGER_H_
 #define _C_HDMI_RX_MANAGER_H_
 
+#if !defined(AML_ATVDEMOD_DEBUGFS)
+
+#undef u32
+#define u32 uint
+
+#undef u64
+#define u64 ulong
+
+#endif
 
 #define HDMI_IOC_MAGIC 'H'
 #define HDMI_IOC_HDCP_ON	        _IO(HDMI_IOC_MAGIC, 0x01)
@@ -20,6 +29,17 @@
 #define HDMI_IOC_HDCP22_AUTO	    _IO(HDMI_IOC_MAGIC, 0x06)
 #define HDMI_IOC_HDCP22_FORCE14     _IO(HDMI_IOC_MAGIC, 0x07)
 #define HDMI_IOC_HDCP_GET_KSV       _IOR(HDMI_IOC_MAGIC, 0x09, struct _hdcp_ksv)
+#define HDMI_IOC_PD_FIFO_PKTTYPE_EN _IOW(HDMI_IOC_MAGIC, 0x0a,\
+	u32)
+#define HDMI_IOC_PD_FIFO_PKTTYPE_DIS _IOW(HDMI_IOC_MAGIC, 0x0b,\
+		u32)
+#define HDMI_IOC_GET_PD_FIFO_PARAM _IOWR(HDMI_IOC_MAGIC, 0x0c,\
+	struct pd_infoframe_s)
+#define HDMI_IOC_HDCP14_KEY_MODE _IOR(HDMI_IOC_MAGIC, 0x0d,\
+	enum hdcp14_key_mode_e)
+#define HDMI_IOC_HDCP22_NOT_SUPPORT _IO(HDMI_IOC_MAGIC, 0x0e)
+#define HDMI_IOC_SET_AUD_SAD	_IOW(HDMI_IOC_MAGIC, 0x0f, char*)
+#define HDMI_IOC_GET_AUD_SAD	_IOR(HDMI_IOC_MAGIC, 0x10, char*)
 
 
 #define CS_HDMIRX_DEV_PATH                "/dev/hdmirx0"
@@ -53,6 +73,22 @@ typedef struct _hdcp_ksv {
     int bksv0;
     int bksv1;
 } _hdcp_ksv;
+
+struct pd_infoframe_s {
+	u32 HB;
+	u32 PB0;
+	u32 PB1;
+	u32 PB2;
+	u32 PB3;
+	u32 PB4;
+	u32 PB5;
+	u32 PB6;
+};
+
+enum hdcp14_key_mode_e {
+	NORMAL_MODE,
+	SECURE_MODE,
+};
 
 class CHDMIRxManager {
 public:
