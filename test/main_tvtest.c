@@ -8,6 +8,17 @@
 #include <fcntl.h>
 #include <TvClientWrapper.h>
 #include <CTvClientLog.h>
+#include <signal.h>
+
+
+tv_source_input_t CurrentSource;
+struct TvClientWrapper_t * pTvClientWrapper;
+
+static void Signalhandler(int sig){ // handler ctrl + C operation
+    StopTv(pTvClientWrapper, CurrentSource);
+    ReleaseInstance(&pTvClientWrapper);
+    exit(0);
+}
 
 static int WriteSysfs(const char *path, const char *cmd)
 {
@@ -51,11 +62,12 @@ static void TvEventCallback(event_type_t eventType, void *eventData)
 }
 
 int main(int argc, char **argv) {
-    struct TvClientWrapper_t * pTvClientWrapper = GetInstance();
+    pTvClientWrapper = GetInstance();
     setTvEventCallback(TvEventCallback);
+    signal(SIGINT, Signalhandler);
     char Command[1];
     int run = 1;
-    tv_source_input_t CurrentSource = SOURCE_HDMI1;
+    CurrentSource = SOURCE_HDMI1;
     DisplayInit();
 
     printf("#### please select cmd####\n");
