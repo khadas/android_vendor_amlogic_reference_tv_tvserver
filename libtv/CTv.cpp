@@ -577,6 +577,7 @@ void CTv::onSigToStable()
     event.mTrans_fmt = mCurrentSignalInfo.trans_fmt;
     event.mStatus = mCurrentSignalInfo.status;
     event.mDviFlag = mCurrentSignalInfo.is_dvi;
+    event.mhdr_info = mCurrentSignalInfo.hdr_info;
     sendTvEvent(event);
 }
 
@@ -599,6 +600,7 @@ void CTv::onSigToUnSupport()
     event.mTrans_fmt = mCurrentSignalInfo.trans_fmt;
     event.mStatus = mCurrentSignalInfo.status;
     event.mDviFlag = mCurrentSignalInfo.is_dvi;
+    event.mhdr_info = mCurrentSignalInfo.hdr_info;
     sendTvEvent(event);
     //To do
 }
@@ -625,6 +627,7 @@ void CTv::onSigToNoSig()
     event.mTrans_fmt = mCurrentSignalInfo.trans_fmt;
     event.mStatus = mCurrentSignalInfo.status;
     event.mDviFlag = mCurrentSignalInfo.is_dvi;
+    event.mhdr_info = mCurrentSignalInfo.hdr_info;
     sendTvEvent (event);
     //To do
 }

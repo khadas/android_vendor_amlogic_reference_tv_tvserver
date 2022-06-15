@@ -52,6 +52,7 @@ typedef struct {
     tvin_trans_fmt_t TransFmt;
     tvin_sig_status_t SignalStatus;
     int isDviSignal; //1 is dvi signal
+    unsigned int Hdrinfo;
 } SignalDetectCallback_t;
 
 typedef struct {

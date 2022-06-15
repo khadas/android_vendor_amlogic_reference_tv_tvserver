@@ -142,6 +142,7 @@ public:
             SignalDetectCallback.TransFmt = (tvin_trans_fmt_t)signalDetectEvent->mTrans_fmt;
             SignalDetectCallback.SignalStatus = (tvin_sig_status_t)signalDetectEvent->mStatus;
             SignalDetectCallback.isDviSignal = signalDetectEvent->mDviFlag;
+            SignalDetectCallback.Hdrinfo = signalDetectEvent->mhdr_info;
             mEventCallbackFunc(TV_EVENT_TYPE_SIGLE_DETECT, &SignalDetectCallback);
             break;
             }
@@ -169,12 +170,13 @@ public:
 static void HandleTvClientEvent(event_type_t eventType, void *eventData) {
     if (eventType == TV_EVENT_TYPE_SIGLE_DETECT) {
         SignalDetectCallback_t *SignalDetectCallback = (SignalDetectCallback_t *)(eventData);
-        LOGD("%s: source: %d, signalFmt: %d, transFmt: %d, status: %d, isDVI: %d.\n", __FUNCTION__,
+        LOGD("%s: source: %d, signalFmt: %d, transFmt: %d, status: %d, isDVI: %d, Hdrinfo: %ud\n", __FUNCTION__,
                                                    SignalDetectCallback->SourceInput,
                                                    SignalDetectCallback->SignalFmt,
                                                    SignalDetectCallback->TransFmt,
                                                    SignalDetectCallback->SignalStatus,
-                                                   SignalDetectCallback->isDviSignal);
+                                                   SignalDetectCallback->isDviSignal,
+                                                   SignalDetectCallback->Hdrinfo);
     } else if (eventType == TV_EVENT_TYPE_SOURCE_CONNECT) {
         SourceConnectCallback_t *SourceConnectCallback = (SourceConnectCallback_t *)eventData;
         LOGD("%s: source: %d, connectStatus: %d\n", __FUNCTION__,

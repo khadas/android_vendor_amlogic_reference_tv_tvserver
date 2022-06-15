@@ -46,12 +46,13 @@ static void TvEventCallback(event_type_t eventType, void *eventData)
 {
     if (eventType == TV_EVENT_TYPE_SIGLE_DETECT) {
         SignalDetectCallback_t *signalDetectEvent = (SignalDetectCallback_t *)(eventData);
-        LOGD("%s: source: %d, signalFmt: %d, transFmt: %d, status: %d, isDVI: %d.\n", __FUNCTION__,
+        LOGD("%s: source: %d, signalFmt: %d, transFmt: %d, status: %d, isDVI: %d, Hdrinfo: %ud.\n", __FUNCTION__,
                                                    signalDetectEvent->SourceInput,
                                                    signalDetectEvent->SignalFmt,
                                                    signalDetectEvent->TransFmt,
                                                    signalDetectEvent->SignalStatus,
-                                                   signalDetectEvent->isDviSignal);
+                                                   signalDetectEvent->isDviSignal,
+                                                   signalDetectEvent->Hdrinfo);
     } else if (eventType == TV_EVENT_TYPE_SOURCE_CONNECT) {
         SourceConnectCallback_t *sourceConnectEvent = (SourceConnectCallback_t *)(eventData);
         LOGD("%s: source: %d, connectStatus: %d\n", __FUNCTION__,

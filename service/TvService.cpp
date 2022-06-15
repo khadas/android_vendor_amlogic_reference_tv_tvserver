@@ -99,6 +99,7 @@ int TvService::SendSignalForSignalDetectEvent(CTvEvent &event)
             send.writeInt32(signalDetectEvent->mTrans_fmt);
             send.writeInt32(signalDetectEvent->mStatus);
             send.writeInt32(signalDetectEvent->mDviFlag);
+            send.writeUint32(signalDetectEvent->mhdr_info);
             mTvServiceCallBack[i]->transact(EVT_SIG_DT_CB, send, &reply);
         } else {
             LOGD("Event callback is null.\n");

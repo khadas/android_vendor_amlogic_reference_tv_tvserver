@@ -67,6 +67,7 @@ namespace  TvEvent {
             mTrans_fmt = 0;
             mStatus = 0;
             mDviFlag = 0;
+            mhdr_info = 0;
         }
         ~SignalDetectEvent() {}
         int mSourceInput;
@@ -74,6 +75,7 @@ namespace  TvEvent {
         int mTrans_fmt;
         int mStatus;
         int mDviFlag;
+        unsigned int mhdr_info;
     };
 
     class SourceConnectEvent: public CTvEvent {

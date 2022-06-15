@@ -136,6 +136,7 @@ int TvClient::HandSignalDetectEvent(const void* param)
     event.mTrans_fmt = parcel->readInt32();
     event.mStatus = parcel->readInt32();
     event.mDviFlag = parcel->readInt32();
+    event.mhdr_info = parcel->readUint32();
     mInstance->SendTvClientEvent(event);
 
     return 0;

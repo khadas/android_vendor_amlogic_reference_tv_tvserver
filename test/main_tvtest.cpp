@@ -62,12 +62,13 @@ public:
         switch (eventType) {
         case CTvEvent::TV_EVENT_SIGLE_DETECT: {
             TvEvent::SignalDetectEvent *signalDetectEvent = (TvEvent::SignalDetectEvent *)(&event);
-            LOGD("%s: source: %d, signalFmt: %d, transFmt: %d, status: %d, isDVI: %d.\n", __FUNCTION__,
+            LOGD("%s: source: %d, signalFmt: %d, transFmt: %d, status: %d, isDVI: %d, Hdrinfo: %ud.\n", __FUNCTION__,
                                                        signalDetectEvent->mSourceInput,
                                                        signalDetectEvent->mFmt,
                                                        signalDetectEvent->mTrans_fmt,
                                                        signalDetectEvent->mStatus,
-                                                       signalDetectEvent->mDviFlag);
+                                                       signalDetectEvent->mDviFlag,
+                                                       signalDetectEvent->mhdr_info);
             WriteSysfs("/sys/class/video/disable_video", 0);
             break;
             }
