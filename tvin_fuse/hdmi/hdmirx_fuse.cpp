@@ -6,8 +6,8 @@
  *
  * Description:
  */
-#define LOG_MOUDLE_TAG "TVIN-CVBS"
-#define LOG_CLASS_TAG "TVIN-CUSE"
+#define LOG_MOUDLE_TAG "TVIN-HDMIRX"
+#define LOG_CLASS_TAG "HDMIRX-FUSE"
 
 #include "../common.h"
 #include "hdmirx_fuse.h"
@@ -97,10 +97,10 @@ static void hdmirx_cuse_s_ctrl(fuse_req_t req, const void *in_buf)
 
 	switch (control->id) {
 		case V4L2_CID_EXT_HDMI_POWER_OFF:
-			ret = hdmirx_drv_s_ext_power_off(phdmirx_obj, control->value);
+			ret = hdmirx_drv_s_power_off(phdmirx_obj, control->value);
 			break;
 		case V4L2_CID_EXT_HDMI_DISCONNECT:
-			ret = hdmirx_drv_s_ext_disconnect(phdmirx_obj, control->value);
+			ret = hdmirx_drv_s_disconnect(phdmirx_obj, control->value);
 			break;
 		default:
 			break;
@@ -115,21 +115,26 @@ static void hdmirx_cuse_g_ext_ctrls(fuse_req_t req, void *arg, const void *in_bu
     struct iovec iov_r[2], iov_w[2], iov, iov_ret[2];
     struct v4l2_ext_controls *ext_controls;
     struct v4l2_ext_control *ext_control;
-	struct v4l2_ext_avd_timing_info avd_timing_info;
-	struct cuse_obj *pcuse_obj = (struct cuse_obj *)fuse_req_userdata(req);
-	struct hdmirx_obj_s *phdmirx_obj = (struct hdmirx_obj_s *)(pcuse_obj->pri);
+    struct v4l2_ext_avd_timing_info avd_timing_info;
+    struct cuse_obj *pcuse_obj = (struct cuse_obj *)fuse_req_userdata(req);
+    struct hdmirx_obj_s *phdmirx_obj = (struct hdmirx_obj_s *)(pcuse_obj->pri);
 
+    LOGD("%d, in_bufsz:%d\n", __LINE__, in_bufsz);
+
+    //fetch v4l2_ext_controls
     iov_r[0].iov_base = arg;
-    iov_r[0].iov_len = sizeof(struct v4l2_ext_controls);
+    iov_r[0].iov_len  = sizeof(struct v4l2_ext_controls);
     if (!in_bufsz) {
         fuse_reply_ioctl_retry(req, iov_r, 1, NULL, 0);
         return;
     }
 
     ext_controls = (struct v4l2_ext_controls *)in_buf;
-    in_buf += sizeof(struct v4l2_ext_controls);
+    in_buf   += sizeof(struct v4l2_ext_controls);
     in_bufsz -= sizeof(struct v4l2_ext_controls);
+    LOGD("%d, in_bufsz:%d ctls_size:%d\n", __LINE__, in_bufsz, sizeof(struct v4l2_ext_controls));
 
+    //fetch v4l2_ext_control
     iov_r[1].iov_base = ext_controls->controls;
     iov_r[1].iov_len = sizeof(struct v4l2_ext_control);
     if (!in_bufsz) {
@@ -138,14 +143,17 @@ static void hdmirx_cuse_g_ext_ctrls(fuse_req_t req, void *arg, const void *in_bu
     }
 
     ext_control = (struct v4l2_ext_control *)in_buf;
-    in_buf += sizeof(struct v4l2_ext_control);
+    in_buf   += sizeof(struct v4l2_ext_control);
     in_bufsz -= sizeof(struct v4l2_ext_control);
+    LOGD("%d, in_bufsz:%d ctl_size:%d\n", __LINE__, in_bufsz, sizeof(struct v4l2_ext_control));
 
     iov_w[0].iov_base = ext_control->ptr;
 
     switch (ext_control->id) {
 		case V4L2_CID_EXT_HDMI_TIMING_INFO:
 			iov_w[0].iov_len = sizeof(struct v4l2_ext_hdmi_timing_info);
+			LOGD("%d,out_bufsz:%x,info:%x,ctl_size:%x\n", __LINE__, out_bufsz,
+				sizeof(struct v4l2_ext_hdmi_timing_info), ext_control->size);
 			if (!out_bufsz) {
 			    fuse_reply_ioctl_retry(req, iov_r, 2, iov_w, 1);
 			    return;
@@ -160,7 +168,7 @@ static void hdmirx_cuse_g_ext_ctrls(fuse_req_t req, void *arg, const void *in_bu
 			}
 			ret = hdmirx_drv_g_ext_timing_info(phdmirx_obj, &info);
 			iov.iov_base = &info;
-			iov.iov_len = sizeof(info);
+			iov.iov_len  = sizeof(info);
 			break;
 		case V4L2_CID_EXT_HDMI_DRM_INFO:
 			iov_w[0].iov_len = sizeof(struct v4l2_ext_hdmi_drm_info);
@@ -307,7 +315,7 @@ static void hdmirx_cuse_g_ext_ctrls(fuse_req_t req, void *arg, const void *in_bu
 			    fuse_reply_ioctl_retry(req, iov_r, 3, iov_w, 1);
 			    return;
 			}
-			ret = hdmirx_drv_g_ext_edid(phdmirx_obj, &pedid);
+			ret = hdmirx_drv_g_ext_edid(phdmirx_obj, pedid);
 			iov_ret[0].iov_base = pedid->pData;
 			iov_ret[0].iov_len = size;
 			fuse_reply_ioctl_iov(req, ret, iov_ret, 1);
@@ -332,21 +340,38 @@ static void hdmirx_cuse_g_ext_ctrls(fuse_req_t req, void *arg, const void *in_bu
 			iov.iov_len = sizeof(connection_state);
 			break;
 		case V4L2_CID_EXT_HDMI_HPD:
-			iov_w[0].iov_len = sizeof(struct v4l2_ext_hdmi_hpd);
-			if (!out_bufsz) {
-			    fuse_reply_ioctl_retry(req, iov_r, 2, iov_w, 1);
-			    return;
-			}
-			struct v4l2_ext_hdmi_hpd hpd;
-			LOGD("out_bufsz:%x,info:%x,ctl_size:%x\n",out_bufsz,
-				sizeof(struct v4l2_ext_hdmi_hpd), ext_control->size);
 			if (ext_control->size != sizeof(struct v4l2_ext_hdmi_hpd))
 			{
 				fuse_reply_err(req, EINVAL);
 				return;
 			}
+			//fetch v4l2_ext_hdmi_hpd
+			struct v4l2_ext_hdmi_hpd *in_hpd;
+			iov_r[2].iov_base = ext_control->ptr;
+			iov_r[2].iov_len  = sizeof(struct v4l2_ext_hdmi_hpd);
+			LOGD("%d, in_bufsz:%d hpd_size:%d\n", __LINE__, in_bufsz, sizeof(struct v4l2_ext_hdmi_hpd));
+			if (!in_bufsz) {
+				fuse_reply_ioctl_retry(req, iov_r, 3, NULL, 0);
+				return;
+			}
+			in_hpd = (struct v4l2_ext_hdmi_hpd *)in_buf;
+			in_buf   += sizeof(struct v4l2_ext_hdmi_hpd);
+			in_bufsz -= sizeof(struct v4l2_ext_hdmi_hpd);
+			LOGD("%d, in_bufsz:%d hpd_size:%d\n", __LINE__, in_bufsz, sizeof(struct v4l2_ext_hdmi_hpd));
+			//fetch write address
+			iov_w[0].iov_len = sizeof(struct v4l2_ext_hdmi_hpd);
+			LOGD("out_bufsz:%d, info:%d, ctl_size:%d\n",out_bufsz,
+				sizeof(struct v4l2_ext_hdmi_hpd), ext_control->size);
+			if (!out_bufsz) {
+			    fuse_reply_ioctl_retry(req, iov_r, 3, iov_w, 1);
+			    return;
+			}
+			//get hpd info from driver
+			struct v4l2_ext_hdmi_hpd hpd;
 			memset(&hpd, 0, sizeof(hpd));
+			hpd.port = in_hpd->port;
 			ret = hdmirx_drv_g_ext_hpd(phdmirx_obj, &hpd);
+
 			iov.iov_base = &hpd;
 			iov.iov_len = sizeof(hpd);
 			break;
@@ -406,6 +431,25 @@ static void hdmirx_cuse_g_ext_ctrls(fuse_req_t req, void *arg, const void *in_bu
 			ret = hdmirx_drv_g_ext_hdcp_repeater(phdmirx_obj, &hdcp_repeater);
 			iov.iov_base = &hdcp_repeater;
 			iov.iov_len = sizeof(hdcp_repeater);
+			break;
+		case V4L2_CID_EXT_HDMI_HDCP_REPEATER_STREAM_MANAGE:
+			iov_w[0].iov_len = sizeof(struct v4l2_ext_hdmi_hdcp_repeater_stream_manage);
+			if (!out_bufsz) {
+			    fuse_reply_ioctl_retry(req, iov_r, 2, iov_w, 1);
+			    return;
+			}
+			struct v4l2_ext_hdmi_hdcp_repeater_stream_manage stream_manage;
+			LOGD("out_bufsz:%x,info:%x,ctl_size:%x\n",out_bufsz,
+				sizeof(struct v4l2_ext_hdmi_hdcp_repeater_stream_manage), ext_control->size);
+			if (ext_control->size != sizeof(struct v4l2_ext_hdmi_hdcp_repeater_stream_manage))
+			{
+				fuse_reply_err(req, EINVAL);
+				return;
+			}
+			memset(&stream_manage, 0, sizeof(stream_manage));
+			ret = hdmirx_drv_g_ext_stream_manage(phdmirx_obj, &stream_manage);
+			iov.iov_base = &stream_manage;
+			iov.iov_len = sizeof(stream_manage);
 			break;
 		case V4L2_CID_EXT_HDMI_QUERYCAP:
 			iov_w[0].iov_len = sizeof(struct v4l2_ext_hdmi_querycap);
@@ -713,7 +757,7 @@ static void hdmirx_cuse_s_ext_ctrls(fuse_req_t req, void *arg,
 				return;
 			}
 			hdcp_key->pData = (unsigned char *)in_buf;
-			ret = hdmirx_drv_s_hdcp_key(phdmirx_obj, hdcp_key);
+			ret = hdmirx_drv_s_ext_hdcp_key(phdmirx_obj, hdcp_key);
 			break;
 		case V4L2_CID_EXT_HDMI_HDCP_REPEATER:
 			iov_r[2].iov_base = ext_control->ptr;
@@ -722,7 +766,7 @@ static void hdmirx_cuse_s_ext_ctrls(fuse_req_t req, void *arg,
 				fuse_reply_ioctl_retry(req, iov_r, 3, NULL, 0);
 				return;
 			}
-			ret = hdmirx_drv_s_hdcp_repeater(phdmirx_obj, (struct v4l2_ext_hdmi_hdcp_repeater *)in_buf);
+			ret = hdmirx_drv_s_ext_hdcp_repeater(phdmirx_obj, (struct v4l2_ext_hdmi_hdcp_repeater *)in_buf);
 			break;
 		case V4L2_CID_EXT_HDMI_OVERRIDE_EOTF:
 			iov_r[2].iov_base = ext_control->ptr;
@@ -731,7 +775,7 @@ static void hdmirx_cuse_s_ext_ctrls(fuse_req_t req, void *arg,
 				fuse_reply_ioctl_retry(req, iov_r, 3, NULL, 0);
 				return;
 			}
-			ret = hdmirx_drv_s_override_eotf(phdmirx_obj, *(v4l2_ext_hdmi_override_eotf *)in_buf);
+			ret = hdmirx_drv_s_ext_override_eotf(phdmirx_obj, *(v4l2_ext_hdmi_override_eotf *)in_buf);
 			break;
 		case V4L2_CID_EXT_HDMI_HPD_LOW_DURATION_DC_ON:
 			iov_r[2].iov_base = ext_control->ptr;
@@ -740,7 +784,7 @@ static void hdmirx_cuse_s_ext_ctrls(fuse_req_t req, void *arg,
 				fuse_reply_ioctl_retry(req, iov_r, 3, NULL, 0);
 				return;
 			}
-			ret = hdmirx_drv_s_dc_on(phdmirx_obj, (struct v4l2_ext_hdmi_hpd_low_duration_dc_on *)in_buf);
+			ret = hdmirx_drv_s_ext_dc_on(phdmirx_obj, (struct v4l2_ext_hdmi_hpd_low_duration_dc_on *)in_buf);
 			break;
 		case V4L2_CID_EXT_HDMI_HDCP_REPEATER_TOPOLOGY:
 			iov_r[2].iov_base = ext_control->ptr;
@@ -749,17 +793,8 @@ static void hdmirx_cuse_s_ext_ctrls(fuse_req_t req, void *arg,
 				fuse_reply_ioctl_retry(req, iov_r, 3, NULL, 0);
 				return;
 			}
-			ret = hdmirx_drv_s_repeater_topology(phdmirx_obj, (struct v4l2_ext_hdmi_hdcp_repeater_topology *)in_buf);
+			ret = hdmirx_drv_s_ext_repeater_topology(phdmirx_obj, (struct v4l2_ext_hdmi_hdcp_repeater_topology *)in_buf);
 			break;
-			break;
-		case V4L2_CID_EXT_HDMI_HDCP_REPEATER_STREAM_MANAGE:
-			iov_r[2].iov_base = ext_control->ptr;
-			iov_r[2].iov_len = sizeof(struct v4l2_ext_hdmi_hdcp_repeater_stream_manage);
-			if (!in_bufsz) {
-				fuse_reply_ioctl_retry(req, iov_r, 3, NULL, 0);
-				return;
-			}
-			ret = hdmirx_drv_s_stream_manage(phdmirx_obj, (struct v4l2_ext_hdmi_hdcp_repeater_stream_manage *)in_buf);
 			break;
 		case V4L2_CID_EXT_HDMI_SLEEP:
 			iov_r[2].iov_base = ext_control->ptr;
@@ -768,7 +803,7 @@ static void hdmirx_cuse_s_ext_ctrls(fuse_req_t req, void *arg,
 				fuse_reply_ioctl_retry(req, iov_r, 3, NULL, 0);
 				return;
 			}
-			ret = hdmirx_drv_s_sleep(phdmirx_obj, (struct v4l2_ext_hdmi_sleep *)in_buf);
+			ret = hdmirx_drv_s_ext_sleep(phdmirx_obj, (struct v4l2_ext_hdmi_sleep *)in_buf);
 			break;
 		case V4L2_CID_EXT_HDMI_EXPERT_SETTING:
 			iov_r[2].iov_base = ext_control->ptr;
@@ -777,7 +812,7 @@ static void hdmirx_cuse_s_ext_ctrls(fuse_req_t req, void *arg,
 				fuse_reply_ioctl_retry(req, iov_r, 3, NULL, 0);
 				return;
 			}
-			ret = hdmirx_drv_s_expert_setting(phdmirx_obj, (struct v4l2_ext_hdmi_expert_setting *)in_buf);
+			ret = hdmirx_drv_s_ext_expert_setting(phdmirx_obj, (struct v4l2_ext_hdmi_expert_setting *)in_buf);
 			break;
 		default:
 			break;

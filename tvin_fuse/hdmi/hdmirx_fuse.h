@@ -52,6 +52,7 @@ struct hdmirx_obj_s {
 	struct v4l2_ext_hdmi_phy_status phy_status;
 	struct v4l2_ext_hdmi_link_status link_status;
 	struct v4l2_ext_hdmi_video_status video_status;
+	//struct v4l2_ext_hdmi_audio_status audio_status;
 	struct v4l2_ext_hdmi_hdcp_status hdcp_status;
 	struct v4l2_ext_hdmi_scdc_status scdc_status;
 	struct v4l2_ext_hdmi_error_status error_status;
@@ -67,8 +68,8 @@ int hdmirx_drv_querycap(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_capability
 int hdmirx_drv_g_input(struct hdmirx_obj_s *phdmirx_obj);
 int hdmirx_drv_s_input(struct hdmirx_obj_s *phdmirx_obj, int hwport);
 
-int hdmirx_drv_s_ext_power_off(struct hdmirx_obj_s *pvbe_obj, int onoff);
-int hdmirx_drv_s_ext_disconnect(struct hdmirx_obj_s *pvbe_obj, int port);
+int hdmirx_drv_s_power_off(struct hdmirx_obj_s *pvbe_obj, int onoff);
+int hdmirx_drv_s_disconnect(struct hdmirx_obj_s *pvbe_obj, int port);
 
 int hdmirx_drv_g_ext_timing_info(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_timing_info *info);
 int hdmirx_drv_g_ext_drm_info(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_drm_info *info);
@@ -77,12 +78,13 @@ int hdmirx_drv_g_ext_spd_info(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_
 int hdmirx_drv_g_ext_avi_info(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_avi_info *info);
 int hdmirx_drv_g_ext_packet_info(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_packet_info *info);
 int hdmirx_drv_g_ext_dolby_hdr(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_dolby_hdr *dolby_hdr);
-int hdmirx_drv_g_ext_edid(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_edid **edid);
+int hdmirx_drv_g_ext_edid(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_edid *edid);
 int hdmirx_drv_g_ext_connection_state(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_connection_state *state);
 int hdmirx_drv_g_ext_hpd(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_hpd *hpd);
 int hdmirx_drv_g_ext_vrr_frequency(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_vrr_frequency *vrr_frequency);
 int hdmirx_drv_g_ext_emp_info(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_emp_info *emp_info);
 int hdmirx_drv_g_ext_hdcp_repeater(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_hdcp_repeater *hdcp_repeater);
+int hdmirx_drv_g_ext_stream_manage(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_hdcp_repeater_stream_manage *stream_manage);
 int hdmirx_drv_g_ext_error_status(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_error_status *status);
 int hdmirx_drv_g_ext_scdc_status(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_scdc_status *status);
 int hdmirx_drv_g_ext_hdcp_status(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_hdcp_status *status);
@@ -97,14 +99,13 @@ int hdmirx_drv_g_ext_dc_on(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdm
 
 int hdmirx_drv_s_ext_edid(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_edid *edid);
 int hdmirx_drv_s_ext_hpd(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_hpd *hpd);
-int hdmirx_drv_s_hdcp_key(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_hdcp_key *hdcp_key);
-int hdmirx_drv_s_hdcp_repeater(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_hdcp_repeater *hdcp_repeater);
-int hdmirx_drv_s_dc_on(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_hpd_low_duration_dc_on *dc_on);
-int hdmirx_drv_s_stream_manage(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_hdcp_repeater_stream_manage *stream_manage);
-int hdmirx_drv_s_sleep(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_sleep *sleep_mode);
-int hdmirx_drv_s_expert_setting(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_expert_setting *expert_setting);
-int hdmirx_drv_s_override_eotf(struct hdmirx_obj_s *phdmirx_obj, v4l2_ext_hdmi_override_eotf eotf);
-int hdmirx_drv_s_repeater_topology(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_hdcp_repeater_topology *topology);
+int hdmirx_drv_s_ext_hdcp_key(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_hdcp_key *hdcp_key);
+int hdmirx_drv_s_ext_hdcp_repeater(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_hdcp_repeater *hdcp_repeater);
+int hdmirx_drv_s_ext_dc_on(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_hpd_low_duration_dc_on *dc_on);
+int hdmirx_drv_s_ext_sleep(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_sleep *sleep_mode);
+int hdmirx_drv_s_ext_expert_setting(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_expert_setting *expert_setting);
+int hdmirx_drv_s_ext_override_eotf(struct hdmirx_obj_s *phdmirx_obj, v4l2_ext_hdmi_override_eotf eotf);
+int hdmirx_drv_s_ext_repeater_topology(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_hdcp_repeater_topology *topology);
 
 #ifdef __cplusplus
 }
