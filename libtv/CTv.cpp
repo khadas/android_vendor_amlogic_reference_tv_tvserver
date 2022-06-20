@@ -123,6 +123,7 @@ int CTv::StartTv(tv_source_input_t source)
     } else {
         tvWriteSysfs(VIDEO_FREERUN_MODE, "0");
     }
+    CVpp::getInstance()->setVideoaxis();//when open source set video axis full screen
 
     int ret = -1;
     tvin_port_t source_port = mpTvin->Tvin_GetSourcePortBySourceInput(source);

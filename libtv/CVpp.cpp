@@ -92,4 +92,10 @@ int CVpp::getVideoScreenMode()
     return atoi(buf);
 }
 
+int CVpp::setVideoaxis ()
+{
+    tvWriteSysfs(VIDEO_AXIS_MODE, VIDEO_AXIS_FULL);
+    return 0;
+}
+
 
