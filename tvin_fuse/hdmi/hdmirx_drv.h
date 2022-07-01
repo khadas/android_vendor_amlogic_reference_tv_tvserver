@@ -765,47 +765,60 @@ enum hdcp14_key_mode_e {
 #define HDMI_IOC_HDCP22_NOT_SUPPORT	_IO(HDMI_IOC_MAGIC, 0x0e)
 #define HDMI_IOC_SET_AUD_SAD	_IOW(HDMI_IOC_MAGIC, 0x0f, char*)
 #define HDMI_IOC_GET_AUD_SAD	_IOR(HDMI_IOC_MAGIC, 0x10, char*)
-#define HDMI_IOC_GET_HDMI_TIMING_INFO	_IOR(HDMI_IOC_MAGIC, 0x11, struct hdmirx_timing_info_s)
-#define HDMI_IOC_GET_HDMI_DRM_INFO		_IOR(HDMI_IOC_MAGIC, 0x12, struct hdmirx_drm_info_s)
-#define HDMI_IOC_GET_HDMI_VSI_INFO		_IOR(HDMI_IOC_MAGIC, 0x13, struct hdmirx_vsi_info_s)
-#define HDMI_IOC_GET_HDMI_SPD_INFO		_IOR(HDMI_IOC_MAGIC, 0x14, struct hdmirx_spd_info_s)
-#define HDMI_IOC_GET_HDMI_AVI_INFO		_IOR(HDMI_IOC_MAGIC, 0x15, struct hdmirx_avi_info_s)
-#define HDMI_IOC_GET_HDMI_PACKET_INFO	_IOR(HDMI_IOC_MAGIC, 0x16, struct hdmirx_packet_info_s)
-#define HDMI_IOC_GET_HDMI_DOLBY_HDR_INFO	_IOR(HDMI_IOC_MAGIC, 0x17,\
+#define HDMI_IOC_GET_HDMI_TIMING_INFO	_IOWR(HDMI_IOC_MAGIC, 0x11,\
+	struct hdmirx_timing_info_s)
+#define HDMI_IOC_GET_HDMI_DRM_INFO		_IOWR(HDMI_IOC_MAGIC, 0x12,\
+	struct hdmirx_drm_info_s)
+#define HDMI_IOC_GET_HDMI_VSI_INFO		_IOWR(HDMI_IOC_MAGIC, 0x13,\
+	struct hdmirx_vsi_info_s)
+#define HDMI_IOC_GET_HDMI_SPD_INFO		_IOWR(HDMI_IOC_MAGIC, 0x14,\
+	struct hdmirx_spd_info_s)
+#define HDMI_IOC_GET_HDMI_AVI_INFO		_IOWR(HDMI_IOC_MAGIC, 0x15,\
+	struct hdmirx_avi_info_s)
+#define HDMI_IOC_GET_HDMI_PACKET_INFO	_IOWR(HDMI_IOC_MAGIC, 0x16,\
+	struct hdmirx_packet_info_s)
+#define HDMI_IOC_GET_HDMI_DOLBY_HDR_INFO	_IOWR(HDMI_IOC_MAGIC, 0x17,\
 	struct hdmirx_dolby_hdr_s)
 #define HDMI_IOC_GET_HDMI_EDID	_IOWR(HDMI_IOC_MAGIC, 0x18, struct hdmirx_edid_s)
 #define HDMI_IOC_SET_HDMI_EDID	_IOW(HDMI_IOC_MAGIC, 0x19, struct hdmirx_edid_s)
-#define HDMI_IOC_GET_HDMI_CONNETION_STATE	_IOR(HDMI_IOC_MAGIC, 0x1a,\
+#define HDMI_IOC_GET_HDMI_CONNETION_STATE	_IOWR(HDMI_IOC_MAGIC, 0x1a,\
 	struct hdmirx_connection_state_s)
 #define HDMI_IOC_GET_HDMI_HPD	_IOWR(HDMI_IOC_MAGIC, 0x1b, struct hdmirx_hpd_s)
 #define HDMI_IOC_SET_HDMI_HPD	_IOW(HDMI_IOC_MAGIC, 0x1c, struct hdmirx_hpd_s)
 #define HDMI_IOC_SET_HDMI_POWER_OFF	_IOW(HDMI_IOC_MAGIC, 0x1d, u32)
 #define HDMI_IOC_SET_HDMI_HDCP_KEY	_IOW(HDMI_IOC_MAGIC, 0x1e, struct hdmirx_hdcp_key_s)
 #define HDMI_IOC_SET_HDMI_DISCONNECT	_IOW(HDMI_IOC_MAGIC, 0x1f, u32)
-#define HDMI_IOC_GET_HDMI_VRR_FREQUENCY	_IOR(HDMI_IOC_MAGIC, 0x20, struct hdmirx_vrr_frequency_s)
-#define HDMI_IOC_GET_HDMI_EMP_INFO	_IOR(HDMI_IOC_MAGIC, 0x21, struct hdmirx_emp_info_s)
-#define HDMI_IOC_GET_HDMI_HDCP_REPEATER	_IOR(HDMI_IOC_MAGIC, 0x22, struct hdmirx_hdcp_repeater_s)
-#define HDMI_IOC_SET_HDMI_HDCP_REPEATER	_IOW(HDMI_IOC_MAGIC, 0x22, struct hdmirx_hdcp_repeater_s)
-#define HDMI_IOC_SET_HDMI_OVERRIDE_EOTF	_IOW(HDMI_IOC_MAGIC, 0x23, enum hdmirx_override_eotf_e)
-#define HDMI_IOC_GET_HDMI_QUERYCAP	_IOR(HDMI_IOC_MAGIC, 0x24, struct hdmirx_querycap_s)
-#define HDMI_IOC_SET_HDMI_HPD_LOW_DURATION_DC_ON	_IOW(HDMI_IOC_MAGIC, 0x25,\
+#define HDMI_IOC_GET_HDMI_VRR_FREQUENCY	_IOWR(HDMI_IOC_MAGIC, 0x20,\
+	struct hdmirx_vrr_frequency_s)
+#define HDMI_IOC_GET_HDMI_EMP_INFO	_IOWR(HDMI_IOC_MAGIC, 0x21, struct hdmirx_emp_info_s)
+#define HDMI_IOC_GET_HDMI_HDCP_REPEATER	_IOWR(HDMI_IOC_MAGIC, 0x22,\
+	struct hdmirx_hdcp_repeater_s)
+#define HDMI_IOC_SET_HDMI_HDCP_REPEATER	_IOW(HDMI_IOC_MAGIC, 0x23,\
+	struct hdmirx_hdcp_repeater_s)
+#define HDMI_IOC_SET_HDMI_OVERRIDE_EOTF	_IOW(HDMI_IOC_MAGIC, 0x24,\
+	enum hdmirx_override_eotf_e)
+#define HDMI_IOC_GET_HDMI_QUERYCAP	_IOWR(HDMI_IOC_MAGIC, 0x25,\
+	struct hdmirx_querycap_s)
+#define HDMI_IOC_SET_HDMI_HPD_LOW_DURATION_DC_ON	_IOW(HDMI_IOC_MAGIC, 0x26,\
 	struct hdmirx_hpd_low_duration_dc_on_s)
-#define HDMI_IOC_SET_HDMI_HDCP_REPEATER_TOPOLOGY	_IOW(HDMI_IOC_MAGIC, 0x26,\
+#define HDMI_IOC_GET_HDMI_HPD_LOW_DURATION_DC_ON	_IOWR(HDMI_IOC_MAGIC, 0x27,\
+	struct hdmirx_hpd_low_duration_dc_on_s)
+#define HDMI_IOC_SET_HDMI_HDCP_REPEATER_TOPOLOGY	_IOW(HDMI_IOC_MAGIC, 0x28,\
 	struct hdmirx_hdcp_repeater_topology_s)
-#define HDMI_IOC_GET_HDMI_HDCP_REPEATER_STREAM_MANAGE	_IOR(HDMI_IOC_MAGIC, 0x27,\
+#define HDMI_IOC_GET_HDMI_HDCP_REPEATER_STREAM_MANAGE	_IOWR(HDMI_IOC_MAGIC, 0x29,\
 	struct hdmirx_hdcp_repeater_stream_manage_s)
-#define HDMI_IOC_GET_HDMI_SLEEP	_IOR(HDMI_IOC_MAGIC, 0x28, struct hdmirx_sleep_s)
-#define HDMI_IOC_SET_HDMI_SLEEP	_IOW(HDMI_IOC_MAGIC, 0x29, struct hdmirx_sleep_s)
-#define HDMI_IOC_GET_HDMI_DIAGNOSTICS_STATUS	_IOR(HDMI_IOC_MAGIC, 0x2a,\
+#define HDMI_IOC_GET_HDMI_SLEEP	_IOWR(HDMI_IOC_MAGIC, 0x2a, struct hdmirx_sleep_s)
+#define HDMI_IOC_SET_HDMI_SLEEP	_IOW(HDMI_IOC_MAGIC, 0x2b, struct hdmirx_sleep_s)
+#define HDMI_IOC_GET_HDMI_DIAGNOSTICS_STATUS	_IOWR(HDMI_IOC_MAGIC, 0x2c,\
 	struct hdmirx_diagnostics_status_s)
-#define HDMI_IOC_GET_HDMI_PHY_STATUS	_IOR(HDMI_IOC_MAGIC, 0x2b, struct hdmirx_phy_status_s)
-#define HDMI_IOC_GET_HDMI_LINK_STATUS	_IOR(HDMI_IOC_MAGIC, 0x2c, struct hdmirx_link_status_s)
-#define HDMI_IOC_GET_HDMI_VIDEO_STATUS	_IOR(HDMI_IOC_MAGIC, 0x2d, struct hdmirx_video_status_s)
-#define HDMI_IOC_GET_HDMI_AUDIO_STATUS	_IOR(HDMI_IOC_MAGIC, 0x2e, struct hdmirx_audio_status_s)
-#define HDMI_IOC_GET_HDMI_HDCP_STATUS	_IOR(HDMI_IOC_MAGIC, 0x2f, struct hdmirx_hdcp_status_s)
-#define HDMI_IOC_GET_HDMI_SCDC_STATUS	_IOR(HDMI_IOC_MAGIC, 0x30, struct hdmirx_scdc_status_s)
-#define HDMI_IOC_GET_HDMI_ERROR_STATUS	_IOR(HDMI_IOC_MAGIC, 0x31, struct hdmirx_error_status_e)
-#define HDMI_IOC_SET_HDMI_EXPERT_SETTING	_IOW(HDMI_IOC_MAGIC, 0x32,\
+#define HDMI_IOC_GET_HDMI_PHY_STATUS	_IOWR(HDMI_IOC_MAGIC, 0x2d, struct hdmirx_phy_status_s)
+#define HDMI_IOC_GET_HDMI_LINK_STATUS	_IOWR(HDMI_IOC_MAGIC, 0x2e, struct hdmirx_link_status_s)
+#define HDMI_IOC_GET_HDMI_VIDEO_STATUS	_IOWR(HDMI_IOC_MAGIC, 0x2f, struct hdmirx_video_status_s)
+#define HDMI_IOC_GET_HDMI_AUDIO_STATUS	_IOWR(HDMI_IOC_MAGIC, 0x30, struct hdmirx_audio_status_s)
+#define HDMI_IOC_GET_HDMI_HDCP_STATUS	_IOWR(HDMI_IOC_MAGIC, 0x31, struct hdmirx_hdcp_status_s)
+#define HDMI_IOC_GET_HDMI_SCDC_STATUS	_IOWR(HDMI_IOC_MAGIC, 0x32, struct hdmirx_scdc_status_s)
+#define HDMI_IOC_GET_HDMI_ERROR_STATUS	_IOWR(HDMI_IOC_MAGIC, 0x33, struct hdmirx_error_status_e)
+#define HDMI_IOC_SET_HDMI_EXPERT_SETTING	_IOW(HDMI_IOC_MAGIC, 0x34,\
 	struct hdmirx_expert_setting_s)
 
 #endif

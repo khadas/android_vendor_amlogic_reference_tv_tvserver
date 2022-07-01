@@ -146,6 +146,7 @@ int hdmirx_drv_g_ext_timing_info(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_e
 
     if (!info) {
         LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
     } else {
         LOGD("%s, port:%d\n", __FUNCTION__, info->port);
     }
@@ -180,9 +181,7 @@ int hdmirx_drv_g_ext_timing_info(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_e
 
     struct v4l2_ext_hdmi_timing_info hdmi_timing_info;
     memset(&hdmi_timing_info, 0, sizeof(v4l2_ext_hdmi_timing_info));
-
     hdmi_timing_info.port = info->port;
-
     ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_GET_HDMI_TIMING_INFO, &hdmi_timing_info);
     if (ret < 0) {
         LOGE("%s HDMI_IOC_GET_HDMI_TIMING_INFO error: %s\n", __FUNCTION__, strerror(errno));
@@ -229,6 +228,7 @@ int hdmirx_drv_g_ext_drm_info(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_
 {
     if (!info) {
         LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
     } else {
         LOGD("%s, port:%d\n", __FUNCTION__, info->port);
     }
@@ -236,9 +236,7 @@ int hdmirx_drv_g_ext_drm_info(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_
     int ret = 0;
     struct v4l2_ext_hdmi_drm_info hdmi_drm_info;
     memset(&hdmi_drm_info, 0, sizeof(v4l2_ext_hdmi_drm_info));
-
     hdmi_drm_info.port = info->port;
-
     ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_GET_HDMI_DRM_INFO, &hdmi_drm_info);
     if (ret < 0) {
         LOGE("%s HDMI_IOC_GET_HDMI_DRM_INFO error: %s\n", __FUNCTION__, strerror(errno));
@@ -286,6 +284,7 @@ int hdmirx_drv_g_ext_vsi_info(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_
 {
     if (!info) {
         LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
     } else {
         LOGD("%s, port:%d\n", __FUNCTION__, info->port);
     }
@@ -294,7 +293,6 @@ int hdmirx_drv_g_ext_vsi_info(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_
     int i = 0;
     struct v4l2_ext_hdmi_vsi_info hdmi_vsi_info;
     memset(&hdmi_vsi_info, 0, sizeof(v4l2_ext_hdmi_vsi_info));
-
     hdmi_vsi_info.port = info->port;
     ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_GET_HDMI_VSI_INFO, &hdmi_vsi_info);
     if (ret < 0) {
@@ -345,6 +343,7 @@ int hdmirx_drv_g_ext_spd_info(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_
 {
     if (!info) {
         LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
     } else {
         LOGD("%s, port:%d\n", __FUNCTION__, info->port);
     }
@@ -353,7 +352,6 @@ int hdmirx_drv_g_ext_spd_info(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_
     int i = 0;
     struct v4l2_ext_hdmi_spd_info hdmi_spd_info;
     memset(&hdmi_spd_info, 0, sizeof(v4l2_ext_hdmi_spd_info));
-
     hdmi_spd_info.port = info->port;
     ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_GET_HDMI_SPD_INFO, &hdmi_spd_info);
     if (ret < 0) {
@@ -399,6 +397,7 @@ int hdmirx_drv_g_ext_avi_info(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_
 {
     if (!info) {
         LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
     } else {
         LOGD("%s, port:%d\n", __FUNCTION__, info->port);
     }
@@ -407,7 +406,6 @@ int hdmirx_drv_g_ext_avi_info(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_
     int i = 0;
     struct v4l2_ext_hdmi_avi_info hdmi_avi_info;
     memset(&hdmi_avi_info, 0, sizeof(v4l2_ext_hdmi_avi_info));
-
     hdmi_avi_info.port = info->port;
     ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_GET_HDMI_AVI_INFO, &hdmi_avi_info);
     if (ret < 0) {
@@ -479,6 +477,7 @@ int hdmirx_drv_g_ext_packet_info(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_e
 {
     if (!info) {
         LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
     } else {
         LOGD("%s, port:%d\n", __FUNCTION__, info->port);
     }
@@ -486,7 +485,6 @@ int hdmirx_drv_g_ext_packet_info(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_e
     int ret = 0;
     struct v4l2_ext_hdmi_packet_info hdmi_packet_info;
     memset(&hdmi_packet_info, 0, sizeof(v4l2_ext_hdmi_packet_info));
-
     hdmi_packet_info.port = info->port;
     ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_GET_HDMI_PACKET_INFO, &hdmi_packet_info);
     if (ret < 0) {
@@ -504,6 +502,7 @@ int hdmirx_drv_g_ext_dolby_hdr(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext
 {
     if (!dolby_hdr) {
         LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
     } else {
         LOGD("%s, port:%d\n", __FUNCTION__, dolby_hdr->port);
     }
@@ -511,7 +510,6 @@ int hdmirx_drv_g_ext_dolby_hdr(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext
     int ret = 0;
     struct v4l2_ext_hdmi_dolby_hdr info;
     memset(&info, 0, sizeof(v4l2_ext_hdmi_dolby_hdr));
-
     info.port = dolby_hdr->port;
     ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_GET_HDMI_DOLBY_HDR_INFO, &info);
     if (ret < 0) {
@@ -532,57 +530,25 @@ int hdmirx_drv_g_ext_edid(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi
 {
     if (!edid) {
         LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
     } else {
         LOGD("%s, port:%d size:%d\n", __FUNCTION__, edid->port, edid->size);
     }
 
-    phdmirx_obj->edid.port = edid->port;
-    phdmirx_obj->edid.size = edid->size;
-    if (!(edid->pData)) {
-        LOGE("%s input edid->pData is NULL\n", __FUNCTION__);
-        int ret = 0;
-        struct v4l2_ext_hdmi_edid info;
-        memset(&info, 0, sizeof(v4l2_ext_hdmi_edid));
-        info.port  = edid->port;
-        info.size  = edid->size;
-        info.pData = new unsigned char[0x200];
-        ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_GET_HDMI_EDID, &info);
-        if (ret < 0) {
-            LOGE("%s HDMI_IOC_GET_HDMI_EDID error: %s\n", __FUNCTION__, strerror(errno));
-            return ret;
-        } else {
-            edid->pData = info.pData;
-        }
+    int ret = 0;
+    struct v4l2_ext_hdmi_edid info;
+    memset(&info, 0, sizeof(v4l2_ext_hdmi_edid));
+    info.port  = edid->port;
+    info.size  = edid->size;
+    info.pData = new unsigned char[0x200];
+    ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_GET_HDMI_EDID, &info);
+    if (ret < 0) {
+        LOGE("%s HDMI_IOC_GET_HDMI_EDID error: %s\n", __FUNCTION__, strerror(errno));
+        return ret;
     } else {
-        //to do
-        int ret = 0;
-        struct v4l2_ext_hdmi_edid info;
-        memset(&info, 0, sizeof(v4l2_ext_hdmi_edid));
-        ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_GET_HDMI_EDID, &info);
-        if (ret < 0) {
-            LOGE("%s HDMI_IOC_GET_HDMI_EDID error: %s\n", __FUNCTION__, strerror(errno));
-            //return ret;
-        }
-
-        int size = 256;
-        if (edid->size == V4L2_EXT_HDMI_EDID_SIZE_128) {
-           size = 128;
-        } else if (edid->size == V4L2_EXT_HDMI_EDID_SIZE_256) {
-           size = 256;
-        } else if (edid->size == V4L2_EXT_HDMI_EDID_SIZE_512) {
-           size = 512;
-        } else {
-           LOGE("%s input edid->size:%d is invalid\n", __FUNCTION__, edid->size);
-           return 0;
-        }
-        int i = 0;
-        for (i = 0;  i < size; i++) {
-            edid->pData[i] = i;//fake data
-        }
+        edid->pData = info.pData;
     }
 
-    //to do
-    LOGD("%s,%d\n", __func__, __LINE__);
     return 0;
 }
 
@@ -591,6 +557,7 @@ int hdmirx_drv_g_ext_connection_state(struct hdmirx_obj_s *phdmirx_obj, struct v
 {
     if (!state) {
         LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
     } else {
         LOGD("%s, port:%d\n", __FUNCTION__, state->port);
     }
@@ -598,7 +565,6 @@ int hdmirx_drv_g_ext_connection_state(struct hdmirx_obj_s *phdmirx_obj, struct v
     int ret = 0;
     struct v4l2_ext_hdmi_connection_state info;
     memset(&info, 0, sizeof(v4l2_ext_hdmi_connection_state));
-
     info.port = state->port;
     ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_GET_HDMI_CONNETION_STATE, &info);
     if (ret < 0) {
@@ -622,6 +588,7 @@ int hdmirx_drv_g_ext_hpd(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_
 
     if (!hpd) {
         LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
     } else {
         LOGD("%s, port:%d\n", __FUNCTION__, hpd->port);
     }
@@ -629,7 +596,6 @@ int hdmirx_drv_g_ext_hpd(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_
     if ((hpd->port >= V4L2_EXT_HDMI_INPUT_PORT_1) && (hpd->port <= V4L2_EXT_HDMI_INPUT_PORT_4)) {
         memset(&info, 0, sizeof(struct v4l2_ext_hdmi_hpd));
         info.port = hpd->port;
-
         ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_GET_HDMI_HPD, &info);
         if (ret < 0) {
             LOGE("%s error: %s\n", __FUNCTION__, strerror(errno));
@@ -650,6 +616,7 @@ int hdmirx_drv_g_ext_vrr_frequency(struct hdmirx_obj_s *phdmirx_obj, struct v4l2
 {
     if (!vrr_frequency) {
         LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
     } else {
         LOGD("%s, port:%d\n", __FUNCTION__, vrr_frequency->port);
     }
@@ -657,7 +624,6 @@ int hdmirx_drv_g_ext_vrr_frequency(struct hdmirx_obj_s *phdmirx_obj, struct v4l2
     int ret = 0;
     struct v4l2_ext_hdmi_vrr_frequency info;
     memset(&info, 0, sizeof(v4l2_ext_hdmi_vrr_frequency));
-
     info.port = vrr_frequency->port;
     ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_GET_HDMI_VRR_FREQUENCY, &info);
     if (ret < 0) {
@@ -679,6 +645,7 @@ int hdmirx_drv_g_ext_emp_info(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_
 {
     if (!emp_info) {
         LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
     } else {
         LOGD("%s, port:%d\n", __FUNCTION__, emp_info->port);
     }
@@ -687,7 +654,6 @@ int hdmirx_drv_g_ext_emp_info(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_
     int i = 0;
     struct v4l2_ext_hdmi_emp_info hdmi_emp_info;
     memset(&hdmi_emp_info, 0, sizeof(v4l2_ext_hdmi_emp_info));
-
     hdmi_emp_info.port = emp_info->port;
     ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_GET_HDMI_EMP_INFO, &hdmi_emp_info);
     if (ret < 0) {
@@ -717,6 +683,7 @@ int hdmirx_drv_g_ext_hdcp_repeater(struct hdmirx_obj_s *phdmirx_obj, struct v4l2
 {
     if (!hdcp_repeater) {
         LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
     } else {
         LOGD("%s, port:%d\n", __FUNCTION__, hdcp_repeater->port);
     }
@@ -725,7 +692,6 @@ int hdmirx_drv_g_ext_hdcp_repeater(struct hdmirx_obj_s *phdmirx_obj, struct v4l2
     int i = 0;
     struct v4l2_ext_hdmi_hdcp_repeater info;
     memset(&info, 0, sizeof(v4l2_ext_hdmi_hdcp_repeater));
-
     info.port = hdcp_repeater->port;
     ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_GET_HDMI_HDCP_REPEATER, &info);
     if (ret < 0) {
@@ -754,6 +720,7 @@ int hdmirx_drv_g_ext_stream_manage(struct hdmirx_obj_s *phdmirx_obj, struct v4l2
 {
     if (!stream_manage) {
         LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
     } else {
         LOGD("%s, port:%d\n", __FUNCTION__, stream_manage->port);
     }
@@ -761,7 +728,6 @@ int hdmirx_drv_g_ext_stream_manage(struct hdmirx_obj_s *phdmirx_obj, struct v4l2
     int ret = 0;
     struct v4l2_ext_hdmi_hdcp_repeater_stream_manage info;
     memset(&info, 0, sizeof(v4l2_ext_hdmi_hdcp_repeater_stream_manage));
-
     info.port = stream_manage->port;
     ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_GET_HDMI_HDCP_REPEATER_STREAM_MANAGE, &info);
     if (ret < 0) {
@@ -783,6 +749,7 @@ int hdmirx_drv_g_ext_querycap(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_
 {
     if (!querycap) {
         LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
     } else {
         LOGD("%s, port:%d\n", __FUNCTION__, querycap->port);
     }
@@ -791,7 +758,6 @@ int hdmirx_drv_g_ext_querycap(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_
     int i = 0;
     struct v4l2_ext_hdmi_querycap info;
     memset(&info, 0, sizeof(v4l2_ext_hdmi_querycap));
-
     info.port = querycap->port;
     ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_GET_HDMI_QUERYCAP, &info);
     if (ret < 0) {
@@ -814,6 +780,7 @@ int hdmirx_drv_g_ext_dc_on(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdm
 {
     if (!dc_on) {
         LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
     } else {
         LOGD("%s, port:%d\n", __FUNCTION__, dc_on->port);
     }
@@ -821,11 +788,10 @@ int hdmirx_drv_g_ext_dc_on(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdm
     int ret = 0;
     struct v4l2_ext_hdmi_hpd_low_duration_dc_on info;
     memset(&info, 0, sizeof(v4l2_ext_hdmi_hpd_low_duration_dc_on));
-
     info.port = dc_on->port;
-    ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_SET_HDMI_HPD_LOW_DURATION_DC_ON, &info);
+    ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_GET_HDMI_HPD_LOW_DURATION_DC_ON, &info);
     if (ret < 0) {
-        LOGE("%s HDMI_IOC_SET_HDMI_HPD_LOW_DURATION_DC_ON error: %s\n", __FUNCTION__, strerror(errno));
+        LOGE("%s HDMI_IOC_GET_HDMI_HPD_LOW_DURATION_DC_ON error: %s\n", __FUNCTION__, strerror(errno));
         return ret;
     }
 
@@ -843,6 +809,7 @@ int hdmirx_drv_g_ext_sleep_mode(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ex
 {
     if (!sleep_mode) {
         LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
     } else {
         LOGD("%s, port:%d\n", __FUNCTION__, sleep_mode->port);
     }
@@ -850,7 +817,6 @@ int hdmirx_drv_g_ext_sleep_mode(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ex
     int ret = 0;
     struct v4l2_ext_hdmi_sleep info;
     memset(&info, 0, sizeof(v4l2_ext_hdmi_sleep));
-
     info.port = sleep_mode->port;
     ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_GET_HDMI_SLEEP, &info);
     if (ret < 0) {
@@ -870,11 +836,23 @@ int hdmirx_drv_g_ext_sleep_mode(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ex
 /* V4L2_CID_EXT_HDMI_DIAGNOSTICS_STATUS */
 int hdmirx_drv_g_ext_diag_status(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_diagnostics_status *status)
 {
-    LOGD("%s,%d\n", __func__, __LINE__);
-    //for test
-    //phdmirx_obj->timing_info.port = ;
+    if (!status) {
+        LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
+    } else {
+        LOGD("%s, port:%d\n", __FUNCTION__, status->port);
+    }
 
-    memcpy(status, &phdmirx_obj->diag_status, sizeof(struct v4l2_ext_hdmi_diagnostics_status));
+    int ret = 0;
+    struct v4l2_ext_hdmi_diagnostics_status diag_status;
+    memset(&diag_status, 0, sizeof(v4l2_ext_hdmi_diagnostics_status));
+    diag_status.port = status->port;
+    ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_GET_HDMI_DIAGNOSTICS_STATUS, &diag_status);
+    if (ret < 0) {
+        LOGE("%s HDMI_IOC_GET_HDMI_DIAGNOSTICS_STATUS error: %s\n", __FUNCTION__, strerror(errno));
+        return ret;
+    }
+
     return 0;
 }
 
@@ -883,6 +861,7 @@ int hdmirx_drv_g_ext_phy_status(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ex
 {
     if (!status) {
         LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
     } else {
         LOGD("%s, port:%d\n", __FUNCTION__, status->port);
     }
@@ -891,7 +870,6 @@ int hdmirx_drv_g_ext_phy_status(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ex
     int i = 0;
     struct v4l2_ext_hdmi_phy_status hdmi_phy_info;
     memset(&hdmi_phy_info, 0, sizeof(v4l2_ext_hdmi_phy_status));
-
     hdmi_phy_info.port = status->port;
     ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_GET_HDMI_PHY_STATUS, &hdmi_phy_info);
     if (ret < 0) {
@@ -939,6 +917,7 @@ int hdmirx_drv_g_ext_link_status(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_e
 {
     if (!status) {
         LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
     } else {
         LOGD("%s, port:%d\n", __FUNCTION__, status->port);
     }
@@ -946,7 +925,6 @@ int hdmirx_drv_g_ext_link_status(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_e
     int ret = 0;
     struct v4l2_ext_hdmi_link_status hdmi_link_info;
     memset(&hdmi_link_info, 0, sizeof(v4l2_ext_hdmi_link_status));
-
     hdmi_link_info.port = status->port;
     ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_GET_HDMI_LINK_STATUS, &hdmi_link_info);
     if (ret < 0) {
@@ -992,6 +970,7 @@ int hdmirx_drv_g_ext_video_status(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_
 {
     if (!status) {
         LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
     } else {
         LOGD("%s, port:%d\n", __FUNCTION__, status->port);
     }
@@ -1000,7 +979,6 @@ int hdmirx_drv_g_ext_video_status(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_
     int i = 0;
     struct v4l2_ext_hdmi_video_status hdmi_video_info;
     memset(&hdmi_video_info, 0, sizeof(v4l2_ext_hdmi_video_status));
-
     hdmi_video_info.port = status->port;
     ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_GET_HDMI_VIDEO_STATUS, &hdmi_video_info);
     if (ret < 0) {
@@ -1031,6 +1009,7 @@ int hdmirx_drv_g_ext_audio_status(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_
 {
     if (!status) {
         LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
     } else {
         LOGD("%s, port:%d\n", __FUNCTION__, status->port);
     }
@@ -1038,7 +1017,6 @@ int hdmirx_drv_g_ext_audio_status(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_
     int ret = 0;
     struct v4l2_ext_hdmi_audio_status hdmi_audio_info;
     memset(&hdmi_audio_info, 0, sizeof(v4l2_ext_hdmi_audio_status));
-
     hdmi_audio_info.port = status->port;
     ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_GET_HDMI_AUDIO_STATUS, &hdmi_audio_info);
     if (ret < 0) {
@@ -1065,6 +1043,7 @@ int hdmirx_drv_g_ext_hdcp_status(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_e
 {
     if (!status) {
         LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
     } else {
         LOGD("%s, port:%d\n", __FUNCTION__, status->port);
     }
@@ -1073,7 +1052,6 @@ int hdmirx_drv_g_ext_hdcp_status(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_e
     int i = 0;
     struct v4l2_ext_hdmi_hdcp_status hdmi_hdcp_info;
     memset(&hdmi_hdcp_info, 0, sizeof(v4l2_ext_hdmi_hdcp_status));
-
     hdmi_hdcp_info.port = status->port;
     ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_GET_HDMI_HDCP_STATUS, &hdmi_hdcp_info);
     if (ret < 0) {
@@ -1123,6 +1101,7 @@ int hdmirx_drv_g_ext_scdc_status(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_e
 {
     if (!status) {
         LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
     } else {
         LOGD("%s, port:%d\n", __FUNCTION__, status->port);
     }
@@ -1130,7 +1109,6 @@ int hdmirx_drv_g_ext_scdc_status(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_e
     int ret = 0;
     struct v4l2_ext_hdmi_scdc_status hdmi_scdc_info;
     memset(&hdmi_scdc_info, 0, sizeof(v4l2_ext_hdmi_scdc_status));
-
     hdmi_scdc_info.port = status->port;
     ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_GET_HDMI_SCDC_STATUS, &hdmi_scdc_info);
     if (ret < 0) {
@@ -1209,6 +1187,7 @@ int hdmirx_drv_g_ext_error_status(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_
 {
     if (!status) {
         LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
     } else {
         LOGD("%s, port:%d\n", __FUNCTION__, status->port);
     }
@@ -1216,7 +1195,6 @@ int hdmirx_drv_g_ext_error_status(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_
     int ret = 0;
     struct v4l2_ext_hdmi_error_status hdmi_error_info;
     memset(&hdmi_error_info, 0, sizeof(v4l2_ext_hdmi_error_status));
-
     hdmi_error_info.port = status->port;
     ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_GET_HDMI_ERROR_STATUS, &hdmi_error_info);
     if (ret < 0) {
@@ -1241,6 +1219,7 @@ int hdmirx_drv_s_ext_edid(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi
 {
     if (!edid) {
         LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
     } else {
         LOGD("%s, port:%d size:%d\n", __FUNCTION__, edid->port, edid->size);
     }
@@ -1263,10 +1242,10 @@ int hdmirx_drv_s_ext_edid(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi
            return 0;
         }
 
-        int i = 0;
-        for (i = 0; i < size; i++) {
-            LOGD("%s input edid->pData[%d]:%d\n", __FUNCTION__, i, edid->pData[i]);
-        }
+        //int i = 0;
+        //for (i = 0; i < size; i++) {
+            //LOGD("%s input edid->pData[%d]:%d\n", __FUNCTION__, i, edid->pData[i]);
+        //}
 
         int ret = 0;
         ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_SET_HDMI_EDID, edid);
@@ -1284,6 +1263,7 @@ int hdmirx_drv_s_ext_hpd(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdmi_
 {
     if (!hpd) {
         LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
     } else {
         LOGD("%s, port:%d hpd:%d\n", __FUNCTION__, hpd->port, hpd->hpd_state);
     }
@@ -1314,6 +1294,7 @@ int hdmirx_drv_s_ext_hdcp_key(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_
 {
     if (!hdcp_key) {
         LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
     } else {
         LOGD("%s, port:%d version:%d key_size:%d\n",
             __FUNCTION__, hdcp_key->port, hdcp_key->version, hdcp_key->key_size);
@@ -1333,9 +1314,16 @@ int hdmirx_drv_s_ext_hdcp_key(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_
         LOGE("%s input hdcp_key->pData is NULL\n", __FUNCTION__);
     } else {
         //to do
-        int i = 0;
-        for (i = 0; i < hdcp_key->key_size; i++)
-            LOGD("%s input hdcp_key->pData[%d]:%d\n", __FUNCTION__, i, hdcp_key->pData[i]);
+        //int i = 0;
+        //for (i = 0; i < hdcp_key->key_size; i++)
+            //LOGD("%s input hdcp_key->pData[%d]:%d\n", __FUNCTION__, i, hdcp_key->pData[i]);
+
+        int ret = 0;
+        ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_SET_HDMI_HDCP_KEY, hdcp_key);
+        if (ret < 0) {
+            LOGE("%s HDMI_IOC_SET_HDMI_HDCP_KEY error: %s\n", __FUNCTION__, strerror(errno));
+            return ret;
+        }
     }
 
     return 0;
@@ -1346,6 +1334,7 @@ int hdmirx_drv_s_ext_hdcp_repeater(struct hdmirx_obj_s *phdmirx_obj, struct v4l2
 {
     if (!hdcp_repeater) {
         LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
     } else {
         LOGD("%s, port:%d mode:%d hpd:%d\n",
             __FUNCTION__, hdcp_repeater->port, hdcp_repeater->repeater_mode, hdcp_repeater->repeater_hpd);
@@ -1367,7 +1356,7 @@ int hdmirx_drv_s_ext_hdcp_repeater(struct hdmirx_obj_s *phdmirx_obj, struct v4l2
 
     ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_SET_HDMI_HDCP_REPEATER, &info);
     if (ret < 0) {
-        LOGE("%s error: %s\n", __FUNCTION__, strerror(errno));
+        LOGE("%s HDMI_IOC_SET_HDMI_HDCP_REPEATER error: %s\n", __FUNCTION__, strerror(errno));
         return ret;
     }
 
@@ -1386,7 +1375,7 @@ int hdmirx_drv_s_ext_override_eotf(struct hdmirx_obj_s *phdmirx_obj, v4l2_ext_hd
     info = eotf;
     ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_SET_HDMI_OVERRIDE_EOTF, &info);
     if (ret < 0) {
-        LOGE("%s error: %s\n", __FUNCTION__, strerror(errno));
+        LOGE("%s HDMI_IOC_SET_HDMI_OVERRIDE_EOTF error: %s\n", __FUNCTION__, strerror(errno));
         return ret;
     }
 
@@ -1399,6 +1388,7 @@ int hdmirx_drv_s_ext_dc_on(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdm
 {
     if (!dc_on) {
         LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
     } else {
         LOGD("%s, port:%d hpd_low_duration:%d\n", __FUNCTION__, dc_on->port, dc_on->hpd_low_duration);
     }
@@ -1412,7 +1402,7 @@ int hdmirx_drv_s_ext_dc_on(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdm
 
     ret = ioctl(phdmirx_obj->hdmirx0_drv_fd, HDMI_IOC_SET_HDMI_HPD_LOW_DURATION_DC_ON, &info);
     if (ret < 0) {
-        LOGE("%s error: %s\n", __FUNCTION__, strerror(errno));
+        LOGE("%s HDMI_IOC_SET_HDMI_HPD_LOW_DURATION_DC_ON error: %s\n", __FUNCTION__, strerror(errno));
         return ret;
     }
 
@@ -1425,6 +1415,7 @@ int hdmirx_drv_s_ext_repeater_topology(struct hdmirx_obj_s *phdmirx_obj, struct 
 {
     if (!topology) {
         LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
     } else {
         LOGD("%s, port:%d repeater_mode:%d count:%d depth:%d repeater_hpd:%d msg_id:%d\n",
         __FUNCTION__, topology->port, topology->repeater_mode, topology->count, topology->depth, topology->repeater_hpd, topology->msg_id);
@@ -1441,7 +1432,7 @@ int hdmirx_drv_s_ext_repeater_topology(struct hdmirx_obj_s *phdmirx_obj, struct 
     info.repeater_hpd  = topology->repeater_hpd;
     info.msg_id        = topology->msg_id;
     int i = 0, j= 0;
-    for (j = 0; j < 5; i++) {
+    for (j = 0; j < 5; j++) {
         for (i = 0; i < 32; i++) {
             LOGD("%s, topology->receiver_id[%d][%d]:%d\n", __FUNCTION__, i, j, topology->receiver_id[i][j]);
             info.receiver_id[i][j] = topology->receiver_id[i][j];
@@ -1462,6 +1453,7 @@ int hdmirx_drv_s_ext_sleep(struct hdmirx_obj_s *phdmirx_obj, struct v4l2_ext_hdm
 {
     if (!sleep_mode) {
         LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
     } else {
         LOGD("%s, port:%d mode:%d\n", __FUNCTION__, sleep_mode->port, sleep_mode->mode);
     }
@@ -1486,6 +1478,7 @@ int hdmirx_drv_s_ext_expert_setting(struct hdmirx_obj_s *phdmirx_obj, struct v4l
 {
     if (!expert_setting) {
         LOGE("%s input is NULL\n", __FUNCTION__);
+        return -1;
     } else {
         LOGD("%s, port:%d type:%d param1:%d param2:%d param3:%d\n",
             __FUNCTION__, expert_setting->port, expert_setting->type, expert_setting->param1, expert_setting->param1, expert_setting->param1);

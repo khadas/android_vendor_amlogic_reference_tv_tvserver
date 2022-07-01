@@ -354,6 +354,32 @@ int main(int argc, char **argv)
     printf("#### select 7 to get hdmi drm info    ####\n");
     printf("#### select 8 to get hdmi vsi info    ####\n");
     printf("#### select 9 to get hdmi spd info    ####\n");
+    printf("#### select 10 to get hdmi packet info ####\n");
+    printf("#### select 11 to get hdmi dolby hdr   ####\n");
+    printf("#### select 12 to get hdmi connect state ####\n");
+    printf("#### select 13 to set hdmi power        ####\n");
+    printf("#### select 14 to set hdmi disconnect   ####\n");
+    printf("#### select 15 to get hdmi vrr         ####\n");
+    printf("#### select 16 to get hdmi emp info    ####\n");
+    printf("#### select 17 to get hdcp repeater    ####\n");
+    printf("#### select 18 to set hdcp repeater    ####\n");
+    printf("#### select 19 to set hdmi drm info    ####\n");
+    printf("#### select 20 to get hdmi query cap   ####\n");
+    printf("#### select 21 to set hdmi low duration    ####\n");
+    printf("#### select 22 to get hdmi low duration    ####\n");
+    printf("#### select 23 to set hdcp topology        ####\n");
+    printf("#### select 24 to get stream manage        ####\n");
+    printf("#### select 25 to get hdmi sleep         ####\n");
+    printf("#### select 26 to set hdmi sleep         ####\n");
+    printf("#### select 27 to get hdmi diagnostics   ####\n");
+    printf("#### select 28 to get hdmi phy status    ####\n");
+    printf("#### select 29 to get hdmi link status    ####\n");
+    printf("#### select 30 to get hdmi video status   ####\n");
+    printf("#### select 31 to get hdmi audio status   ####\n");
+    printf("#### select 32 to get hdmi hdcp status    ####\n");
+    printf("#### select 33 to get hdmi scdc status   ####\n");
+    printf("#### select 34 to get hdmi erro status   ####\n");
+    printf("#### select 35 to set expert setting     ####\n");
 
     while (isRunning) {
         char Command[10];
@@ -412,7 +438,7 @@ int main(int argc, char **argv)
 
                 edid.port   = V4L2_EXT_HDMI_INPUT_PORT_1;
                 edid.size   = V4L2_EXT_HDMI_EDID_SIZE_256;
-                edid.pData  = (unsigned char *)&edid_data;
+                edid.pData  = edid_data;
                 hdmirx_v4l2_g_ext_ctrls(V4L2_CID_EXT_HDMI_EDID, &edid, sizeof(struct v4l2_ext_hdmi_edid));
 
                 int size = 256;
@@ -475,7 +501,194 @@ int main(int argc, char **argv)
                 hdmirx_v4l2_g_ext_ctrls(V4L2_CID_EXT_HDMI_SPD_INFO, &spd_info, sizeof(struct v4l2_ext_hdmi_spd_info));
                 break;
             }
-
+            case 10: {
+                struct v4l2_ext_hdmi_packet_info packet_info = {};
+                memset(&packet_info, 0, sizeof(struct v4l2_ext_hdmi_packet_info));
+                packet_info.port      = V4L2_EXT_HDMI_INPUT_PORT_1;
+                hdmirx_v4l2_g_ext_ctrls(V4L2_CID_EXT_HDMI_PACKET_INFO, &packet_info, sizeof(struct v4l2_ext_hdmi_packet_info));
+                break;
+            }
+            case 11: {
+                struct v4l2_ext_hdmi_dolby_hdr dolby_hdr = {};
+                memset(&dolby_hdr, 0, sizeof(struct v4l2_ext_hdmi_dolby_hdr));
+                dolby_hdr.port      = V4L2_EXT_HDMI_INPUT_PORT_1;
+                hdmirx_v4l2_g_ext_ctrls(V4L2_CID_EXT_HDMI_DOLBY_HDR, &dolby_hdr, sizeof(struct v4l2_ext_hdmi_dolby_hdr));
+                break;
+            }
+            case 12: {
+                struct v4l2_ext_hdmi_connection_state hdmi_port_state = {};
+                memset(&hdmi_port_state, 0, sizeof(struct v4l2_ext_hdmi_connection_state));
+                hdmi_port_state.port      = V4L2_EXT_HDMI_INPUT_PORT_1;
+                hdmirx_v4l2_g_ext_ctrls(V4L2_CID_EXT_HDMI_CONNECTION_STATE, &hdmi_port_state, sizeof(struct v4l2_ext_hdmi_connection_state));
+                break;
+            }
+            case 13: {
+                int value = 1;
+                hdmirx_v4l2_s_ctrl(V4L2_CID_EXT_HDMI_POWER_OFF, value);
+                break;
+            }
+            case 14: {
+                int value = 1;
+                hdmirx_v4l2_s_ctrl(V4L2_CID_EXT_HDMI_DISCONNECT, value);
+                break;
+            }
+            case 15: {
+                struct v4l2_ext_hdmi_vrr_frequency freq = {};
+                memset(&freq, 0, sizeof(struct v4l2_ext_hdmi_vrr_frequency));
+                freq.port      = V4L2_EXT_HDMI_INPUT_PORT_1;
+                hdmirx_v4l2_g_ext_ctrls(V4L2_CID_EXT_HDMI_VRR_FREQUENCY, &freq, sizeof(struct v4l2_ext_hdmi_vrr_frequency));
+                break;
+            }
+            case 16: {
+                struct v4l2_ext_hdmi_emp_info emp = {};
+                memset(&emp, 0, sizeof(struct v4l2_ext_hdmi_emp_info));
+                emp.port = V4L2_EXT_HDMI_INPUT_PORT_1;
+                emp.type = V4L2_EXT_HDMI_EMP_TYPE_VTEM;
+                emp.current_packet_index = 1;
+                hdmirx_v4l2_g_ext_ctrls(V4L2_CID_EXT_HDMI_EMP_INFO, &emp, sizeof(struct v4l2_ext_hdmi_emp_info));
+                break;
+            }
+            case 17: {
+                struct v4l2_ext_hdmi_hdcp_repeater repeater = {};
+                memset(&repeater, 0, sizeof(struct v4l2_ext_hdmi_hdcp_repeater));
+                repeater.port = V4L2_EXT_HDMI_INPUT_PORT_1;
+                hdmirx_v4l2_g_ext_ctrls(V4L2_CID_EXT_HDMI_HDCP_REPEATER, &repeater, sizeof(struct v4l2_ext_hdmi_hdcp_repeater));
+                break;
+            }
+            case 18: {
+                struct v4l2_ext_hdmi_hdcp_repeater repeater = {};
+                memset(&repeater, 0, sizeof(struct v4l2_ext_hdmi_hdcp_repeater));
+                repeater.port = V4L2_EXT_HDMI_INPUT_PORT_1;
+                repeater.repeater_mode = 1;
+                repeater.receiver_id[0] = 1;
+                repeater.repeater_hpd =1;
+                hdmirx_v4l2_s_ext_ctrls(V4L2_CID_EXT_HDMI_HDCP_REPEATER, &repeater, sizeof(struct v4l2_ext_hdmi_hdcp_repeater));
+                break;
+            }
+            case 19: {
+                struct v4l2_ext_hdmi_override_drm_info status = {};
+                memset(&status, 0, sizeof(struct v4l2_ext_hdmi_override_drm_info));
+                status.port = V4L2_EXT_HDMI_INPUT_PORT_1;
+                status.override_eotf = V4L2_EXT_HDMI_OVERRIDE_EOTF_HLG;
+                hdmirx_v4l2_s_ext_ctrls(V4L2_CID_EXT_HDMI_OVERRIDE_EOTF, &status, sizeof(struct v4l2_ext_hdmi_override_drm_info));
+                break;
+            }
+            case 20: {
+                struct v4l2_ext_hdmi_querycap hdmi_querycap = {};
+                memset(&hdmi_querycap, 0, sizeof(struct v4l2_ext_hdmi_querycap));
+                hdmi_querycap.port = V4L2_EXT_HDMI_INPUT_PORT_1;
+                hdmirx_v4l2_g_ext_ctrls(V4L2_CID_EXT_HDMI_QUERYCAP, &hdmi_querycap, sizeof(struct v4l2_ext_hdmi_querycap));
+                break;
+            }
+            case 21: {
+                struct v4l2_ext_hdmi_hpd_low_duration_dc_on status = {};
+                memset(&status, 0, sizeof(struct v4l2_ext_hdmi_hpd_low_duration_dc_on));
+                status.port = V4L2_EXT_HDMI_INPUT_PORT_1;
+                status.hpd_low_duration = 200;
+                hdmirx_v4l2_s_ext_ctrls(V4L2_CID_EXT_HDMI_HPD_LOW_DURATION_DC_ON, &status, sizeof(struct v4l2_ext_hdmi_hpd_low_duration_dc_on));
+                break;
+            }
+            case 22: {
+                struct v4l2_ext_hdmi_hpd_low_duration_dc_on status = {};
+                memset(&status, 0, sizeof(struct v4l2_ext_hdmi_hpd_low_duration_dc_on));
+                status.port = V4L2_EXT_HDMI_INPUT_PORT_1;
+                hdmirx_v4l2_g_ext_ctrls(V4L2_CID_EXT_HDMI_HPD_LOW_DURATION_DC_ON, &status, sizeof(struct v4l2_ext_hdmi_hpd_low_duration_dc_on));
+                break;
+            }
+            case 23: {
+                struct v4l2_ext_hdmi_hdcp_repeater_topology topology = {};
+                memset(&topology, 0, sizeof(struct v4l2_ext_hdmi_hdcp_repeater_topology));
+                topology.port = V4L2_EXT_HDMI_INPUT_PORT_1;
+                hdmirx_v4l2_s_ext_ctrls(V4L2_CID_EXT_HDMI_HDCP_REPEATER_TOPOLOGY, &topology, sizeof(struct v4l2_ext_hdmi_hdcp_repeater_topology));
+                break;
+            }
+            case 24: {
+                struct v4l2_ext_hdmi_hdcp_repeater_stream_manage stream_manage = {};
+                memset(&stream_manage, 0, sizeof(struct v4l2_ext_hdmi_hdcp_repeater_stream_manage));
+                stream_manage.port = V4L2_EXT_HDMI_INPUT_PORT_1;
+                hdmirx_v4l2_g_ext_ctrls(V4L2_CID_EXT_HDMI_HDCP_REPEATER_STREAM_MANAGE, &stream_manage, sizeof(struct v4l2_ext_hdmi_hdcp_repeater_stream_manage));
+                break;
+            }
+            case 25: {
+                struct v4l2_ext_hdmi_sleep sleep_mode = {};
+                memset(&sleep_mode, 0, sizeof(struct v4l2_ext_hdmi_sleep));
+                sleep_mode.port = V4L2_EXT_HDMI_INPUT_PORT_1;
+                hdmirx_v4l2_g_ext_ctrls(V4L2_CID_EXT_HDMI_SLEEP, &sleep_mode, sizeof(struct v4l2_ext_hdmi_sleep));
+                break;
+            }
+            case 26: {
+                struct v4l2_ext_hdmi_sleep sleep_mode = {};
+                memset(&sleep_mode, 0, sizeof(struct v4l2_ext_hdmi_sleep));
+                sleep_mode.port = V4L2_EXT_HDMI_INPUT_PORT_1;
+                sleep_mode.mode = V4L2_EXT_HDMI_SLEEP_MODE;
+                hdmirx_v4l2_s_ext_ctrls(V4L2_CID_EXT_HDMI_SLEEP, &sleep_mode, sizeof(struct v4l2_ext_hdmi_sleep));
+                break;
+            }
+            case 27: {
+                struct v4l2_ext_hdmi_diagnostics_status status = {};
+                memset(&status, 0, sizeof(struct v4l2_ext_hdmi_diagnostics_status));
+                status.port = V4L2_EXT_HDMI_INPUT_PORT_1;
+                hdmirx_v4l2_g_ext_ctrls(V4L2_CID_EXT_HDMI_DIAGNOSTICS_STATUS, &status, sizeof(struct v4l2_ext_hdmi_diagnostics_status));
+                break;
+            }
+            case 28: {
+                struct v4l2_ext_hdmi_phy_status status = {};
+                memset(&status, 0, sizeof(struct v4l2_ext_hdmi_phy_status));
+                status.port = V4L2_EXT_HDMI_INPUT_PORT_1;
+                hdmirx_v4l2_g_ext_ctrls(V4L2_CID_EXT_HDMI_PHY_STATUS, &status, sizeof(struct v4l2_ext_hdmi_phy_status));
+                break;
+            }
+            case 29: {
+                struct v4l2_ext_hdmi_link_status status = {};
+                memset(&status, 0, sizeof(struct v4l2_ext_hdmi_link_status));
+                status.port = V4L2_EXT_HDMI_INPUT_PORT_1;
+                hdmirx_v4l2_g_ext_ctrls(V4L2_CID_EXT_HDMI_LINK_STATUS, &status, sizeof(struct v4l2_ext_hdmi_link_status));
+                break;
+            }
+            case 30: {
+                struct v4l2_ext_hdmi_video_status status = {};
+                memset(&status, 0, sizeof(struct v4l2_ext_hdmi_video_status));
+                status.port = V4L2_EXT_HDMI_INPUT_PORT_1;
+                hdmirx_v4l2_g_ext_ctrls(V4L2_CID_EXT_HDMI_VIDEO_STATUS, &status, sizeof(struct v4l2_ext_hdmi_video_status));
+                break;
+            }
+            case 31: {
+                struct v4l2_ext_hdmi_audio_status status = {};
+                memset(&status, 0, sizeof(struct v4l2_ext_hdmi_audio_status));
+                status.port = V4L2_EXT_HDMI_INPUT_PORT_1;
+                hdmirx_v4l2_g_ext_ctrls(V4L2_CID_EXT_HDMI_AUDIO_STATUS, &status, sizeof(struct v4l2_ext_hdmi_audio_status));
+                break;
+            }
+            case 32: {
+                struct v4l2_ext_hdmi_hdcp_status status = {};
+                memset(&status, 0, sizeof(struct v4l2_ext_hdmi_hdcp_status));
+                status.port = V4L2_EXT_HDMI_INPUT_PORT_1;
+                hdmirx_v4l2_g_ext_ctrls(V4L2_CID_EXT_HDMI_HDCP_STATUS, &status, sizeof(struct v4l2_ext_hdmi_hdcp_status));
+                break;
+            }
+            case 33: {
+                struct v4l2_ext_hdmi_scdc_status status = {};
+                memset(&status, 0, sizeof(struct v4l2_ext_hdmi_scdc_status));
+                status.port = V4L2_EXT_HDMI_INPUT_PORT_1;
+                hdmirx_v4l2_g_ext_ctrls(V4L2_CID_EXT_HDMI_SCDC_STATUS, &status, sizeof(struct v4l2_ext_hdmi_scdc_status));
+                break;
+            }
+            case 34: {
+                struct v4l2_ext_hdmi_error_status status = {};
+                memset(&status, 0, sizeof(struct v4l2_ext_hdmi_error_status));
+                status.port = V4L2_EXT_HDMI_INPUT_PORT_1;
+                hdmirx_v4l2_g_ext_ctrls(V4L2_CID_EXT_HDMI_ERROR_STATUS, &status, sizeof(struct v4l2_ext_hdmi_error_status));
+                break;
+            }
+            case 35: {
+                struct v4l2_ext_hdmi_expert_setting setting = {};
+                memset(&setting, 0, sizeof(struct v4l2_ext_hdmi_expert_setting));
+                setting.port = V4L2_EXT_HDMI_INPUT_PORT_1;
+                setting.type = V4L2_EXT_HDMI_EXPERT_SETTING_TYPE_TMDS_MANUAL_EQ_CH0;
+                setting.param1 = 7;
+                hdmirx_v4l2_s_ext_ctrls(V4L2_CID_EXT_HDMI_EXPERT_SETTING, &setting, sizeof(struct v4l2_ext_hdmi_expert_setting));
+                break;
+            }
             case 299: {
                 isRunning = 0;
                 break;
