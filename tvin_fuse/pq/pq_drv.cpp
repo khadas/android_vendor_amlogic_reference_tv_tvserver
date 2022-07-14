@@ -12,22 +12,18 @@
 #include "../common.h"
 #include "pq_fuse.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 int pq_drv_open(struct pq_obj_s *pobj, int flags)
 {
 	printf("%s, %d\n", __func__, __LINE__);
 
-	/*if (pobj->video_fd == -1) {
-		pobj->video_fd = open(V4L2_EXT_DEV_PATH_PQ, flags, 0);
+	if (pobj->video_fd == -1) {
+		pobj->video_fd = open(PQ_LED_DRV_DEV_PATH, flags, 0);
 		if (pobj->video_fd < 0) {
-			printf("Unable to open %s, err:%s\n", V4L2_EXT_DEV_PATH_PQ,
+			printf("Unable to open %s, err:%s\n", PQ_LED_DRV_DEV_PATH,
 				strerror(errno));
 			return errno;
 		}
-	}*/
+	}
 
 	return 0;
 }
@@ -1020,10 +1016,22 @@ int pq_drv_s_ext_led_init(struct pq_obj_s *pobj,
 int pq_drv_s_ext_led_demomode(struct pq_obj_s *pobj,
 	struct v4l2_ext_vpq_cmn_data *pdata)
 {
+	int ret = 0;
+	unsigned char value;
+
 	printf("%s, %d\n", __func__, __LINE__);
 
 	memcpy(&pobj->led_demo_info, pdata->p_data,
 		sizeof(struct v4l2_ext_led_ldim_demo_info));
+
+	value = pobj->led_demo_info.bOnOff;
+	ret = ioctl(pobj->video_fd, PQ_IOC_NR_SET_LED_DEMOMODE, &value);
+	if (ret < 0) {
+		printf("%s fail!\n", __func__);
+		return -1;
+	} else {
+		printf("%s success!\n", __func__);
+	}
 
 	return 0;
 }
@@ -1031,8 +1039,20 @@ int pq_drv_s_ext_led_demomode(struct pq_obj_s *pobj,
 int pq_drv_g_ext_led_demomode(struct pq_obj_s *pobj,
 	struct v4l2_ext_vpq_cmn_data *pdata)
 {
+	unsigned char value;
+	int ret = 0;
+
 	printf("%s, %d\n", __func__, __LINE__);
 
+	ret = ioctl(pobj->video_fd, PQ_IOC_NR_GET_LED_DEMOMODE, &value);
+	printf("read result = %d\n", value);
+	if (ret < 0) {
+		printf("%s fail!\n", __func__);
+		return -1;
+	} else {
+		printf("%s success!\n", __func__);
+	}
+	pobj->led_demo_info.bOnOff = value;
 	pdata->p_data = (unsigned char*)&pobj->led_demo_info;
 
 	return 0;
@@ -1041,8 +1061,19 @@ int pq_drv_g_ext_led_demomode(struct pq_obj_s *pobj,
 /* V4L2_CID_EXT_LED_EN */
 int pq_drv_s_ext_led_en(struct pq_obj_s *pobj, int mode)
 {
+	int ret = 0;
+	unsigned char value;
+
 	printf("%s, %d, %d\n", __func__, __LINE__, mode);
 
+	value = (unsigned char)mode;
+	ret = ioctl(pobj->video_fd, PQ_IOC_NR_SET_LED_FUNC_EN, &value);
+	if (ret < 0) {
+		printf("%s fail!\n", __func__);
+		return -1;
+	} else {
+		printf("%s success!\n", __func__);
+	}
 	pobj->led_mode = mode;
 
 	return 0;
@@ -1050,8 +1081,20 @@ int pq_drv_s_ext_led_en(struct pq_obj_s *pobj, int mode)
 
 int pq_drv_g_ext_led_en(struct pq_obj_s *pobj, int *pmode)
 {
+	unsigned char value;
+	int ret = 0;
+
 	printf("%s, %d\n", __func__, __LINE__);
 
+	ret = ioctl(pobj->video_fd, PQ_IOC_NR_GET_LED_FUNC_EN, &value);
+	printf("read result = %d\n", value);
+	if (ret < 0) {
+		printf("%s fail!\n", __func__);
+		return -1;
+	} else {
+		printf("%s success!\n", __func__);
+	}
+	pobj->led_mode = (int)value;
 	*pmode = pobj->led_mode;
 
 	return 0;
@@ -1083,6 +1126,42 @@ int pq_drv_g_ext_led_apl_data(struct pq_obj_s *pobj,
 	return 0;
 }
 
-#ifdef __cplusplus
+/* V4L2_CID_EXT_LED_DB_IDX */
+int pq_drv_s_ext_led_db_idx(struct pq_obj_s *pobj, int idx)
+{
+	printf("%s, %d, %d\n", __func__, __LINE__, idx);
+	pobj->led_db_idx = idx;
+
+	return 0;
 }
-#endif
+
+int pq_drv_g_ext_led_db_idx(struct pq_obj_s *pobj, int *idx)
+{
+	printf("%s, %d\n", __func__, __LINE__);
+	*idx = pobj->led_db_idx;
+
+	return 0;
+}
+
+/* V4L2_CID_EXT_LED_CONTROL_SPI */
+int pq_drv_s_ext_led_control_spi(struct pq_obj_s *pobj,
+	struct v4l2_ext_vpq_cmn_data *pdata)
+{
+	printf("%s, %d\n", __func__, __LINE__);
+
+	memcpy(&pobj->led_control_spi, pdata->p_data,
+		sizeof(struct v4l2_ext_led_spi_ctrl_info));
+
+	return 0;
+}
+
+int pq_drv_g_ext_led_control_spi(struct pq_obj_s *pobj,
+	struct v4l2_ext_vpq_cmn_data *pdata)
+{
+	printf("%s, %d\n", __func__, __LINE__);
+
+	pdata->p_data = (unsigned char*)&pobj->led_control_spi;
+
+	return 0;
+}
+

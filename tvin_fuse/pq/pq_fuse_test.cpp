@@ -142,6 +142,9 @@ int main(int argc, char **argv)
 	int flags = O_RDWR;
 	struct v4l2_ext_vpq_cmn_data pqData;
 	struct v4l2_ext_vpq_picture_ctrl_data pictureCtrl;
+	struct v4l2_ext_led_ldim_demo_info leddemoinfo;
+	struct v4l2_ext_led_spi_ctrl_info ledcontrolspi;
+	int value;
 
 	pq_v4l2_open(flags);
 
@@ -154,6 +157,76 @@ int main(int argc, char **argv)
 		__func__);
 	getchar();
 
+	printf("test V4L2_CID_EXT_LED_EN\n");
+	value = pq_v4l2_g_ctrl(V4L2_CID_EXT_LED_EN);
+	printf("V4L2_CID_EXT_LED_EN =  %d\n",value);
+	pq_v4l2_s_ctrl(V4L2_CID_EXT_LED_EN, 1);
+
+	printf("Please enter any key to continue %s...\n",
+		__func__);
+	getchar();
+
+	printf("test V4L2_CID_EXT_LED_DB_IDX\n");
+	value = pq_v4l2_g_ctrl(V4L2_CID_EXT_LED_DB_IDX);
+	printf("V4L2_CID_EXT_LED_DB_IDX =  %d\n",value);
+	pq_v4l2_s_ctrl(V4L2_CID_EXT_LED_DB_IDX, 1);
+
+	printf("Please enter any key to continue %s...\n",
+		__func__);
+	getchar();
+
+	printf("test V4L2_CID_EXT_LED_DEMOMODE\n");
+	memset(&pqData, 0, sizeof(v4l2_ext_vpq_cmn_data));
+	memset(&leddemoinfo, 0, sizeof(v4l2_ext_led_ldim_demo_info));
+	leddemoinfo.eType = v4l2_ext_led_ldim_demo_type_topbottom;
+	leddemoinfo.bOnOff = 1;
+
+	pqData.version = 1;
+	pqData.length = sizeof(v4l2_ext_led_ldim_demo_info);
+	pqData.wid = 0;
+	pqData.p_data = (unsigned char*)&leddemoinfo;
+
+	pq_v4l2_s_ext_ctrls(V4L2_CID_EXT_LED_DEMOMODE,
+		&pqData, sizeof(v4l2_ext_vpq_cmn_data));
+
+	printf("now begin to read!\n");
+	pq_v4l2_g_ext_ctrls(V4L2_CID_EXT_LED_DEMOMODE,
+		&pqData, sizeof(v4l2_ext_vpq_cmn_data));
+
+	printf("bOnOff = %d, eType = %d\n",
+		leddemoinfo.bOnOff,
+		leddemoinfo.eType);
+
+	printf("Please enter any key to continue %s...\n",
+		__func__);
+	getchar();
+
+	printf("test V4L2_CID_EXT_LED_CONTROL_SPI\n");
+	memset(&pqData, 0, sizeof(v4l2_ext_vpq_cmn_data));
+	memset(&ledcontrolspi, 0, sizeof(v4l2_ext_led_spi_ctrl_info));
+	ledcontrolspi.bitMask = 3;
+	ledcontrolspi.ctrlValue  = 1;
+
+	pqData.version = 1;
+	pqData.length = sizeof(v4l2_ext_led_spi_ctrl_info);
+	pqData.wid = 0;
+	pqData.p_data = (unsigned char*)&ledcontrolspi;
+
+	pq_v4l2_s_ext_ctrls(V4L2_CID_EXT_LED_CONTROL_SPI,
+		&pqData, sizeof(v4l2_ext_vpq_cmn_data));
+
+	printf("now begin to read!\n");
+	pq_v4l2_g_ext_ctrls(V4L2_CID_EXT_LED_CONTROL_SPI,
+		&pqData, sizeof(v4l2_ext_vpq_cmn_data));
+	printf("bitmask = %d, ctrlvalue = %d\n",
+		ledcontrolspi.bitMask,
+		ledcontrolspi.ctrlValue);
+
+	printf("Please enter any key to continue %s...\n",
+		__func__);
+	getchar();
+
+	printf("test V4L2_CID_EXT_VPQ_PICTURE_CTRL\n");
 	memset(&pqData, 0, sizeof(v4l2_ext_vpq_cmn_data));
 	memset(&pictureCtrl, 0, sizeof(v4l2_ext_vpq_picture_ctrl_data));
 

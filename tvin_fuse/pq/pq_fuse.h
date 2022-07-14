@@ -20,6 +20,22 @@ using namespace android;
 extern "C" {
 #endif
 
+#define PQ_IOC_TYPE  'C'
+
+#define PQ_IOC_NR_GET_LED_PQ_INIT	0x04
+#define PQ_IOC_NR_SET_LED_PQ_INIT	0x05
+#define PQ_IOC_NR_GET_LED_LEVEL_IDX	0x06
+#define PQ_IOC_NR_SET_LED_LEVEL_IDX	0x07
+#define PQ_IOC_NR_GET_LED_FUNC_EN	0x08
+#define PQ_IOC_NR_SET_LED_FUNC_EN	0x09
+#define PQ_IOC_NR_GET_LED_REMAP_EN	0x0A
+#define PQ_IOC_NR_SET_LED_REMAP_EN	0x0B
+#define PQ_IOC_NR_GET_LED_BL_MATRIX	0x0C
+#define PQ_IOC_NR_SET_LED_BL_MATRIX	0x0D
+#define PQ_IOC_NR_GET_LED_DEMOMODE	0x0E
+#define PQ_IOC_NR_SET_LED_DEMOMODE	0x0F
+
+
 #define V4L2_EXT_HDR_HLG_YGAIN_TBL_SIZE 66
 
 struct pq_obj_s {
@@ -36,6 +52,7 @@ struct pq_obj_s {
 	int ai_scene_mode;
 	int ai_genre_mode;
 	int hdr_inv_gamma;
+	int led_db_idx;
 	unsigned short hdr_hlg_ygain[V4L2_EXT_HDR_HLG_YGAIN_TBL_SIZE];
 	struct v4l2_ext_vpq_picture_ctrl_data pic_ctrl_data;
 	struct v4l2_ext_vpq_sharpness_data sharpness_data;
@@ -65,6 +82,7 @@ struct pq_obj_s {
 	struct v4l2_ext_led_panel_info led_panel_info;
 	struct v4l2_ext_led_ldim_demo_info led_demo_info;
 	struct v4l2_ext_led_apl_info led_apl_info;
+	struct v4l2_ext_led_spi_ctrl_info led_control_spi;
 };
 
 int pq_drv_open(struct pq_obj_s *pobj, int flags);
@@ -265,6 +283,13 @@ int pq_drv_g_ext_led_db_data(struct pq_obj_s *pobj,
 	struct v4l2_ext_vpq_cmn_data *pdata);
 int pq_drv_g_ext_led_apl_data(struct pq_obj_s *pobj,
 	struct v4l2_ext_vpq_cmn_data *pdata);
+int pq_drv_s_ext_led_db_idx(struct pq_obj_s *pobj, int idx);
+int pq_drv_g_ext_led_db_idx(struct pq_obj_s *pobj, int *idx);
+int pq_drv_s_ext_led_control_spi(struct pq_obj_s *pobj,
+	struct v4l2_ext_vpq_cmn_data *pdata);
+int pq_drv_g_ext_led_control_spi(struct pq_obj_s *pobj,
+	struct v4l2_ext_vpq_cmn_data *pdata);
+
 
 #ifdef __cplusplus
 }

@@ -54,6 +54,7 @@
 #define AVIN_DETECT_PATH    "/dev/avin_detect"
 #define HDMI_DETECT_PATH    "/dev/hdmirx0"
 #define VBE_DRV_DEV_PATH    "/dev/lcd0"
+#define PQ_LED_DRV_DEV_PATH    "/dev/aml_ldim"
 
 class VdinDrvIf
 {

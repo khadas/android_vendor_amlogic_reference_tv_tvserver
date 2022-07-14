@@ -129,6 +129,9 @@ static void pq_cuse_s_ctrl(fuse_req_t req, const void *in_buf)
 	case V4L2_CID_EXT_LED_EN:
 		ret = pq_drv_s_ext_led_en(pobj, control->value);
 		break;
+	case V4L2_CID_EXT_LED_DB_IDX:
+		ret = pq_drv_s_ext_led_db_idx(pobj, control->value);
+		break;
 	case V4L2_CID_EXT_LED_FIN:
 		break;
 	default:
@@ -216,6 +219,10 @@ static void pq_cuse_g_ctrl(fuse_req_t req, const void *in_buf)
 		break;
 	case V4L2_CID_EXT_LED_EN:
 		ret = pq_drv_g_ext_led_en(pobj, &tmp);
+		control->value = tmp;
+		break;
+	case V4L2_CID_EXT_LED_DB_IDX:
+		ret = pq_drv_g_ext_led_db_idx(pobj, &tmp);
 		control->value = tmp;
 		break;
 	default:
@@ -399,8 +406,6 @@ static void pq_cuse_s_ext_ctrls(fuse_req_t req, void *arg,
 	case V4L2_CID_EXT_LED_INIT:
 		ret = pq_drv_s_ext_led_init(pobj, pcmn_data);
 		break;
-	case V4L2_CID_EXT_LED_DB_IDX:
-		break;
 	case V4L2_CID_EXT_LED_DEMOMODE:
 		ret = pq_drv_s_ext_led_demomode(pobj, pcmn_data);
 		break;
@@ -408,6 +413,7 @@ static void pq_cuse_s_ext_ctrls(fuse_req_t req, void *arg,
 		ret = pq_drv_s_ext_led_db_data(pobj, pcmn_data);
 		break;
 	case V4L2_CID_EXT_LED_CONTROL_SPI:
+		ret = pq_drv_s_ext_led_control_spi(pobj, pcmn_data);
 		break;
 	case V4L2_CID_EXT_LED_BPL_DATA:
 		break;
@@ -588,8 +594,6 @@ static void pq_cuse_g_ext_ctrls(fuse_req_t req, void *arg,
 	case V4L2_CID_EXT_MEMC_MOTION_COMP:
 		ret = pq_drv_g_ext_memc_motion_comp(pobj, pcmn_data);
 		break;
-	case V4L2_CID_EXT_LED_DB_IDX:
-		break;
 	case V4L2_CID_EXT_LED_DEMOMODE:
 		ret = pq_drv_g_ext_led_demomode(pobj, pcmn_data);
 		break;
@@ -597,6 +601,7 @@ static void pq_cuse_g_ext_ctrls(fuse_req_t req, void *arg,
 		ret = pq_drv_g_ext_led_db_data(pobj, pcmn_data);
 		break;
 	case V4L2_CID_EXT_LED_CONTROL_SPI:
+		ret = pq_drv_g_ext_led_control_spi(pobj, pcmn_data);
 		break;
 	case V4L2_CID_EXT_LED_APL_DATA:
 		ret = pq_drv_g_ext_led_apl_data(pobj, pcmn_data);
