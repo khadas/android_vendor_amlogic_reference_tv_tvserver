@@ -7,7 +7,7 @@ LOCAL_PATH = $(shell pwd)
 LDFLAGS += -Wl,--no-as-needed -lstdc++ -lpthread -lz -ldl -lrt -L$(STAGING_DIR)/usr/lib
 CFLAGS += -Wall -Wno-unknown-pragmas -Wno-format -Wno-format-security\
           -O3 -fexceptions -fnon-call-exceptions -D_GNU_SOURCE \
-          -I$(STAGING_DIR)/usr/include -DHAVE_AUDIO
+          -I$(STAGING_DIR)/usr/include
 CXXFLAGS += -D_FILE_OFFSET_BITS=64
 LDFLAGS += -lbinder -llog
 
