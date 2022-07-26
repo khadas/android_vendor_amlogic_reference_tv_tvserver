@@ -55,6 +55,7 @@
 #define HDMI_DETECT_PATH    "/dev/hdmirx0"
 #define VBE_DRV_DEV_PATH    "/dev/lcd0"
 #define PQ_LED_DRV_DEV_PATH    "/dev/aml_ldim"
+#define MEMC_DRV_PATH       "/dev/frc"
 
 class VdinDrvIf
 {

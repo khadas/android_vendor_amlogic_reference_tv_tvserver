@@ -144,6 +144,7 @@ int main(int argc, char **argv)
 	struct v4l2_ext_vpq_picture_ctrl_data pictureCtrl;
 	struct v4l2_ext_led_ldim_demo_info leddemoinfo;
 	struct v4l2_ext_led_spi_ctrl_info ledcontrolspi;
+	struct v4l2_ext_memc_motion_comp_info memcInfo;
 	int value;
 
 	pq_v4l2_open(flags);
@@ -152,6 +153,42 @@ int main(int argc, char **argv)
 	pq_v4l2_g_ctrl(V4L2_CID_EXT_VPQ_LOW_DELAY_MODE);
 	pq_v4l2_s_ctrl(V4L2_CID_EXT_VPQ_LOW_DELAY_MODE, 0);
 	pq_v4l2_g_ctrl(V4L2_CID_EXT_VPQ_LOW_DELAY_MODE);
+
+	printf("Please enter any key to continue %s...\n",
+		__func__);
+	getchar();
+
+	printf("memc init ioc test1\n");
+	pq_v4l2_s_ctrl(V4L2_CID_EXT_MEMC_INIT, 1);
+
+	memset(&pqData, 0, sizeof(v4l2_ext_vpq_cmn_data));
+	memset(&memcInfo, 0, sizeof(v4l2_ext_memc_motion_comp_info));
+
+	memcInfo.blur_level = '1';
+	memcInfo.judder_level = '3';
+	memcInfo.memc_type = (enum v4l2_ext_memc_type)V4L2_EXT_MEMC_TYPE_HIGH;
+
+	pqData.version = 1;
+	pqData.length = sizeof(v4l2_ext_memc_motion_comp_info);
+	pqData.wid = 0;
+	pqData.p_data = (unsigned char*)&memcInfo;
+
+	pq_v4l2_s_ext_ctrls(V4L2_CID_EXT_MEMC_MOTION_COMP,
+		&pqData, sizeof(v4l2_ext_vpq_cmn_data));
+
+	memset(&pqData, 0, sizeof(v4l2_ext_vpq_cmn_data));
+	memset(&memcInfo, 0, sizeof(v4l2_ext_memc_motion_comp_info));
+
+	pqData.version = 1;
+	pqData.length = sizeof(v4l2_ext_memc_motion_comp_info);
+	pqData.p_data = (unsigned char*)&memcInfo;
+
+	pq_v4l2_g_ext_ctrls(V4L2_CID_EXT_MEMC_MOTION_COMP,
+		&pqData, sizeof(v4l2_ext_vpq_cmn_data));
+
+	printf("V4L2_CID_EXT_MEMC_MOTION_COMP, %s:%d blur/judder/type = %c/%c/%d\n",
+		__func__, __LINE__,
+		memcInfo.blur_level, memcInfo.judder_level, memcInfo.memc_type);
 
 	printf("Please enter any key to continue %s...\n",
 		__func__);

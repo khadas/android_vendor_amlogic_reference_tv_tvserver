@@ -40,6 +40,35 @@ int pq_drv_close(struct pq_obj_s *pobj)
 	return 0;
 }
 
+int memc_drv_open(int *video_fd)
+{
+	int ret = -1;
+	int flags = O_RDWR;
+
+	printf("%s, %d, init: %d\n", __func__, __LINE__);
+
+	if (*video_fd == -1) {
+		*video_fd = open(MEMC_DRV_PATH, flags, 0);// "MEMC_DRV_PATH: /dev/frc"
+		if (*video_fd < 0) {
+			printf("Unable to open %s, err:%s\n", MEMC_DRV_PATH,
+				strerror(errno));
+			return errno;
+		}
+	}
+
+	return 0;
+}
+
+int memc_drv_close(int video_fd)
+{
+	printf("%s, %d, init: %d\n", __func__, __LINE__);
+
+	if (video_fd != -1)
+		close(video_fd);
+
+	return 0;
+}
+
 /* V4L2_CID_EXT_VPQ_INIT */
 int pq_drv_s_ext_init(struct pq_obj_s *pobj, int init)
 {
@@ -948,33 +977,56 @@ int pq_drv_g_ext_decontour(struct pq_obj_s *pobj,
 /* V4L2_CID_EXT_MEMC_INIT */
 int pq_drv_s_ext_memc_init(struct pq_obj_s *pobj, int init)
 {
-	printf("%s, %d, %d\n", __func__, __LINE__, init);
+	int ret = 0;
+	int video_fd = -1;
+
+	printf("%s, %d, memc init: %d\n", __func__, __LINE__, init);
+
+	memc_drv_open(&video_fd);
+	if (video_fd < 0) {
+		printf("open memc drv fail\n");
+		return 0;
+	}
+
+	ret = ioctl(video_fd, PQ_MEMC_IOC_LGE_SET_MEMC_INIT, &init);
+	if (ret < 0) {
+		LOGD("%s fail!\n", __func__);
+		return -1;
+	} else {
+		LOGD("%s success!\n", __func__);
+	}
+	memc_drv_close(video_fd);
+
 	return 0;
 }
 
 /* V4L2_CID_EXT_MEMC_LOW_DELAY_MODE */
 int pq_drv_s_ext_memc_low_delay_mode(struct pq_obj_s *pobj, int mode)
 {
-	printf("%s, %d, %d\n", __func__, __LINE__, mode);
+	printf("%s, %d, MEMC does not support this feature %d\n",
+		__func__, __LINE__, mode);
 	return 0;
 }
 
 int pq_drv_g_ext_memc_low_delay_mode(struct pq_obj_s *pobj, int *pmode)
 {
-	printf("%s, %d,\n", __func__, __LINE__);
+	printf("%s, %d, MEMC does not support this feature\n",
+		__func__, __LINE__);
 	return 0;
 }
 
 /* V4L2_CID_EXT_MEMC_MOTION_PRO */
 int pq_drv_s_ext_memc_motion_pro(struct pq_obj_s *pobj, int motion_pro)
 {
-	printf("%s, %d, %d\n", __func__, __LINE__, motion_pro);
+	printf("%s, %d, MEMC does not support this feature\n",
+		__func__, __LINE__);
 	return 0;
 }
 
 int pq_drv_g_ext_memc_motion_pro(struct pq_obj_s *pobj, int *pmotion_pro)
 {
-	printf("%s, %d,\n", __func__, __LINE__);
+	printf("%s, %d, MEMC does not support this feature\n",
+		__func__, __LINE__);
 	return 0;
 }
 
@@ -982,10 +1034,29 @@ int pq_drv_g_ext_memc_motion_pro(struct pq_obj_s *pobj, int *pmotion_pro)
 int pq_drv_s_ext_memc_motion_comp(struct pq_obj_s *pobj,
 	struct v4l2_ext_vpq_cmn_data *pdata)
 {
+	int ret = 0;
+	int video_fd = -1;
+
 	printf("%s, %d\n", __func__, __LINE__);
+
+	memc_drv_open(&video_fd);
+	if (video_fd < 0) {
+		printf("open memc drv fail\n");
+		return 0;
+	}
 
 	memcpy(&pobj->memc_motion_comp_info, pdata->p_data,
 		sizeof(struct v4l2_ext_memc_motion_comp_info));
+
+	ret = ioctl(video_fd, PQ_MEMC_IOC_SET_LGE_MEMC_LEVEL,
+		&pobj->memc_motion_comp_info);
+	if (ret < 0) {
+		LOGD("%s fail!\n", __func__);
+		return -1;
+	} else {
+		LOGD("%s success!\n", __func__);
+	}
+	memc_drv_close(video_fd);
 
 	return 0;
 }
@@ -993,9 +1064,28 @@ int pq_drv_s_ext_memc_motion_comp(struct pq_obj_s *pobj,
 int pq_drv_g_ext_memc_motion_comp(struct pq_obj_s *pobj,
 	struct v4l2_ext_vpq_cmn_data *pdata)
 {
+	int ret = 0;
+	int video_fd = -1;
+
 	printf("%s, %d\n", __func__, __LINE__);
 
+	memc_drv_open(&video_fd);
+	if (video_fd < 0) {
+		printf("open memc drv fail\n");
+		return 0;
+	}
+
+	ret = ioctl(video_fd, PQ_MEMC_IOC_GET_LGE_MEMC_LEVEL,
+		&pobj->memc_motion_comp_info);
+	if (ret < 0) {
+		LOGD("%s fail!\n", __func__);
+		return -1;
+	} else {
+		LOGD("%s success!\n", __func__);
+	}
 	pdata->p_data = (unsigned char*)&pobj->memc_motion_comp_info;
+
+	memc_drv_close(video_fd);
 
 	return 0;
 }
