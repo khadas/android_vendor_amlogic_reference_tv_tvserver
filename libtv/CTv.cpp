@@ -49,7 +49,8 @@ CTv::CTv()
 
     mpAmVideo = new CAmVideo();
     mpTvin = CTvin::getInstance();
-    mpTvin->Tvin_AddVideoPath(TV_PATH_VDIN_AMLVIDEO2_PPMGR_DEINTERLACE_AMVIDEO);
+    //mpTvin->Tvin_AddVideoPath(TV_PATH_VDIN_AMLVIDEO2_PPMGR_DEINTERLACE_AMVIDEO);
+    mpTvin->Tvin_AddVideoPath(TV_PATH_VDIN_DEINTERLACE_VIDEOQUEUE);
     mpTvin->Tvin_LoadSourceInputToPortMap();
     mpHDMIRxManager = new CHDMIRxManager();
     // update cec port sequence from hdmi tv config.

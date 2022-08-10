@@ -19,6 +19,7 @@ extern "C" {
 #endif
 
 typedef void (*TvClientEventCallbackFunc)(event_type_t eventType, void *eventData);
+EventCallback mEventCallback;
 
 class TvClientWrapper: public TvClient::TvClientIObserver {
 public:
