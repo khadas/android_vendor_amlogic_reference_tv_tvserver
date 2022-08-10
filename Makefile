@@ -138,7 +138,9 @@ tvtest: $(tvtest_SRCS) libtvclient.so
 tvin_fuse_app: $(tvin_fuse_SRCS) libtvclient.so
 	$(CXX) $(CXXFLAGS) $(CFLAGS) $(LDFLAGS) -I$(tvclient_HEADERS) \
 	-I$(LOCAL_PATH)/libtv -I$(LOCAL_PATH)/libtv/tvutils -I$(LOCAL_PATH)/tvin_fuse/include \
-	-ltvclient -L$(LOCAL_PATH) -L$(LOCAL_PATH)/tvin_fuse/lib -lfuse3 -ltv -laudio_client -o $@ $^ $(LDLIBS)
+	-ltvclient -L$(LOCAL_PATH) -L$(LOCAL_PATH)/tvin_fuse/lib -lfuse3 -ltv -laudio_client \
+	-L$(TARGET_DIR)/usr/lib -l_hal_pq \
+	-o $@ $^ $(LDLIBS)
 
 avtest: $(avtest_SRCS)
 	$(CXX) $(CXXFLAGS) $(CFLAGS) $(LDFLAGS) -I$(tvclient_HEADERS) \
