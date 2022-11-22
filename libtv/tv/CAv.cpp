@@ -1615,7 +1615,7 @@ void CAv::av_evt_callback_tsplayer(void *user_data, am_tsplayer_event *event)
     LOGD("video_callback type %d\n", event? event->type : 0);
 
     switch (event->type) {
-        case AM_TSPLAYER_EVENT_TYPE_DATA_LOSS:
+        case AM_TSPLAYER_EVENT_TYPE_DECODER_DATA_LOSS:
             LOGD("event type demod data loss");
             if ((feState & TV_FE_HAS_LOCK) == TV_FE_HAS_LOCK) {
                 pAv->check_scramble_time++;
@@ -1630,9 +1630,15 @@ void CAv::av_evt_callback_tsplayer(void *user_data, am_tsplayer_event *event)
                 LOGD("tv fe unlock");
             }
             break;
+        case AM_TSPLAYER_EVENT_TYPE_DECODER_DATA_RESUME:
         case AM_TSPLAYER_EVENT_TYPE_DATA_RESUME:
             pAv->mCurAvEvent.type = AVEvent::EVENT_AV_RESUME;
             //pAv->mCurAvEvent.param = ( long )event;
+            pAv->mpObserver->onEvent(pAv->mCurAvEvent);
+            break;
+        case AM_TSPLAYER_EVENT_TYPE_DATA_LOSS:
+            pAv->mCurAvEvent.type = AVEvent::EVENT_AV_STOP;
+            //pAv->mCurAvEvent.param = ( long )0;
             pAv->mpObserver->onEvent(pAv->mCurAvEvent);
             break;
         case AM_TSPLAYER_EVENT_TYPE_SCRAMBLING:
