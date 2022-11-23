@@ -124,6 +124,7 @@ include_dirs: [
         "libaudioclient_headers",
         "libhardware_legacy_headers",
         "av-headers",
+        "libam_dvb_headers",
     ],
 
     export_include_dirs: [

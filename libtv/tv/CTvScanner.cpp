@@ -1842,7 +1842,7 @@ int CTvScanner::createDtvParas(AM_SCAN_DTVCreatePara_t &dtv_para, CFrontEnd::FEP
                 dtv_para.fe_paras[i].terrestrial.para.frequency = vcp[i]->getFrequency();
                 dtv_para.fe_paras[i].terrestrial.para.inversion = INVERSION_OFF;
                 dtv_para.fe_paras[i].terrestrial.para.u.ofdm.bandwidth = (fe_bandwidth_t)(vcp[i]->getBandwidth());
-                dtv_para.fe_paras[i].terrestrial.ofdm_mode = (fe_ofdm_mode_t)fp.getFEMode().getGen();
+                dtv_para.fe_paras[i].terrestrial.ofdm_mode = (fe_ofdm_mode)fp.getFEMode().getGen();
                 if (fp.getBandwidth() != -1)
                     dtv_para.fe_paras[i].terrestrial.para.u.ofdm.bandwidth = (fe_bandwidth_t)fp.getBandwidth();
                 break;

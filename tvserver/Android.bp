@@ -126,9 +126,6 @@ cc_binary {
     include_dirs: [
         "system/libhidl/transport/include/hidl",
         "frameworks/av/include",
-        "vendor/amlogic/common/prebuilt/dvb/include/am_mw/",
-        "vendor/amlogic/common/prebuilt/dvb/include/am_adp/",
-        "vendor/amlogic/common/prebuilt/dvb/include/am_ver/",
         "external/jsoncpp/include",
         "vendor/amlogic/reference/libdvr/include",
         "vendor/amlogic/common/mediahal_sdk/include",
@@ -139,6 +136,7 @@ cc_binary {
         "libaudioclient_headers",
         "libhardware_legacy_headers",
         "libhardware_headers",
+        "libam_dvb_headers",
     ],
     static_libs: [
         "libzvbi_static",
