@@ -70,6 +70,7 @@ public:
 
     Return<int32_t> startTv() override;
     Return<int32_t> stopTv() override;
+    Return<int32_t> setTunnelId(int32_t tunnel_id) override;
     Return<int32_t> switchInputSrc(int32_t inputSrc) override;
     Return<int32_t> getInputSrcConnectStatus(int32_t inputSrc) override;
     Return<int32_t> getCurrentInputSrc() override;

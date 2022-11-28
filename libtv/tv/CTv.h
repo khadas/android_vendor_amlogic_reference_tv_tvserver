@@ -35,7 +35,7 @@
 #include "tvin/CDevicesPollStatusDetect.h"
 #include "CTvGpio.h"
 #include "CTvPanel.h"
-
+#include "CVideotunnel.h"
 #ifdef SUPPORT_ADTV
 #include <am_epg.h>
 #include <am_mem.h>
@@ -258,6 +258,7 @@ public:
     virtual int CloseTv ( void );
     virtual int StartTvLock ();
     virtual int StopTvLock ( void );
+    int SetTvTunnelId(int tunnel_id);
     virtual int DoSuspend(int type);
     virtual int DoResume(int type);
     virtual int startTvDetect();
@@ -461,6 +462,7 @@ private:
 
     void setDvbLogLevel();
     bool needSnowEffect();
+    bool isChannelBlockStatusChanged();
 
     //end audio
     bool mATVDisplaySnow;
@@ -475,6 +477,10 @@ private:
     volatile bool mEnableLockModule;
     bool mSupportChannelLock;
     tv_block_state_e mBlockState;
+    tv_block_state_e mChannelBlockState;
+    tv_block_state_e mChannelLastBlockState;
+    bool mBlockStatusChanged;
+    bool mIsMultiDemux; //Indicates whether the new path is supported
 protected:
     class CTvMsgQueue: public CMsgQueueThread, public CAv::IObserver, public CTvin::IObserver
         , public CTvScanner::IObserver , public CTvEpg::IObserver, public CFrontEnd::IObserver

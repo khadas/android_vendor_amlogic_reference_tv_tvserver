@@ -71,6 +71,7 @@ cc_library_shared {
         "version/version.cpp",
         "gpio/CTvGpio.cpp",
         "panel/CTvPanel.cpp",
+        "videotunnel/CVideotunnel.cpp"
     ],
 
 include_dirs: [
@@ -96,6 +97,7 @@ include_dirs: [
         "libmediahal_resman",
         "libmediahal_tsplayer",
         "libamdvr",
+        "libvideotunnel",
     ],
     cflags: [
         "-DSUPPORT_ADTV",
@@ -133,6 +135,7 @@ include_dirs: [
         "gpio",
         ".",
         "panel",
+        "videotunnel",
     ],
 
 

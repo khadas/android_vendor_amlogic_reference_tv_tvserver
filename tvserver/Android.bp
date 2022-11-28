@@ -121,6 +121,7 @@ cc_binary {
         "libicuuc_vendor",
         "libmediahal_tsplayer",
         "libamdvr",
+	"libvideotunnel",
     ],
 
     include_dirs: [

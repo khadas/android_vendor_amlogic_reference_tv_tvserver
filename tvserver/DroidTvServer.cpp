@@ -130,6 +130,10 @@ Return<int32_t> DroidTvServer::stopTv() {
     return mTvServiceIntf->stopTv();
 }
 
+Return<int32_t>  DroidTvServer::setTunnelId(int32_t tunnel_id) {
+    return mTvServiceIntf->setTunnelId(tunnel_id);
+}
+
 Return<int32_t> DroidTvServer::switchInputSrc(int32_t inputSrc) {
     return mTvServiceIntf->switchInputSrc(inputSrc);
 }

@@ -258,7 +258,12 @@ void CTv::onEvent ( const CFrontEnd::FEEvent &ev )
             ev.mReserved = 0;
             sendTvEvent ( ev );
             setFEStatus(1);
-            CVpp::getInstance()->VPP_setVideoColor(false);
+            if (mIsMultiDemux) {
+                CVideotunnel::getInstance()->VT_disableColorFrame();
+                mAv.SetVideoScreenColor(VIDEO_LAYER_BLACK);
+            } else {
+                CVpp::getInstance()->VPP_setVideoColor(false);
+            }
             if (propertyGetBool("vendor.tv.dtv.tsplayer.enable", false)) {
                 mAv.EnableVideoNow(false);
             }
@@ -393,7 +398,9 @@ void CTv::onEvent(const CAv::AVEvent &ev)
             }
         }
         isVideoFrameAvailable();
-        mAv.SetVideoLayerStatus(ENABLE_AND_CLEAR_VIDEO_LAYER);
+        if (!mIsMultiDemux) {
+            mAv.SetVideoLayerStatus(ENABLE_AND_CLEAR_VIDEO_LAYER);
+        }
         TvEvent::AVPlaybackEvent AvPlayBackEvt;
         AvPlayBackEvt.mMsgType = TvEvent::AVPlaybackEvent::EVENT_AV_VIDEO_AVAILABLE;
         AvPlayBackEvt.mProgramId = (int)ev.param;
@@ -671,6 +678,18 @@ void CTv::sendTvEvent ( const CTvEv &ev )
     }
 }
 
+int CTv::SetTvTunnelId(int tunnel_id)
+{
+    LOGD("%s: tunnel id = %d, mIsMultiDemux = %s\n", __FUNCTION__, tunnel_id,tunnel_id >= 0?"true":"false");
+    CVideotunnel::getInstance()->SetTunnelId(tunnel_id);
+    if (tunnel_id >= 0) {
+        mIsMultiDemux = true;
+    } else {
+        mIsMultiDemux = false;
+    }
+    return 0;
+}
+
 int CTv::ClearAnalogFrontEnd()
 {
     return mFrontDev->ClearAnalogFrontEnd ();
@@ -945,7 +964,12 @@ int CTv::stopScan()
     if (needSnowEffect()) {
         SetSnowShowEnable(false);
     }
-    CVpp::getInstance()->VPP_setVideoColor(false);
+    if (getScreenColorSetting()) {
+        mAv.SetVideoScreenColor(VIDEO_LAYER_BLUE);
+    } else {
+        mAv.SetVideoScreenColor(VIDEO_LAYER_BLACK);
+    }
+    //CVpp::getInstance()->VPP_setVideoColor(false);
     mpTvin->Tvin_StopDecoder();
     //mTvEpg.leaveChannel();
     mTvScanner->stopScan();
@@ -1398,14 +1422,22 @@ int CTv::setFrontEnd ( const char *paras, bool force )
         return -1;
     }
     LOGD("%s: source_input_virtual[%d], mDTvSigStaus[%d]",__FUNCTION__,m_source_input_virtual,mDTvSigStaus);
-    if (SOURCE_ADTV == m_source_input_virtual && getScreenStaticFrameEnable() && mDTvSigStaus) {
+    if (SOURCE_ADTV == m_source_input_virtual && getScreenStaticFrameEnable() && mDTvSigStaus
+        && !isChannelBlockStatusChanged()) {
         LOGD("%s: current source[%d], set static frame",__FUNCTION__,m_source_input);
         mAv.DisableVideoBlackout();
     } else {
         LOGD("%s: current source[%d], needn't static frame",__FUNCTION__,m_source_input);
         mAv.EnableVideoBlackout();
+        if (SOURCE_ADTV == m_source_input_virtual && (mBlockStatusChanged || BLOCK_STATE_BLOCKED == mChannelBlockState)) {
+            CVideotunnel::getInstance()->VT_setvideoColor(false, true);
+        } else {
+            CVideotunnel::getInstance()->VT_setvideoColor(true, true);
+            if (getScreenColorSetting())
+            mAv.SetVideoScreenColor(VIDEO_LAYER_BLUE);
+        }
     }
-
+    mChannelLastBlockState = mChannelBlockState;
     stopPlaying(false);
     CFrontEnd::FEParas fp(paras);
     int FEMode_Base = fp.getFEMode().getBase();
@@ -1944,6 +1976,9 @@ int CTv::OpenTv ( void )
     mEnableLockModule = (SSMReadChannelLockEnValue() == 0);
     mSupportChannelLock = (config_get_int(CFG_SECTION_TV, CFG_TV_CHANNEL_BLOCK_INSERVER, 0) > 0);
     mBlockState = BLOCK_STATE_NONE;
+    mChannelBlockState = BLOCK_STATE_NONE;
+    mChannelLastBlockState = BLOCK_STATE_NONE;
+    mBlockStatusChanged = false;
 
     Tvin_GetTvinConfig();
     m_last_source_input = SOURCE_INVALID;
@@ -1998,6 +2033,9 @@ int CTv::StartTvLock ()
     MnoNeedAutoSwitchToMonitorMode = false;
     mDTvSigStaus = true;
     mVRRStatusChange = false;
+    mChannelBlockState = BLOCK_STATE_NONE;
+    mChannelLastBlockState = BLOCK_STATE_NONE;
+    mBlockStatusChanged = true;
     LOGD("StartTvLock end");
     return 0;
 }
@@ -2075,6 +2113,9 @@ int CTv::StopTvLock ( void )
         // }
 
         mBlockState = BLOCK_STATE_NONE;
+        mChannelBlockState = BLOCK_STATE_NONE;
+        mChannelLastBlockState = BLOCK_STATE_NONE;
+        mBlockStatusChanged = false;
         mpTvin->Resman_Release();
         LOGD("%s StopTvLock End SwitchSourceTime Time = %fs\n", __FUNCTION__,getUptimeSeconds());
         return 0;
@@ -2280,6 +2321,14 @@ int CTv::SetSourceSwitchInputLocked(tv_source_input_t virtual_input, tv_source_i
 
 void CTv::onSigStatusChange()
 {
+    if (mTvAction & TV_ACTION_SCANNING) {
+        LOGD("%s: TV SCANNING return!\n",__FUNCTION__);
+        return;
+    } else if (SOURCE_TV == m_source_input && !(mTvAction & TV_ACTION_PLAYING)) {
+        LOGD("%s: ATV not yet ready, return!\n",__FUNCTION__);
+        return;
+    }
+
     int ret = mpTvin->VDIN_GetSignalInfo ( &m_cur_sig_info );
     if (ret < 0) {
         LOGD("Get Signal Info error!\n");
@@ -2376,8 +2425,14 @@ void CTv::onSigStillStable()
     }
     LOGD ( "%s, startDecoder SwitchSourceTime Time = %fs\n", __FUNCTION__,getUptimeSeconds());
     int startdec_status = mpTvin->Tvin_StartDecoder ( m_cur_sig_info );
-    if (isBlockedByChannelLock()) {
-        CVpp::getInstance()->VPP_setVideoColor(true);
+    if (isBlockedByChannelLock() || mChannelBlockState == BLOCK_STATE_BLOCKED) {
+        if (mIsMultiDemux) {
+            CVideotunnel::getInstance()->VT_setvideoColor(false, true);
+        } else {
+            CVpp::getInstance()->VPP_setVideoColor(true);
+        }
+    } else if (!getScreenStaticFrameEnable() && SOURCE_TV == m_source_input) {
+        LOGD ( "%s, nothing to do\n", __FUNCTION__);
     } else {
         CVpp::getInstance()->VPP_setVideoColor(false);
     }
@@ -2405,7 +2460,7 @@ void CTv::onSigStillStable()
         LOGD("%s: disable blackout policy for %d source!\n", __FUNCTION__, m_source_input);
         tvWriteSysfs(VIDEO_BLACKOUT_POLICY, 1);
     }*/
-    if (!isBlockedByChannelLock()) {
+    if (!isBlockedByChannelLock() && mChannelBlockState != BLOCK_STATE_BLOCKED) {
         mAv.SetVideoLayerStatus(ENABLE_VIDEO_LAYER);
     }
     CMessage msg;
@@ -2432,7 +2487,7 @@ void CTv::onSigStillStable()
     ev.mReserved = getHDMIFrameRate();
     sendTvEvent ( ev );
 
-    if (isBlockedByChannelLock()) {
+    if (isBlockedByChannelLock() || mChannelBlockState == BLOCK_STATE_BLOCKED) {
         SendBlockEvt(true);
     }
 }
@@ -2457,12 +2512,28 @@ void CTv::isVideoFrameAvailable(unsigned int u32NewFrameCount)
     m_cur_sig_info.status = TVIN_SIG_STATUS_STABLE;
     //clean blue screen
     if (!(mTvAction & TV_ACTION_SCANNING)) {
-        if (isBlockedByChannelLock()) {
+        if (isBlockedByChannelLock() || mChannelBlockState == BLOCK_STATE_BLOCKED) {
             //blocked, still show with black or blue screen
-            CVpp::getInstance()->VPP_setVideoColor(true);
+            if (mIsMultiDemux) {
+                CVideotunnel::getInstance()->VT_setvideoColor(false, true);
+            } else {
+                CVpp::getInstance()->VPP_setVideoColor(true);
+            }
         } else {
-            //normal, clear with black and then will be flush by video data
-            mAv.SetVideoScreenColor(VIDEO_LAYER_BLACK);
+            //normal, clear with black/blue and then will be flush by video data
+            if (mIsMultiDemux) {
+                if (!getScreenStaticFrameEnable() && SOURCE_TV == m_source_input) {
+                    CVideotunnel::getInstance()->VT_setvideoColor(true, false);
+                    mAv.SetVideoScreenColor(VIDEO_LAYER_BLACK);
+                } else if (SOURCE_DTV == m_source_input) {
+                    LOGD("%s nothing to do",__FUNCTION__);
+                } else {
+                    CVideotunnel::getInstance()->VT_setvideoColor(false, false);
+                }
+            } else {
+                mAv.SetVideoScreenColor(VIDEO_LAYER_BLACK);
+            }
+
         }
     }
 }
@@ -4128,6 +4199,11 @@ bool CTv::isBlockedByChannelLock() {
         && (mBlockState == BLOCK_STATE_BLOCKED));
 }
 
+bool CTv::isChannelBlockStatusChanged()
+{
+    return mBlockStatusChanged;
+}
+
 int CTv::getBasicVdecStatusInfo(int vdecId, int *decode_time_cost, int *frame_width, int *frame_height,
     int *frame_rate, int *error_count, int *frame_count, int *error_frame_count, int *drop_frame_count,
     int *double_write_mode) {
@@ -4276,6 +4352,32 @@ std::string CTv::request(const std::string& resource, const std::string& paras)
             mEnableLockModule ? "true" : "false");
         ret[sizeof(ret) -1] = '\0';
         return std::string(ret);
+    } else if (std::string("ADTV.setCurrentChannelBlockStatus") == resource) {
+        std::string blocked = paramGetString(paras.c_str(), NULL, "Blocked", "false");
+        if (blocked.compare("true") == 0) {
+            mChannelBlockState = BLOCK_STATE_BLOCKED;
+        } else {
+            mChannelBlockState = BLOCK_STATE_UNBLOCKED;
+        }
+
+        if (mChannelBlockState == mChannelLastBlockState) {
+            mBlockStatusChanged = false;
+        } else {
+            mBlockStatusChanged = true;
+        }
+        LOGD("%s: ChannelBlockState:%d - BlockStatusChanged:%d",__FUNCTION__, mChannelBlockState, mBlockStatusChanged);
+        return std::string("{\"ret\":0}");
+    } else if (std::string("ADTV.BlockCurrentChannel") == resource) {
+         mChannelBlockState = BLOCK_STATE_BLOCKED;
+         mBlockStatusChanged = false;
+        CVideotunnel::getInstance()->VT_setvideoColor(false, true);
+        return std::string("{\"ret\":0}");
+    } else if (std::string("ADTV.UnblockCurrentChannel") == resource) {
+         mChannelBlockState = BLOCK_STATE_UNBLOCKED;
+         mChannelLastBlockState = BLOCK_STATE_UNBLOCKED;
+         mBlockStatusChanged = false;
+         CVideotunnel::getInstance()->VT_disableColorFrame();
+         return std::string("{\"ret\":0}");
     }
     return std::string("{\"ret\":1}");
 }

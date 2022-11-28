@@ -55,6 +55,7 @@ public:
     void startListener();
     int startTv();
     int stopTv();
+    int setTunnelId(int tunnel_id);
     int switchInputSrc(int32_t inputSrc);
     int getInputSrcConnectStatus(int32_t inputSrc);
     int getCurrentInputSrc();

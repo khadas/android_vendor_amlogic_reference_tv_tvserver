@@ -545,6 +545,10 @@ int DroidTvServiceIntf::stopTv() {
     return mpTv->StopTvLock();
 }
 
+int DroidTvServiceIntf::setTunnelId(int tunnel_id) {
+    return mpTv->SetTvTunnelId(tunnel_id);
+}
+
 int DroidTvServiceIntf::switchInputSrc(int32_t inputSrc) {
     LOGD("switchInputSrc sourceId= 0x%x", inputSrc);
     return mpTv->SetSourceSwitchInput((tv_source_input_t)inputSrc);
