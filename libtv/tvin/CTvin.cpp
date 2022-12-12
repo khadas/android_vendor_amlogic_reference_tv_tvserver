@@ -51,7 +51,7 @@
 #define CVBS_H_ACTIVE   (720)
 #define CVBS_V_ACTIVE   (480)
 #define CODEC_MM_CMA_4K (300)//codecmm support 4k
-
+#define HDMIN_BUFFER_SIZE_LIMIT (290)//buffer size for hdmin 4k
 
 int CTvin::mSourceInputToPortMap[SOURCE_MAX];
 CTvin *CTvin::mInstance;
@@ -384,7 +384,7 @@ int CTvin::VDIN_StartDec ( const struct tvin_parm_s *vdinParam )
         if (Resman_Query((void *)&res_status) >= 0)
             LOGI ( "res_status.v.query.avail 0x%x res_status.v.query.value 0x%x\n",res_status.v.query.avail,res_status.v.query.value);
         if (res_status.v.query.value >= CODEC_MM_CMA_4K) {
-            vdin_mm_size = res_status.v.query.value - 50 * 3;
+            vdin_mm_size = (res_status.v.query.value - 50 * 3 > HDMIN_BUFFER_SIZE_LIMIT) ? HDMIN_BUFFER_SIZE_LIMIT : res_status.v.query.value - 50 * 3;
             if (isAtv)
                 vdin_mm_size -= 50;
         }
