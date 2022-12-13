@@ -125,6 +125,7 @@ public:
     int getAudioStreamOutmode();
     int getAtvAutoScanMode();
     int vdinUpdateForPQ(int32_t gameStatus, int32_t pcStatus, int32_t autoSwitchFlag);
+    int isSupportDLG();
     int Tv_SetDLGEnable(bool isEnable);
     int Tv_GetDLGEnable();
     int SetVRREnable(bool isEnable);

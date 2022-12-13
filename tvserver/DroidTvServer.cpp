@@ -460,6 +460,10 @@ Return<int32_t> DroidTvServer::Tv_SetDLGEnable(int32_t isEnable) {
     return ret;
 }
 
+Return<int32_t> DroidTvServer::isSupportDLG() {
+     return mTvServiceIntf->isSupportDLG();
+}
+
 Return<int32_t> DroidTvServer::Tv_GetDLGEnable() {
     return mTvServiceIntf->Tv_GetDLGEnable();
 }

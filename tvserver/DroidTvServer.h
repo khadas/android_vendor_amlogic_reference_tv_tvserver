@@ -141,6 +141,7 @@ public:
     Return<int32_t> getAudioStreamOutmode() override;
     Return<int32_t> getAtvAutoScanMode() override;
     Return<int32_t> vdinUpdateForPQ(int32_t gameStatus, int32_t pcStatus, int32_t autoSwitchFlag) override;
+    Return<int32_t> isSupportDLG() override;
     Return<int32_t> Tv_SetDLGEnable(int32_t isEnable) override;
     Return<int32_t> Tv_GetDLGEnable() override;
     Return<int32_t> SetVRREnable(int32_t isEnable) override;

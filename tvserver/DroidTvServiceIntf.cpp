@@ -980,6 +980,10 @@ int DroidTvServiceIntf::vdinUpdateForPQ(int32_t gameStatus, int32_t pcStatus, in
     return mpTv->Tv_SetVdinForPQ(gameStatus, pcStatus, autoSwitchFlag);
 }
 
+int DroidTvServiceIntf::isSupportDLG() {
+    return mpTv->SupportDlg();
+}
+
 int DroidTvServiceIntf::Tv_SetDLGEnable(bool isEnable) {
     return mpTv->Tv_SetDLGEnable(isEnable);
 }
