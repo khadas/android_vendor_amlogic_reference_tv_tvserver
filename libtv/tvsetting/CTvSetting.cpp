@@ -1323,18 +1323,16 @@ int SSMReadBackLightReverse(unsigned char *rw_val)
 int SSMSaveDLGEnable(int8_t enable)
 {
     int tmp_val = enable;
-    //wait SSMHandler.h sync with android R
-    //return TVSSMWriteNTypes(VPP_DATA_POS_DLG_ENABLE_START, 1, tmp_val);
-    return 0;
+    return TVSSMWriteNTypes(VPP_DATA_POS_DLG_ENABLE_START, 1, tmp_val);
 }
 
 int SSMReadDLGEnable(int8_t *enable)
 {
     int tmp_val = 0;
     int ret = 0;
-    //wait SSMHandler.h sync with android R
-    //ret = TVSSMReadNTypes(VPP_DATA_POS_DLG_ENABLE_START, 1, &tmp_val);
-    //*enable = tmp_val;
+
+    ret = TVSSMReadNTypes(VPP_DATA_POS_DLG_ENABLE_START, 1, &tmp_val);
+    *enable = tmp_val;
 
     return ret;
 }
@@ -1342,9 +1340,7 @@ int SSMReadDLGEnable(int8_t *enable)
 int SSMSaveVRREnable(int8_t enable)
 {
     int tmp_val = enable;
-    //wait SSMHandler.h sync with android R
-    //return TVSSMWriteNTypes(VPP_DATA_POS_VRR_ENABLE_START, 1, tmp_val);
-    return 0;
+    return TVSSMWriteNTypes(VPP_DATA_POS_VRR_ENABLE_START, 1, tmp_val);
 }
 
 int SSMReadVRREnable(int8_t *enable)
@@ -1352,9 +1348,8 @@ int SSMReadVRREnable(int8_t *enable)
 {
     int tmp_val = 0;
     int ret = 0;
-    //wait SSMHandler.h sync with android R
-    //ret = TVSSMReadNTypes(VPP_DATA_POS_VRR_ENABLE_START, 1, &tmp_val);
-    //*enable = tmp_val;
+    ret = TVSSMReadNTypes(VPP_DATA_POS_VRR_ENABLE_START, 1, &tmp_val);
+    *enable = tmp_val;
 
     return ret;
 
