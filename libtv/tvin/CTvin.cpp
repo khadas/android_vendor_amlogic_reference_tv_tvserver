@@ -52,6 +52,9 @@
 #define CVBS_V_ACTIVE   (480)
 #define CODEC_MM_CMA_4K (300)//codecmm support 4k
 #define HDMIN_BUFFER_SIZE_LIMIT (290)//buffer size for hdmin 4k
+#define ATV_BUFFER_SIZE_LIMIT_2 (120)//buffer size for atv
+#define ATV_BUFFER_SIZE_LIMIT_1 (77)//buffer size for atv
+
 
 int CTvin::mSourceInputToPortMap[SOURCE_MAX];
 CTvin *CTvin::mInstance;
@@ -385,11 +388,16 @@ int CTvin::VDIN_StartDec ( const struct tvin_parm_s *vdinParam )
             LOGI ( "res_status.v.query.avail 0x%x res_status.v.query.value 0x%x\n",res_status.v.query.avail,res_status.v.query.value);
         if (res_status.v.query.value >= CODEC_MM_CMA_4K) {
             vdin_mm_size = (res_status.v.query.value - 50 * 3 > HDMIN_BUFFER_SIZE_LIMIT) ? HDMIN_BUFFER_SIZE_LIMIT : res_status.v.query.value - 50 * 3;
-            if (isAtv)
+            if (isAtv) {
                 vdin_mm_size -= 50;
+                vdin_mm_size = vdin_mm_size > ATV_BUFFER_SIZE_LIMIT_2 ? ATV_BUFFER_SIZE_LIMIT_2 : vdin_mm_size;
+            }
         }
-        else
+        else {
             vdin_mm_size = (res_status.v.query.value > 50) ? (res_status.v.query.value - 50) : res_status.v.query.value;
+            if (isAtv)
+                vdin_mm_size = vdin_mm_size > ATV_BUFFER_SIZE_LIMIT_1 ? ATV_BUFFER_SIZE_LIMIT_1 : vdin_mm_size;
+        }
         if (property_get("vendor.media.vdin.vdin_mm_size", value, NULL) > 0)
             vdin_mm_size = atoi(value);
         memcpy(res_status.v.query.name, "vdin", 4);
