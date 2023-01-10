@@ -4238,7 +4238,6 @@ int CTv::getVdecStatusInfo(int vdecId, int *decode_time_cost, int *frame_width, 
 
         /* Get the vdec frames information via ioctl */
         r = ioctl(fd, AMSTREAM_IOC_GET_MVDECINFO, &para);
-        close(fd);
         if (r < 0) {
                 LOGD("ioctl error for vdec %d, ret=%d \n", vdecId, r);
                 break;
@@ -4309,9 +4308,11 @@ int CTv::getVdecStatusInfo(int vdecId, int *decode_time_cost, int *frame_width, 
                         *pts_us64 = para.minfo[i].pts_us64;
 
                 LOGD("----------------\n");
+                close(fd);
                 return 1;
         }
     }
+    close(fd);
     return 1;
 }
 
