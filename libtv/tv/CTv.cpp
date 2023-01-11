@@ -4377,7 +4377,11 @@ std::string CTv::request(const std::string& resource, const std::string& paras)
          mChannelBlockState = BLOCK_STATE_UNBLOCKED;
          mChannelLastBlockState = BLOCK_STATE_UNBLOCKED;
          mBlockStatusChanged = false;
-         CVideotunnel::getInstance()->VT_disableColorFrame();
+         if (mIsMultiDemux) {
+            CVideotunnel::getInstance()->VT_disableColorFrame();
+         } else {
+            CVpp::getInstance()->VPP_setVideoColor(false);
+         }
          return std::string("{\"ret\":0}");
     }
     return std::string("{\"ret\":1}");
