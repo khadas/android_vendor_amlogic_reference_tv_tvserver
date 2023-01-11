@@ -276,7 +276,17 @@ void CTv::onEvent ( const CFrontEnd::FEEvent &ev )
                 LOGD("tv stopping, no need CAv::AVEvent::EVENT_AV_STOP");
                 return;
             }
-            CVpp::getInstance()->VPP_setVideoColor(true);
+            if (mIsMultiDemux) {
+                CVideotunnel::getInstance()->VT_setvideoColor(true, true);
+                if (getScreenColorSetting()) {
+                    mAv.SetVideoScreenColor(VIDEO_LAYER_BLUE);
+                } else {
+                    mAv.SetVideoScreenColor(VIDEO_LAYER_BLACK);
+                }
+            } else {
+                CVpp::getInstance()->VPP_setVideoColor(true);
+            }
+
             mDTvSigStaus = false;
             TvEvent::SignalInfoEvent ev;
             ev.mStatus = TVIN_SIG_STATUS_NOSIG;
