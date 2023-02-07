@@ -1336,7 +1336,8 @@ int GetHDMIEdidFromFile(int rd_off, int rd_size, int port,
 
 bool IsNeedLoadDolbyVisionEdid(int isDolbyVisionEnable)
 {
-    bool isAmlDvKoExist = isFileExist(AMLDOLBY_VISION_TV_KO_PATH) || isFileExist(AMLDOLBY_VISION_STB_KO_PATH);
+    bool isAmlDvKoExist = isFileExist(AMLDOLBY_VISION_TV_KO_PATH) || isFileExist(AMLDOLBY_VISION_STB_KO_PATH) ||
+        isFileExist(AMLDOLBY_VISION_TV_KO_PATH_515) || isFileExist(AMLDOLBY_VISION_STB_KO_PATH_515);
     bool isLoadDvEdid = false;
     LOGD("%s: isDolbyVisionKoExist = %d, isDolbyVisionEnable = %d.\n", __FUNCTION__, isAmlDvKoExist, isDolbyVisionEnable);
     if (isAmlDvKoExist && (isDolbyVisionEnable == 1)) {

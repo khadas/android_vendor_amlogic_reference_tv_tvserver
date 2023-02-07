@@ -25,8 +25,11 @@
 #define TV_CONFIG_EDID20_FILE_PATH                  "/mnt/vendor/odm_ext/etc/tvconfig/hdmi/port_20.bin"
 
 #define TV_CONFIG_HDMI_EDID_BIN_CHECKSOURCE_EN      "hdmi.edid.bin.checksource.en"
-#define AMLDOLBY_VISION_TV_KO_PATH                     "odm/lib/modules/dovi_tv.ko"
-#define AMLDOLBY_VISION_STB_KO_PATH                    "odm/lib/modules/dovi.ko"
+#define AMLDOLBY_VISION_TV_KO_PATH                   "odm/lib/modules/dovi_tv.ko"
+#define AMLDOLBY_VISION_STB_KO_PATH                  "odm/lib/modules/dovi.ko"
+#define AMLDOLBY_VISION_TV_KO_PATH_515               "/oem/overlay/dovi_tv.ko"
+#define AMLDOLBY_VISION_STB_KO_PATH_515              "/oem/overlay/dovi.ko"
+
 #define DOLBY_VISION_ENABLE_PATH_49                 "/sys/module/amdolby_vision/parameters/dolby_vision_enable"
 #define DOLBY_VISION_ENABLE_PATH_54                 "/sys/module/aml_media/parameters/dolby_vision_enable"
 
