@@ -165,28 +165,7 @@ CTv::CTv():mTvDmx(0), mTvDmx1(1), mTvDmx2(2)
     m_win_pos.y2 = -1;
     m_win_mode   = NORMAL_WINDOW;
     mCurAnalyzeTsChannelID = -1;
-    //init m_cur_sig_info
-    m_cur_sig_info.fps             = 0;
-    m_cur_sig_info.is_dvi          = 0;
-    m_cur_sig_info.trans_fmt       = TVIN_TFMT_2D;
-    m_cur_sig_info.fmt             = TVIN_SIG_FMT_NULL;
-    m_cur_sig_info.status          = TVIN_SIG_STATUS_NULL;
-    m_cur_sig_info.cfmt            = COLOR_FMT_MAX;
-    m_cur_sig_info.hdr_info        = 0;
-    m_cur_sig_info.aspect_ratio    = TVIN_ASPECT_NULL;
-    m_cur_sig_info.amdolby_vision  = 0;
-    m_cur_sig_info.low_latency     = 0;
-    //init m_last_sig_info
-    m_last_sig_info.fps            = 0;
-    m_last_sig_info.is_dvi         = 0;
-    m_last_sig_info.trans_fmt      = TVIN_TFMT_2D;
-    m_last_sig_info.fmt            = TVIN_SIG_FMT_NULL;
-    m_last_sig_info.status         = TVIN_SIG_STATUS_NULL;
-    m_last_sig_info.cfmt           = COLOR_FMT_MAX;
-    m_last_sig_info.hdr_info       = 0;
-    m_last_sig_info.aspect_ratio   = TVIN_ASPECT_NULL;
-    m_last_sig_info.amdolby_vision = 0;
-    m_last_sig_info.low_latency    = 0;
+    InitCurrentSignalInfo();
     //init gTvinConfig
     gTvinConfig.kernelpet_disable = false;
     gTvinConfig.kernelpet_timeout = -1;
@@ -2108,6 +2087,7 @@ int CTv::StopTvLock ( void )
         m_source_input = SOURCE_INVALID;
         m_source_input_virtual = SOURCE_INVALID;
         int ret = tvSetCurrentSourceInfo(SOURCE_MPEG, TVIN_SIG_FMT_NULL, TVIN_TFMT_2D);
+        InitCurrentSignalInfo();
         if (ret < 0) {
             LOGE("%s Set CurrentSourceInfo error!\n", __FUNCTION__);
         }
