@@ -2485,7 +2485,7 @@ void CTv::onSigStillStable()
 void CTv::isVideoFrameAvailable(unsigned int u32NewFrameCount)
 {
     unsigned int u32TimeOutCount = 0;
-    while (1) {
+    while (!mIsMultiDemux) {//new path, this node has inactive
         if ((unsigned int)mAv.getVideoFrameCount() >= u32NewFrameCount) {
             LOGD("%s video available SwitchSourceTime = %f", __FUNCTION__,getUptimeSeconds());
             break;
