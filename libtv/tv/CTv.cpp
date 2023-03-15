@@ -2416,15 +2416,17 @@ void CTv::onSigStillStable()
     LOGD ( "%s, startDecoder SwitchSourceTime Time = %fs\n", __FUNCTION__,getUptimeSeconds());
     int startdec_status = mpTvin->Tvin_StartDecoder ( m_cur_sig_info );
     if (isBlockedByChannelLock() || mChannelBlockState == BLOCK_STATE_BLOCKED) {
-        if (mIsMultiDemux) {
-            CVideotunnel::getInstance()->VT_setvideoColor(false, true);
-        } else {
-            CVpp::getInstance()->VPP_setVideoColor(true);
-        }
-    } else if (!getScreenStaticFrameEnable() && SOURCE_TV == m_source_input) {
+        //if (mIsMultiDemux) {
+        //    CVideotunnel::getInstance()->VT_setvideoColor(false, true);
+        //} else {
+        //    CVpp::getInstance()->VPP_setVideoColor(true);
+        //}
+        ScreenColorControl(false, VIDEO_LAYER_COLOR_SHOW_ALWAYES);
+    } else if (getScreenStaticFrameEnable() && SOURCE_TV == m_source_input) {
         LOGD ( "%s, nothing to do\n", __FUNCTION__);
     } else {
-        CVpp::getInstance()->VPP_setVideoColor(false);
+        //CVpp::getInstance()->VPP_setVideoColor(false);
+        ScreenColorControl(false, VIDEO_LAYER_COLOR_SHOW_ONCE);
     }
     LOGD ( "%s, startDecoder End SwitchSourceTime = %fs\n", __FUNCTION__,getUptimeSeconds());
     //showboz  codes from  start decode fun
@@ -2436,20 +2438,6 @@ void CTv::onSigStillStable()
         }
     }
 
-    //static frame,this has been aborted.
-    /*if (m_source_input == SOURCE_TV) {
-        int8_t blackOutEnable = 0;
-        SSMReadBlackoutEnable(&blackOutEnable);
-        LOGD("%s: blackOutEnable is %d.", __FUNCTION__, blackOutEnable);
-        if (blackOutEnable == 1) {
-           tvWriteSysfs(VIDEO_BLACKOUT_POLICY, 0);
-        } else {
-           tvWriteSysfs(VIDEO_BLACKOUT_POLICY, 1);
-        }
-    } else {
-        LOGD("%s: disable blackout policy for %d source!\n", __FUNCTION__, m_source_input);
-        tvWriteSysfs(VIDEO_BLACKOUT_POLICY, 1);
-    }*/
     if (!isBlockedByChannelLock() && mChannelBlockState != BLOCK_STATE_BLOCKED) {
         mAv.SetVideoLayerStatus(ENABLE_VIDEO_LAYER);
     }
@@ -2504,26 +2492,10 @@ void CTv::isVideoFrameAvailable(unsigned int u32NewFrameCount)
     if (!(mTvAction & TV_ACTION_SCANNING)) {
         if (isBlockedByChannelLock() || mChannelBlockState == BLOCK_STATE_BLOCKED) {
             //blocked, still show with black or blue screen
-            if (mIsMultiDemux) {
-                CVideotunnel::getInstance()->VT_setvideoColor(false, true);
-            } else {
-                CVpp::getInstance()->VPP_setVideoColor(true);
-            }
+            ScreenColorControl(false, VIDEO_LAYER_COLOR_SHOW_ALWAYES);
         } else {
             //normal, clear with black/blue and then will be flush by video data
-            if (mIsMultiDemux) {
-                if (!getScreenStaticFrameEnable() && SOURCE_TV == m_source_input) {
-                    CVideotunnel::getInstance()->VT_setvideoColor(true, false);
-                    mAv.SetVideoScreenColor(VIDEO_LAYER_BLACK);
-                } else if (SOURCE_DTV == m_source_input) {
-                    LOGD("%s nothing to do",__FUNCTION__);
-                } else {
-                    CVideotunnel::getInstance()->VT_setvideoColor(false, false);
-                }
-            } else {
-                mAv.SetVideoScreenColor(VIDEO_LAYER_BLACK);
-            }
-
+             LOGD("%s nothing to do",__FUNCTION__);
         }
     }
 }
@@ -2566,6 +2538,7 @@ void CTv::onSigToUnstable()
             }
         }
     } else {
+        ScreenColorControl(true,VIDEO_LAYER_COLOR_SHOW_ALWAYES);
         mpTvin->Tvin_StopDecoder();
     }
 }
@@ -4376,3 +4349,45 @@ std::string CTv::request(const std::string& resource, const std::string& paras)
     }
     return std::string("{\"ret\":1}");
 }
+
+int CTv::ScreenColorControl(bool color, int freq) {
+    int ret = 0;
+    if (mIsMultiDemux) {//new path
+        switch (freq) {
+            case VIDEO_LAYER_COLOR_SHOW_DISABLE://disable color
+                CVideotunnel::getInstance()->VT_disableColorFrame();
+                break;
+            case VIDEO_LAYER_COLOR_SHOW_ONCE://once
+                CVideotunnel::getInstance()->VT_setvideoColor(color,false);
+                break;
+            case VIDEO_LAYER_COLOR_SHOW_ALWAYES://always
+                CVideotunnel::getInstance()->VT_setvideoColor(color,true);
+                break;
+        }
+    } else {//old path
+        switch (freq) {
+            case VIDEO_LAYER_COLOR_SHOW_DISABLE://disable color
+                mAv.SetVideoLayerStatus(ENABLE_VIDEO_LAYER);
+                mAv.SetVideoScreenColor(VIDEO_LAYER_BLACK);
+                break;
+            case VIDEO_LAYER_COLOR_SHOW_ONCE://once
+                if ( color ) {
+                    mAv.SetVideoScreenColor(VIDEO_LAYER_BLUE);
+                } else {
+                    mAv.SetVideoScreenColor(VIDEO_LAYER_BLACK);
+                }
+                mAv.SetVideoLayerStatus(ENABLE_AND_CLEAR_VIDEO_LAYER);
+                break;
+            case VIDEO_LAYER_COLOR_SHOW_ALWAYES://always
+                if (color) {
+                    mAv.SetVideoScreenColor(VIDEO_LAYER_BLUE);
+                } else {
+                    mAv.SetVideoScreenColor(VIDEO_LAYER_BLACK);
+                }
+                mAv.SetVideoLayerStatus(DISABLE_VIDEO_LAYER);
+                break;
+        }
+    }
+    return 0;
+}
+

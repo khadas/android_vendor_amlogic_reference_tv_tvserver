@@ -202,6 +202,12 @@ enum {
     VIDEO_LAYER_COLOR_MAX,
 };
 
+enum {
+    VIDEO_LAYER_COLOR_SHOW_DISABLE,
+    VIDEO_LAYER_COLOR_SHOW_ONCE,
+    VIDEO_LAYER_COLOR_SHOW_ALWAYES,
+};
+
 typedef enum {
     BLOCK_STATE_NONE,
     BLOCK_STATE_BLOCKED,
@@ -437,6 +443,7 @@ public:
 	int *error_count, int *frame_count, int *error_frame_count, int *drop_frame_count, int *double_write_mode);
     std::string request(const std::string& resource, const std::string& paras);
 
+    int ScreenColorControl(bool color, int freq);
 private:
     int SendCmdToOffBoardFBCExternalDac(int, int);
     int KillMediaServerClient();
