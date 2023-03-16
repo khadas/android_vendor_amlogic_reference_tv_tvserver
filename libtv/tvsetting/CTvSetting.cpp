@@ -1612,17 +1612,15 @@ int SSMReadHDMIHdcpSwitcher(void)
 
 int SSMSaveChannelLockEnValue(int rw_val)
 {
-    //wait SSMHandler.h sync with android R
-    //return TVSSMWriteNTypes(CUSTOMER_DATA_POS_CHANNEL_LOCK_EN_START, 1, rw_val);
+    return TVSSMWriteNTypes(CUSTOMER_DATA_POS_CHANNEL_LOCK_EN_START, 1, rw_val);
     return 0;
 }
 
 int SSMReadChannelLockEnValue(void)
 {
     int switch_val = 0;
-    //wait SSMHandler.h sync with android R
-    /*if (TVSSMReadNTypes(CUSTOMER_DATA_POS_CHANNEL_LOCK_EN_START, 1, &switch_val) < 0) {
+    if (TVSSMReadNTypes(CUSTOMER_DATA_POS_CHANNEL_LOCK_EN_START, 1, &switch_val) < 0) {
         return 0;
-    }*/
+    }
     return switch_val;
 }

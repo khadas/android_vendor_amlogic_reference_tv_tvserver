@@ -2415,7 +2415,7 @@ void CTv::onSigStillStable()
     }
     LOGD ( "%s, startDecoder SwitchSourceTime Time = %fs\n", __FUNCTION__,getUptimeSeconds());
     int startdec_status = mpTvin->Tvin_StartDecoder ( m_cur_sig_info );
-    if (isBlockedByChannelLock() || mChannelBlockState == BLOCK_STATE_BLOCKED) {
+    if (isBlockedByChannelLock() || (mChannelBlockState == BLOCK_STATE_BLOCKED && mEnableLockModule)) {
         //if (mIsMultiDemux) {
         //    CVideotunnel::getInstance()->VT_setvideoColor(false, true);
         //} else {
@@ -2438,7 +2438,10 @@ void CTv::onSigStillStable()
         }
     }
 
-    if (!isBlockedByChannelLock() && mChannelBlockState != BLOCK_STATE_BLOCKED) {
+    LOGD ( "%s, mChannelBlockState:%d, mEnableLockModule:%d\n", __FUNCTION__, mChannelBlockState, mEnableLockModule);
+    if ((!isBlockedByChannelLock() && mChannelBlockState != BLOCK_STATE_BLOCKED)
+            || (mEnableLockModule && mChannelBlockState != BLOCK_STATE_BLOCKED)
+            || !mEnableLockModule) {
         mAv.SetVideoLayerStatus(ENABLE_VIDEO_LAYER);
     }
     CMessage msg;
@@ -2465,7 +2468,7 @@ void CTv::onSigStillStable()
     ev.mReserved = getHDMIFrameRate();
     sendTvEvent ( ev );
 
-    if (isBlockedByChannelLock() || mChannelBlockState == BLOCK_STATE_BLOCKED) {
+    if (isBlockedByChannelLock() || (mChannelBlockState == BLOCK_STATE_BLOCKED && mEnableLockModule)) {
         SendBlockEvt(true);
     }
 }
@@ -2490,7 +2493,7 @@ void CTv::isVideoFrameAvailable(unsigned int u32NewFrameCount)
     m_cur_sig_info.status = TVIN_SIG_STATUS_STABLE;
     //clean blue screen
     if (!(mTvAction & TV_ACTION_SCANNING)) {
-        if (isBlockedByChannelLock() || mChannelBlockState == BLOCK_STATE_BLOCKED) {
+        if (isBlockedByChannelLock() || (mChannelBlockState == BLOCK_STATE_BLOCKED && mEnableLockModule)) {
             //blocked, still show with black or blue screen
             ScreenColorControl(false, VIDEO_LAYER_COLOR_SHOW_ALWAYES);
         } else {
