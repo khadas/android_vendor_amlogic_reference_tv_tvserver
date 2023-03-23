@@ -2422,7 +2422,7 @@ void CTv::onSigStillStable()
         //    CVpp::getInstance()->VPP_setVideoColor(true);
         //}
         ScreenColorControl(false, VIDEO_LAYER_COLOR_SHOW_ALWAYES);
-    } else if (getScreenStaticFrameEnable() && SOURCE_TV == m_source_input) {
+    } else if ( getScreenStaticFrameEnable() && SOURCE_TV == m_source_input && !isChannelBlockStatusChanged()) {
         LOGD ( "%s, nothing to do\n", __FUNCTION__);
     } else {
         //CVpp::getInstance()->VPP_setVideoColor(false);
