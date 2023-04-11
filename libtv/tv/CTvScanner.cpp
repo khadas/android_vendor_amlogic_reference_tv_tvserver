@@ -2079,13 +2079,16 @@ void CTvScanner::reconnectDmxToFend(int dmx_no, int fend_no __unused)
 #ifdef SUPPORT_ADTV
     int isTV = config_get_int(CFG_SECTION_TV, FRONTEND_TS_SOURCE, 0);
 
-    if (isTV == 2) {
+    if (isTV == 3) {
+        AM_DMX_SetSource(dmx_no, AM_DMX_SRC_TS3);
+        LOGD("TV Set demux%d source to AM_DMX_SRC_TS3", dmx_no);
+    } else if (isTV == 2) {
         AM_DMX_SetSource(dmx_no, AM_DMX_SRC_TS2);
         LOGD("TV Set demux%d source to AM_DMX_SRC_TS2", dmx_no);
-    }else if (isTV == 1) {
+    } else if (isTV == 1) {
         AM_DMX_SetSource(dmx_no, AM_DMX_SRC_TS1);
         LOGD("TV Set demux%d source to AM_DMX_SRC_TS1", dmx_no);
-    }else{
+    } else{
         AM_DMX_SetSource(dmx_no, AM_DMX_SRC_TS0);
         LOGD("NON-TV Set demux%d source to AM_DMX_SRC_TS0", dmx_no);
     }
