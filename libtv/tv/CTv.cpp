@@ -1001,6 +1001,12 @@ int CTv::getScanStatus()
 void CTv::operateDeviceForScan(int type)
 {
     LOGD("%s : type:%d\n", __FUNCTION__, type);
+
+    CTvin::CheckSourceValidEvent evt;
+    evt.source = SOURCE_TV;
+    mpTvin->sendEvent(evt);
+    usleep(10000);
+
     if (type & OPEN_DEV_FOR_SCAN_ATV) {
             mFrontDev->Open(TV_FE_AUTO);
             mFrontDev->SetAnalogFrontEndTimerSwitch(1);
