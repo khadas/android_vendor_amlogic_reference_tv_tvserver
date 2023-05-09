@@ -1413,7 +1413,7 @@ int CTv::setFrontEnd ( const char *paras, bool force )
     LOGD("%s: mTvAction = %#x, paras = %s, m_source_input = %d. SwitchSourceTime = %fs",
             __FUNCTION__, mTvAction, paras, m_source_input,getUptimeSeconds());
 
-    if (mTvAction & TV_ACTION_SCANNING) {
+    if (mTvAction & TV_ACTION_SCANNING || m_source_input == SOURCE_INVALID) {
         return -1;
     }
     LOGD("%s: source_input_virtual[%d], mDTvSigStaus[%d]",__FUNCTION__,m_source_input_virtual,mDTvSigStaus);
@@ -2504,7 +2504,7 @@ void CTv::isVideoFrameAvailable(unsigned int u32NewFrameCount)
             ScreenColorControl(false, VIDEO_LAYER_COLOR_SHOW_ALWAYES);
         } else {
             //normal, clear with black/blue and then will be flush by video data
-             LOGD("%s nothing to do",__FUNCTION__);
+            ScreenColorControl(false, VIDEO_LAYER_COLOR_SHOW_DISABLE);
         }
     }
 }
