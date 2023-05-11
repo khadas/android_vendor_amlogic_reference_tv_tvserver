@@ -21,6 +21,7 @@
 
 #define CS_KEY_EDID_HDCP_DEV_PATH                   "/sys/class/hdmirx/hdmirx0/edid"
 
+#define TV_CONFIG_LOAD_EDID_WITH_PORT_EN            "hdmi.edid.load.with.port.en"
 #define TV_CONFIG_EDID14_FILE_PATH                  "/mnt/vendor/odm_ext/etc/tvconfig/hdmi/port_14.bin"
 #define TV_CONFIG_EDID20_FILE_PATH                  "/mnt/vendor/odm_ext/etc/tvconfig/hdmi/port_20.bin"
 
@@ -115,6 +116,7 @@ int SSMGetHDCPKeyDataLen();
 int SSMRefreshHDCPKey();
 bool IsNeedLoadDolbyVisionEdid(int isDolbyVisionEnable);
 int SSMLoadHDMIEdidData(bool isLoadDvEdid, bool isLoadDLGEdid);
+int SSMLoadHDMIEdidDataWithPort(bool isLoadDvEdid, bool isLoadDLGEdid);
 int SSMSetHDMIEdidVersion(char *value);
 int SSMReadHDMIEdid(int port, unsigned char hdmi_edid_buf[]);
 int SSMSetHDMIEdid(int port);
@@ -139,6 +141,10 @@ int AppendEdidPrefixCode(unsigned char customer_hdmi_edid_buf[], unsigned char h
 
 int GetAudioNoLinePointsDataFromFile(int offset, int size, unsigned char data_buf[]);
 int SaveAudioNoLinePointsDataToFile(int offset, int size, unsigned char data_buf[]);
+
+int getEdidFileSize(char *fileName);
+int getLoadEdidType(int file1Size, int file2Size);
+int LoadEdidDataWithPort(int port, int type, int dataSize, unsigned char dataBuf[]);
 
 #ifdef __cplusplus
 extern "C" {

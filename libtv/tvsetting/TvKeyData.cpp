@@ -1415,6 +1415,75 @@ int SSMLoadHDMIEdidData(bool isLoadDvEdid , bool isLoadDLGEdid)
     return ret;
 }
 
+int SSMLoadHDMIEdidDataWithPort(bool isLoadDvEdid, bool isLoadDLGEdid) {
+    int ret = 0;
+    int edidSize1 = 0;
+    int edidSize2 = 0;
+    char edid1FilePath[100] = {0};
+    char edid2FilePath[100] = {0};
+    int isCheckBinFileBySource = config_get_int(CFG_SECTION_HDMI, TV_CONFIG_HDMI_EDID_BIN_CHECKSOURCE_EN, 0);
+    const char *edidDirPath = config_get_str(CFG_SECTION_HDMI, CFG_HDMI_EDID_FILE_PATH, "/mnt/vendor/odm_ext/etc/tvconfig/hdmi");
+    for (int portId = 1; portId < 5; portId++) {
+        LOGD("%s: port[%d], load EDID!\n", __FUNCTION__, portId);
+        if (isCheckBinFileBySource) {
+            for (int edidNum = 1; edidNum < 3; edidNum++) {
+                if (isLoadDvEdid) {
+                   LOGD("%s: load %s amdolby_vision EDID!\n", __FUNCTION__, edidNum%2 != 0?"1.4":"2.0");
+                    if (edidNum%2 != 0) {
+                        sprintf(edid1FilePath, "%s/port%d_14_dv.bin", edidDirPath, portId);
+                    } else {
+                        if (isLoadDLGEdid) {
+                            LOGD("%s: load aml_dolby dlg EDID!\n", __FUNCTION__);
+                            sprintf(edid2FilePath, "%s/port%d_dv_dlg.bin", edidDirPath, portId);
+                        } else {
+                            sprintf(edid2FilePath, "%s/port%d_20_dv.bin", edidDirPath, portId);
+                        }
+                    }
+                } else {
+                    LOGD("%s: load %s ordinary EDID!\n", __FUNCTION__, edidNum%2 != 0?"1.4":"2.0");
+                    if (edidNum%2 != 0) {
+                        sprintf(edid1FilePath, "%s/port%d_14.bin", edidDirPath, portId);
+                    } else {
+                        if (isLoadDLGEdid) {
+                            LOGD("%s: load dlg EDID!\n", __FUNCTION__);
+                            sprintf(edid2FilePath, "%s/port%d_dlg.bin", edidDirPath, portId);
+                        } else {
+                            sprintf(edid2FilePath, "%s/port%d_20.bin", edidDirPath, portId);
+                        }
+                    }
+                }
+            }
+        } else {
+            sprintf(edid1FilePath, "%s", TV_CONFIG_EDID14_FILE_PATH);
+            sprintf(edid2FilePath, "%s", TV_CONFIG_EDID20_FILE_PATH);
+        }
+
+        edidSize1 = getEdidFileSize(edid1FilePath);
+        edidSize2 = getEdidFileSize(edid2FilePath);
+        if (edidSize1 == -1 || edidSize2 == -1) {
+            LOGD("%s: port:%d, edid bin no exist, return!\n", __FUNCTION__, portId);
+            continue;
+        }
+
+        unsigned char hdmi_edid_data_load_buf[edidSize1+edidSize2];
+        //load edid1 data
+        unsigned char hdmi_edid1_data_read_buf[edidSize1];
+        memset(hdmi_edid1_data_read_buf, 0, edidSize1);
+        ReadDataFromFile(edid1FilePath, 0, edidSize1, hdmi_edid1_data_read_buf);
+        memcpy(hdmi_edid_data_load_buf, hdmi_edid1_data_read_buf, edidSize1);
+        //load edid2 data
+        unsigned char hdmi_edid2_data_read_buf[edidSize2];
+        memset(hdmi_edid2_data_read_buf, 0, edidSize2);
+        ReadDataFromFile(edid2FilePath, 0, edidSize2, hdmi_edid2_data_read_buf);
+        memcpy(hdmi_edid_data_load_buf + edidSize1, hdmi_edid2_data_read_buf, edidSize2);
+
+        int type = getLoadEdidType(edidSize1, edidSize2);
+        LoadEdidDataWithPort(portId, type, edidSize1+edidSize2, hdmi_edid_data_load_buf);
+    }
+
+    return ret;
+}
+
 int SSMSetHDMIEdidVersion(char *value)
 {
     LOGD("%s: value: %s\n", __FUNCTION__, value);
@@ -1464,6 +1533,70 @@ int UpdataEdidDataWithPort(int port, unsigned char dataBuf[])
     }
 
     return ret;
+}
+
+int getEdidFileSize(char *fileName) {
+
+    if (fileName == NULL) {
+        LOGE("Fail path(%s) is null\n", fileName);
+        return -1;
+    }
+
+    if (access(fileName, F_OK) == 0) {
+        struct stat statbuf;
+        stat(fileName, &statbuf);
+        int filesize = (int)statbuf.st_size;
+        LOGD("file(%s) size is %d\n", fileName, filesize);
+        return filesize;
+    }
+
+    return -1;
+}
+
+int getLoadEdidType(int file1Size, int file2Size) {
+
+    int ret = 0;
+    if (file1Size == 256) {
+        if (file2Size ==256) {
+            ret = 0;
+        } else if (file2Size == 512) {
+            ret = 2;
+        }
+    } else if (file1Size == 512) {
+        if (file2Size == 512) {
+            ret = 1;
+        }
+    }
+    return ret;
+}
+
+int LoadEdidDataWithPort(int port, int type, int dataSize, unsigned char dataBuf[]) {
+    int ret = -1;
+    int size = dataSize + 1;
+    unsigned char LoadBuf[size];
+    memset(LoadBuf, 0, sizeof(char) * size);
+    LoadBuf[0] = (unsigned char)(type << 4|port);
+    LOGD("%s: LoadBuf[0]:%#x!\n", __FUNCTION__, LoadBuf[0]);
+    memcpy(LoadBuf+1, dataBuf, SSM_HDMI_EDID_SIZE);
+
+    int devFd = open(CS_HDMI_EDID_DATA_DEV_PATH, O_RDWR);
+    if (devFd < 0) {
+        LOGE("%s: open ERROR(%s)!\n", __FUNCTION__, strerror(errno));
+        ret = -1;
+    } else {
+        if (write(devFd, LoadBuf, size) < 0) {
+            LOGE("%s: write ERROR(%s)!\n", __FUNCTION__, strerror(errno));
+            ret = -1;
+        } else {
+            ret = 0;
+        }
+
+        close(devFd);
+        devFd = -1;
+    }
+
+    return ret;
+
 }
 
 /**************************** end critical data op functions ****************************/

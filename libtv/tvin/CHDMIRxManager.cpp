@@ -17,6 +17,8 @@
 #include <CTvLog.h>
 #include <tvutils.h>
 
+#include "tvsetting/TvKeyData.h"
+#include <tvconfig.h>
 
 CHDMIRxManager::CHDMIRxManager()
 {
@@ -131,11 +133,14 @@ int CHDMIRxManager::SetHdmiPortCecPhysicAddr()
     tvWriteSysfs(HDMI_CEC_PORT_SEQUENCE, buf);
     memset(buf, 0, sizeof(buf));
     sprintf(buf, "%d", val);
-    int kernelVersion = getKernelMajorVersion();
-    if (kernelVersion > 4) {
-        tvWriteSysfs(HDMI_CEC_PORT_MAP_54,buf);
-    } else {
-        tvWriteSysfs(HDMI_CEC_PORT_MAP_49,buf);
+    int isLoadEdidWithPort = config_get_int(CFG_SECTION_HDMI, TV_CONFIG_LOAD_EDID_WITH_PORT_EN, 1);
+    if (!isLoadEdidWithPort) {//new func,needn't set edid port map
+        int kernelVersion = getKernelMajorVersion();
+        if (kernelVersion > 4) {
+            tvWriteSysfs(HDMI_CEC_PORT_MAP_54,buf);
+        } else {
+            tvWriteSysfs(HDMI_CEC_PORT_MAP_49,buf);
+        }
     }
     return 0;
 }

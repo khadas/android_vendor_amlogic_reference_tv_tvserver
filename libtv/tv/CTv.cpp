@@ -3369,12 +3369,22 @@ int CTv::LoadEdidData(int isNeedBlackScreen, int isDolbyVisionEnable, int isDlgV
     AutoMutex _l( mLock );
     LOGD("%s:isNeedBlackScreen [%d],isDolbyVisionEnable [%d],isDlgVisionEnable [%d]!\n",
          __FUNCTION__,isNeedBlackScreen,isDolbyVisionEnable,isDlgVisionEnable);
+    int ret = -1;
+
     if (isNeedBlackScreen  == 1) {
         mpTvin->Tvin_StopDecoder();
     }
 
     bool isLoadDvEdid = IsNeedLoadDolbyVisionEdid(isDolbyVisionEnable);
-    int ret = SSMLoadHDMIEdidData(isLoadDvEdid, isDlgVisionEnable);
+    int isLoadEdidWithPort = config_get_int(CFG_SECTION_HDMI, TV_CONFIG_LOAD_EDID_WITH_PORT_EN, 1);
+    if (isLoadEdidWithPort) {
+        LOGD("%s:Load edid with port!\n", __FUNCTION__);
+        ret = SSMLoadHDMIEdidDataWithPort(isLoadDvEdid, isDlgVisionEnable);
+    } else {
+        LOGD("%s:Load edid with hdmirx0/edid note!\n", __FUNCTION__);
+        ret = SSMLoadHDMIEdidData(isLoadDvEdid, isDlgVisionEnable);
+    }
+
     if (ret == 0) {
         if (mInitEdidVersion) {//open tv set edid version and vrr status
             LOGD("%s:init edid version & VRR status!\n", __FUNCTION__);
