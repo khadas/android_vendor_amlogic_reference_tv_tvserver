@@ -1577,8 +1577,7 @@ int LoadEdidDataWithPort(int port, int type, int dataSize, unsigned char dataBuf
     memset(LoadBuf, 0, sizeof(char) * size);
     LoadBuf[0] = (unsigned char)(type << 4|port);
     LOGD("%s: LoadBuf[0]:%#x!\n", __FUNCTION__, LoadBuf[0]);
-    memcpy(LoadBuf+1, dataBuf, SSM_HDMI_EDID_SIZE);
-
+    memcpy(LoadBuf+1, dataBuf, dataSize);
     int devFd = open(CS_HDMI_EDID_DATA_DEV_PATH, O_RDWR);
     if (devFd < 0) {
         LOGE("%s: open ERROR(%s)!\n", __FUNCTION__, strerror(errno));
