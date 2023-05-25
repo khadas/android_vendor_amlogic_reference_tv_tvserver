@@ -24,6 +24,7 @@
 
 #define HDMI_IOC_HDCP_GET_KSV _IOR(HDMI_IOC_MAGIC, 0x09, struct _hdcp_ksv)
 
+#define HDMI_IOC_EDID_UPDATE_WITH_PORT  _IOW(HDMI_IOC_MAGIC, 0x13, unsigned char)
 
 #define CS_HDMIRX_DEV_PATH         "/dev/hdmirx0"
 #define HDMIRX0_DEBUG_PATH         "/sys/class/hdmirx/hdmirx0/debug"
@@ -40,6 +41,7 @@ class CHDMIRxManager {
         CHDMIRxManager();
         ~CHDMIRxManager();
         int HdmiRxEdidUpdate();
+        int HdmiRxEdidUpdateWithPort(int port);
         int HdmiRxHdcpVerSwitch(tv_hdmi_hdcp_version_t version);
         int HdmiRxHdcpOnOff(tv_hdmi_hdcpkey_enable_t flag);
         int GetHdmiHdcpKeyKsvInfo(struct _hdcp_ksv *msg);

@@ -3465,7 +3465,12 @@ int CTv::SetHdmiEdidVersion(tv_hdmi_port_id_t port, tv_hdmi_edid_version_t versi
                 }
             }
 
-            mHDMIRxManager.HdmiRxEdidUpdate();
+            int isSetEdidVersionWithPort = config_get_int(CFG_SECTION_HDMI, TV_CONFIG_LOAD_EDID_WITH_PORT_EN, 1);
+            if (isSetEdidVersionWithPort) {
+                mHDMIRxManager.HdmiRxEdidUpdateWithPort(port);
+            } else {
+                mHDMIRxManager.HdmiRxEdidUpdate();
+            }
         } else {
             LOGD("%s: same EDID version, no need set.\n", __FUNCTION__);
         }

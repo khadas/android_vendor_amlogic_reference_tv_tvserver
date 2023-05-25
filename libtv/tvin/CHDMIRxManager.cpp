@@ -43,6 +43,40 @@ int CHDMIRxManager::HdmiRxEdidUpdate()
     return 0;
 }
 
+int CHDMIRxManager::HdmiRxEdidUpdateWithPort(int port)
+{
+    int m_hdmi_fd = -1;
+    m_hdmi_fd = open(CS_HDMIRX_DEV_PATH, O_RDWR);
+    if (m_hdmi_fd < 0) {
+        LOGE("%s, Open file %s error: (%s)!\n", __FUNCTION__, CS_HDMIRX_DEV_PATH, strerror ( errno ));
+        return -1;
+    }
+
+    LOGD("%s, port is %d!\n", __FUNCTION__, port);
+    unsigned char parm = '0';
+    switch (port) {
+        case 1:
+            parm = '1';
+             break;
+        case 2:
+            parm = '2';
+             break;
+        case 3:
+            parm = '3';
+             break;
+        case 4:
+            parm = '4';
+             break;
+        default:
+            break;
+    }
+
+    ioctl(m_hdmi_fd, HDMI_IOC_EDID_UPDATE_WITH_PORT, parm);
+    close(m_hdmi_fd);
+    m_hdmi_fd = -1;
+    return 0;
+}
+
 int CHDMIRxManager::HdmiRxHdcpVerSwitch(tv_hdmi_hdcp_version_t version)
 {
     int m_hdmi_fd = -1;
