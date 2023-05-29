@@ -3377,7 +3377,7 @@ int CTv::LoadEdidData(int isNeedBlackScreen, int isDolbyVisionEnable, int isDlgV
 
     bool isLoadDvEdid = IsNeedLoadDolbyVisionEdid(isDolbyVisionEnable);
     int isLoadEdidWithPort = config_get_int(CFG_SECTION_HDMI, TV_CONFIG_LOAD_EDID_WITH_PORT_EN, 1);
-    if (isLoadEdidWithPort) {
+    if (getKernelMajorVersion() == 5 && getKernelMinorVersion() == 1 && isLoadEdidWithPort) {
         LOGD("%s:Load edid with port!\n", __FUNCTION__);
         ret = SSMLoadHDMIEdidDataWithPort(isLoadDvEdid, isDlgVisionEnable);
     } else {
@@ -3466,7 +3466,7 @@ int CTv::SetHdmiEdidVersion(tv_hdmi_port_id_t port, tv_hdmi_edid_version_t versi
             }
 
             int isSetEdidVersionWithPort = config_get_int(CFG_SECTION_HDMI, TV_CONFIG_LOAD_EDID_WITH_PORT_EN, 1);
-            if (isSetEdidVersionWithPort) {
+            if (getKernelMajorVersion() == 5 && getKernelMinorVersion() == 1 && isSetEdidVersionWithPort) {
                 mHDMIRxManager.HdmiRxEdidUpdateWithPort(port);
             } else {
                 mHDMIRxManager.HdmiRxEdidUpdate();

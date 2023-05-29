@@ -67,6 +67,8 @@ int tvFlashWrite(const char *partition_name, long offset,unsigned char *buffer, 
 int tvFlashRead(const char *partition_name, long offset,unsigned char *buffer, unsigned int length);
 int isSysfsExist(const char *path);
 int getKernelMajorVersion(void);
+int getKernelMinorVersion(void);
+
 
 //add for PQ
 int tvLoadPQSettings(source_input_param_t source_input_param);

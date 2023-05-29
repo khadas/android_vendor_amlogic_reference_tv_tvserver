@@ -1359,6 +1359,24 @@ int getKernelMajorVersion(void)
     } else {
         retVal = (int)(buf[14] - '0');
     }
-    //LOGD("%s: kernel version is %d.", __FUNCTION__, retVal);
+    LOGD("%s: kernel major version is %d.", __FUNCTION__, retVal);
     return retVal;
 }
+
+int getKernelMinorVersion(void)
+{
+    int retVal = 0;
+    char buf[18] = {0};
+    int readRet = readSys("/proc/version", buf, sizeof(buf)-1);
+    if (readRet < 0) {
+        retVal = 0;
+    } else {
+        retVal = (int)(buf[16] - '0');
+    }
+    LOGD("%s: kernel minor version is %d.", __FUNCTION__, retVal);
+    return retVal;
+
+
+
+}
+
