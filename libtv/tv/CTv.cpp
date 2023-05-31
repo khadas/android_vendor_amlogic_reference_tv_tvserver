@@ -4395,7 +4395,7 @@ int CTv::ScreenColorControl(bool color, int freq) {
                 mAv.SetVideoScreenColor(VIDEO_LAYER_BLACK);
                 break;
             case VIDEO_LAYER_COLOR_SHOW_ONCE://once
-                if ( color ) {
+                if ( color && getScreenColorSetting()) {
                     mAv.SetVideoScreenColor(VIDEO_LAYER_BLUE);
                 } else {
                     mAv.SetVideoScreenColor(VIDEO_LAYER_BLACK);
@@ -4403,7 +4403,7 @@ int CTv::ScreenColorControl(bool color, int freq) {
                 mAv.SetVideoLayerStatus(ENABLE_AND_CLEAR_VIDEO_LAYER);
                 break;
             case VIDEO_LAYER_COLOR_SHOW_ALWAYES://always
-                if (color) {
+                if (color && getScreenColorSetting()) {
                     mAv.SetVideoScreenColor(VIDEO_LAYER_BLUE);
                 } else {
                     mAv.SetVideoScreenColor(VIDEO_LAYER_BLACK);
