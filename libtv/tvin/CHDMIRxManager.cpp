@@ -53,25 +53,11 @@ int CHDMIRxManager::HdmiRxEdidUpdateWithPort(int port)
     }
 
     LOGD("%s, port is %d!\n", __FUNCTION__, port);
-    unsigned char parm = '0';
-    switch (port) {
-        case 1:
-            parm = '1';
-             break;
-        case 2:
-            parm = '2';
-             break;
-        case 3:
-            parm = '3';
-             break;
-        case 4:
-            parm = '4';
-             break;
-        default:
-            break;
+    unsigned char parm = port;
+    int tmp_ret = ioctl(m_hdmi_fd, HDMI_IOC_EDID_UPDATE_WITH_PORT, &parm);
+    if (tmp_ret < 0) {
+        LOGE("%s, port:%d, error: (%s)!\n", __FUNCTION__, port, strerror ( errno ));
     }
-
-    ioctl(m_hdmi_fd, HDMI_IOC_EDID_UPDATE_WITH_PORT, parm);
     close(m_hdmi_fd);
     m_hdmi_fd = -1;
     return 0;
