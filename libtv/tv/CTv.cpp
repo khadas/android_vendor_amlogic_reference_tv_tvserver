@@ -3605,7 +3605,7 @@ int CTv::setPictureModeBySignal(pq_mode_switch_type_t switchType)
         LOGD("%s: allm_mode is %d, it_content is %d, cn_type is %d!\n", __FUNCTION__, allmInfo.allm_mode,
                                    allmInfo.it_content, allmInfo.cn_type);
 
-        vpp_picture_mode_t NewPictureMode = VPP_PICTURE_MODE_STANDARD;
+        vpp_picture_mode_t NewPictureMode = VPP_PICTURE_MODE_MAX;
 
         if (mAllmModeCfg && allmInfo.allm_mode) {//allm mode
             LOGD("%s: allm mode, autoswitch to game mode!\n", __FUNCTION__);
@@ -3615,6 +3615,7 @@ int CTv::setPictureModeBySignal(pq_mode_switch_type_t switchType)
             if (allmInfo.cn_type == GAME) {
                 LOGD("%s: game fmt, autoswitch to game mode!\n", __FUNCTION__);
                 NewPictureMode = VPP_PICTURE_MODE_GAME;
+                mAllmInfo = true;
             } else {//Graphics/photo/cinema
                 LOGD("%s:vesa fmt, autoswitch to monitor mode!\n", __FUNCTION__);
                 NewPictureMode = VPP_PICTURE_MODE_MONITOR;
@@ -3648,12 +3649,16 @@ int CTv::setPictureModeBySignal(pq_mode_switch_type_t switchType)
 
         //when VRR switch is open,can't allow auto set monitor mode
         if (TV_GetVRREnable()) {
-            if (automonitor) {
-                LOGD("%s, VRR switch opened, can't auto set monitor mode!\n", __FUNCTION__);
+            if ( automonitor ) {
+                LOGD("%s, VRR switch opened, can't auto set  mode!\n", __FUNCTION__);
                 return 0;
-                } else {
-                    LOGD("%s, non auto monitor!\n", __FUNCTION__);
-                }
+            } else if ( (NewPictureMode == VPP_PICTURE_MODE_GAME) && (tvGetPQMode() == VPP_PICTURE_MODE_GAME) ) {
+                mAllmInfo = false;
+                LOGD("%s, already is game needn't set game!\n", __FUNCTION__);
+                return 0;
+            } else {
+                LOGD("%s, non auto monitor!\n", __FUNCTION__);
+            }
         } else if (getVrrMode() != 0) {
              LOGD("%s, auto vrr, notify PQ game!\n", __FUNCTION__);
             NewPictureMode = VPP_PICTURE_MODE_GAME;
