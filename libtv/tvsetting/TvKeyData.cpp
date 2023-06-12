@@ -1340,7 +1340,7 @@ bool IsNeedLoadDolbyVisionEdid(int isDolbyVisionEnable)
         isFileExist(AMLDOLBY_VISION_TV_KO_PATH_515) || isFileExist(AMLDOLBY_VISION_STB_KO_PATH_515);
     bool isLoadDvEdid = false;
     LOGD("%s: isDolbyVisionKoExist = %d, isDolbyVisionEnable = %d.\n", __FUNCTION__, isAmlDvKoExist, isDolbyVisionEnable);
-    if (isAmlDvKoExist && (isDolbyVisionEnable == 1)) {
+    if (isAmlDvKoExist || (isDolbyVisionEnable == 1)) {
         isLoadDvEdid = true;
     } else {
         isLoadDvEdid = false;
