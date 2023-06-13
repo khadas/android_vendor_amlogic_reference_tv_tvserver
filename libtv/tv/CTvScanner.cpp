@@ -1990,6 +1990,12 @@ const char *CTvScanner::getDtvScanListName(int mode)
             case 10:
                 list_name = (char *)"US,NTSC Air";
                 break;
+            case 11:
+                list_name = (char *)"CO,NTSC Cable";
+                break;
+            case 12:
+                list_name = (char *)"CO,NTSC Air";
+                break;
             default:
                 list_name = (char *)"US,ATSC Air";
                 break;
