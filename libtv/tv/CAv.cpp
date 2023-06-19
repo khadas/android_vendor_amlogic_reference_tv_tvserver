@@ -859,24 +859,22 @@ int CAv::StopTS()
 
     am_tsplayer_result ret = AM_TSPLAYER_OK;
     //only stop live mode
+    //Continue execute every stop operation even if stop step fails
     if (mIsTimeshift == false) {
         if (mSession != INVALID_PLAYER_HDLE)
             ret = AmTsPlayer_setPcrPid(mSession, 0x1fff);
         if (ret != AM_TSPLAYER_OK) {
-            LOGD("%s: ret is %d\n", __FUNCTION__, ret);
-            return -1;
+            LOGD("%s: AmTsPlayer_setPcrPid ret is %d\n", __FUNCTION__, ret);
         }
         if (mSession != INVALID_PLAYER_HDLE)
             ret = AmTsPlayer_stopAudioDecoding(mSession);
         if (ret != AM_TSPLAYER_OK) {
-            LOGD("%s: ret is %d\n", __FUNCTION__, ret);
-            return -1;
+            LOGD("%s: AmTsPlayer_stopAudioDecoding ret is %d\n", __FUNCTION__, ret);
         }
         if (mSession != INVALID_PLAYER_HDLE)
             ret = AmTsPlayer_stopVideoDecoding(mSession);
         if (ret != AM_TSPLAYER_OK) {
-            LOGD("%s: ret is %d\n", __FUNCTION__, ret);
-            return -1;
+            LOGD("%s: AmTsPlayer_stopVideoDecoding ret is %d\n", __FUNCTION__, ret);
         }
         if (mSession != INVALID_PLAYER_HDLE) {
             LOGD("%s: ---------\n", __FUNCTION__);
