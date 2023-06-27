@@ -427,10 +427,17 @@ int CFrontEnd::setPara(const char *paras, bool force )
     if (mFEParas == feparas && !force) {
         LOGD("fe setpara  is same return");
         return 0;
+    } else if (feparas.getFEMode().getBase() == TV_FE_ANALOG) {
+         if (mFEParas.getFrequency() == feparas.getFrequency() &&
+            mFEParas.getVideoStd() == feparas.getVideoStd() &&
+            mFEParas.getAudioStd() == feparas.getAudioStd() &&
+            mFEParas.getAfc() == feparas.getAfc()) {
+            LOGD("TV_FE_ANALOG para is same return");
+            return 0;
+        }
     }
 
     saveCurrentParas(feparas);
-
     AM_FENDCTRL_DVBFrontendParameters_t dvbfepara;
     memset(&dvbfepara, 0, sizeof(AM_FENDCTRL_DVBFrontendParameters_t));
 
@@ -1189,12 +1196,20 @@ const char* CFrontEnd::FEParas::FEP_SOUNDSYS = "soundsys";
 
 bool CFrontEnd::FEParas::operator == (const FEParas &fep) const
 {
-    if (!(getFEMode() == fep.getFEMode()))
+    if (!(getFEMode() == fep.getFEMode())) {
+        LOGE("%s: getMode(%d), fep.getFEMode().getMode(%d)", __FUNCTION__, getFEMode().getMode(), fep.getFEMode().getMode());
         return false;
-    if (getFrequency() != fep.getFrequency())
+    }
+
+    if (getFrequency() != fep.getFrequency()) {
+        LOGE("%s: getFrequency(%d), fep.getFrequency(%d)", __FUNCTION__, getFrequency(), fep.getFrequency());
         return false;
-    if (getFEMode().getGen() && (getPlp() != fep.getPlp()))
+    }
+
+    if (getFEMode().getGen() && (getPlp() != fep.getPlp())) {
         return false;
+    }
+
 
     switch (getFEMode().getBase()) {
         case TV_FE_DTMB:
@@ -1216,8 +1231,15 @@ bool CFrontEnd::FEParas::operator == (const FEParas &fep) const
             break;
         case TV_FE_ANALOG:
             if (getVideoStd() != fep.getVideoStd() || getAudioStd() != fep.getAudioStd() || getAfc() != fep.getAfc()
-                 || getVFmt() != fep.getVFmt() || getSoundsys() != fep.getSoundsys())
-                return false;
+                 || getVFmt() != fep.getVFmt() || getSoundsys() != fep.getSoundsys()) {
+                 LOGE("%s: getVideoStd(%d), fep.getVideoStd(%d)", __FUNCTION__, getVideoStd(), fep.getVideoStd());
+                 LOGE("%s: getAudioStd(%d), fep.getAudioStd(%d)", __FUNCTION__, getAudioStd(), fep.getAudioStd());
+                 LOGE("%s: getAfc(%d), fep.getAfc(%d)", __FUNCTION__, getAfc(), fep.getAfc());
+                 LOGE("%s: getVFmt(%d), fep.getVFmt(%d)", __FUNCTION__, getVFmt(), fep.getVFmt());
+                 LOGE("%s: getSoundsys(%d), fep.getSoundsys(%d)", __FUNCTION__, getSoundsys(), fep.getSoundsys());
+                 return false;
+            }
+
             break;
         default:
             return false;
