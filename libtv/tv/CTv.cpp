@@ -4375,6 +4375,19 @@ std::string CTv::request(const std::string& resource, const std::string& paras)
             CVpp::getInstance()->VPP_setVideoColor(false);
          }
          return std::string("{\"ret\":0}");
+    } else if (std::string("ADTV.GetAudioMute") == resource) {
+         unsigned int ATV_mute = 0;
+         unsigned int DTV_mute = 0;
+         mAv.AudioGetMute(&ATV_mute, &DTV_mute);
+         char ret[64];
+         snprintf(ret, sizeof(ret), "{\"ret\":0,\"ATV_mute\":%d,DTV_mute\":%d}", ATV_mute, DTV_mute);
+         ret[sizeof(ret) -1] = '\0';
+         return std::string(ret);
+    } else if (std::string("ADTV.AudioSetMute") == resource) {
+         unsigned int atv_mute = paramGetInt(paras.c_str(), NULL, "ATV_mute", 0);
+         unsigned int dtv_mute = paramGetInt(paras.c_str(), NULL, "DTV_mute", 0);
+         mAv.AudioSetMute(atv_mute, dtv_mute);
+         return std::string("{\"ret\":0}");
     }
     return std::string("{\"ret\":1}");
 }

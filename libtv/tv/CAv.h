@@ -180,6 +180,8 @@ public:
     int AudioGetPreGain(float *gain);
     int AudioSetPreMute(unsigned int mute);
     int AudioGetPreMute(unsigned int *mute);
+    int AudioSetMute(unsigned int ATV_mute, unsigned int DTV_mute);
+    int AudioGetMute(unsigned int *ATV_mute, unsigned int *DTV_mute);
     int SetVideoScreenColor (int color);
     int SetVideoScreenColor (int vdin_blending_mask, int y, int u, int v);
     int DisableVideoWithBlueColor();
@@ -232,6 +234,7 @@ private:
 #ifdef SUPPORT_ADTV
     am_tsplayer_audio_params mAdParams;
     int mAdState;
+    int mAudioMuteState;
 #endif
 
     int check_scramble_time;

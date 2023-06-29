@@ -50,6 +50,7 @@ CAv::CAv()
 #ifdef SUPPORT_ADTV
     memset(&mAdParams, 0, sizeof(mAdParams));
     mAdState = 0;
+    mAudioMuteState = 0;
 #endif
     check_scramble_time = 0;
 }
@@ -155,6 +156,7 @@ int CAv::Open()
 
     AM_AV_SetAudioCallback(0, av_audio_callback, this);
     mAdState = 0;
+    mAudioMuteState = 0;
     return rt;
 #else
     return -1;
@@ -827,6 +829,10 @@ int CAv::StartTS(unsigned short vpid, unsigned short apid, unsigned short pcrid,
         mAdState = 0;
     }
 
+    if (mAudioMuteState == 1) {
+        AudioSetMute(1, 1);
+    }
+
     a_parm.codectype = toTsPlayerAudioFormat(afmt);
     LOGD("%s:%d audio codectype:%d\n", __FUNCTION__, __LINE__, a_parm.codectype);
 
@@ -1032,6 +1038,61 @@ int CAv::AudioGetPreMute(unsigned int *mute)
     return ret;
 #endif
 }
+
+int CAv::AudioSetMute(unsigned int ATV_mute, unsigned int DTV_mute)
+{
+    int ret = -1;
+#ifdef SUPPORT_ADTV
+    if (mIsTsplayer == false) {
+        return ret;
+    }
+    mAudioMuteState = DTV_mute;
+    am_tsplayer_result ts_ret = AM_TSPLAYER_OK;
+    if (mSession != INVALID_PLAYER_HDLE) {
+        ts_ret = AmTsPlayer_setAudioMute(mSession, ATV_mute, DTV_mute);
+        LOGD("%s: AmTsPlayer_setAudioMute, status:[atv:%d],[dtv%d]\n", __FUNCTION__, ATV_mute, DTV_mute);
+    }
+    if (ts_ret != AM_TSPLAYER_OK) {
+        LOGD("%s: ret is %d\n", __FUNCTION__, ret);
+        return -1;
+    }
+    return 0;
+#else
+    return ret;
+#endif
+
+}
+
+int CAv::AudioGetMute(unsigned int *ATV_mute, unsigned int *DTV_mute)
+{
+    int ret = -1;
+#ifdef  SUPPORT_ADTV
+    if (mIsTsplayer == false) {
+        return ret;
+    }
+
+    am_tsplayer_result ts_ret = AM_TSPLAYER_OK;
+    if (mSession != INVALID_PLAYER_HDLE) {
+        bool atv_temp = 0;
+        bool dtv_temp = 0;
+        ts_ret = AmTsPlayer_getAudioMute(mSession, (bool_t *) &atv_temp, (bool_t *) &dtv_temp);
+        LOGD("%s: AmTsPlayer_setAudioMute, status:[atv:%d],[dtv%d]\n", __FUNCTION__, atv_temp, dtv_temp);
+        *ATV_mute = atv_temp ? 1 : 0;
+        *DTV_mute = dtv_temp ? 1 : 0;
+    }
+    if (ts_ret != AM_TSPLAYER_OK) {
+        LOGD("%s: ret is %d\n", __FUNCTION__, ret);
+        return -1;
+    }
+    return 0;
+
+    return 0;
+#else
+    return ret;
+#endif
+
+}
+
 
 int CAv::EnableVideoBlackout()
 {
