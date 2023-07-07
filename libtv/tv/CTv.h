@@ -60,7 +60,7 @@ static const char *TV_DB_PATH = "/param/dtv.db";
 #endif
 
 #define LCD_ENABLE_49     "/sys/class/lcd/power"
-#define LCD_ENABLE_54     "/sys/class/aml_lcd/power"
+#define LCD_ENABLE_54     "/sys/class/aml_lcd/lcd0/power_on"
 
 #define DEVICE_CLASS_TSYNC_AV_THRESHOLD_MIN "/sys/class/tsync/av_threshold_min"
 #define IWATT_SHELL_PATH    "/system/bin/get_iwatt_regs.sh"
