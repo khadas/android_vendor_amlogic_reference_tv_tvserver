@@ -157,7 +157,6 @@ CTv::CTv():mTvDmx(0), mTvDmx1(1), mTvDmx2(2)
     m_source_input = SOURCE_INVALID;
     m_last_source_input = SOURCE_INVALID;
     m_source_input_virtual = SOURCE_INVALID;
-    m_first_enter_tvinput = false;
     mLastScreenMode = -1;
     m_win_pos.x1 = -1;
     m_win_pos.x2 = -1;
@@ -1968,6 +1967,14 @@ int CTv::OpenTv ( void )
         LOGD("%s: EDID data load by customer!\n", __FUNCTION__);
     }
 
+    //add tvpath
+    if (mpTvin->Tvin_RemovePath (TV_PATH_TYPE_TVIN) > 0) {
+        mpTvin->VDIN_AddVideoPath(TV_PATH_VDIN_AMLVIDEO2_PPMGR_DEINTERLACE_AMVIDEO);
+    }
+    if (mpTvin->Tvin_RemovePath (TV_PATH_TYPE_DEFAULT) > 0) {
+        mpTvin->VDIN_AddVideoPath(TV_PATH_DECODER_AMLVIDEO2_PPMGR_DEINTERLACE_AMVIDEO);
+    }
+
     mEnableLockModule = (SSMReadChannelLockEnValue() == 0);
     mSupportChannelLock = (config_get_int(CFG_SECTION_TV, CFG_TV_CHANNEL_BLOCK_INSERVER, 0) > 0);
     mBlockState = BLOCK_STATE_NONE;
@@ -1983,8 +1990,6 @@ int CTv::OpenTv ( void )
     //mDevicesPollStatusDetectThread.startDetect();
     //ClearAnalogFrontEnd();
     InitCurrentSignalInfo();
-
-    m_first_enter_tvinput = true;
     mTvStatus = TV_OPEN_ED;
     return 0;
 }
@@ -2006,16 +2011,6 @@ int CTv::StartTvLock ()
 
     AutoMutex _l( mLock );
     //tvWriteSysfs("/sys/power/wake_lock", "tvserver.run");
-
-    if ( m_first_enter_tvinput ) {
-        if (mpTvin->Tvin_RemovePath (TV_PATH_TYPE_TVIN) > 0) {
-            mpTvin->VDIN_AddVideoPath(TV_PATH_VDIN_AMLVIDEO2_PPMGR_DEINTERLACE_AMVIDEO);
-        }
-        if (mpTvin->Tvin_RemovePath (TV_PATH_TYPE_DEFAULT) > 0) {
-            mpTvin->VDIN_AddVideoPath(TV_PATH_DECODER_AMLVIDEO2_PPMGR_DEINTERLACE_AMVIDEO);
-        }
-        m_first_enter_tvinput = false;
-    }
 
     setDvbLogLevel();
     mAv.SetVideoLayerStatus(DISABLE_VIDEO_LAYER);

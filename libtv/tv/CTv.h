@@ -612,7 +612,6 @@ protected:
     volatile tv_source_input_t m_source_input;
     volatile tv_source_input_t m_last_source_input;
     volatile tv_source_input_t m_source_input_virtual;
-    volatile bool m_first_enter_tvinput;
     volatile int mLastScreenMode;
 
     /* for tvin window mode and pos*/
