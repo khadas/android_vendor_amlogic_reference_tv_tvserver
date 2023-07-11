@@ -64,6 +64,7 @@ public:
         virtual ~ISourceConnectObserver() {};
         virtual void onSourceConnect(int source __unused, int connect_status __unused) {};
         virtual void onVdinSignalChange() {};
+        virtual void onVdin2SignalChange() {};
     };
 
     void setObserver ( ISourceConnectObserver *pOb ) {
@@ -74,6 +75,7 @@ private:
     const char* inputToName(tv_source_input_t srcInput);
 
     int mVdinDetectFd;
+    int mVdin2DetectFd;
     ISourceConnectObserver *mpObserver;
     Epoll       mEpoll;
     mutable Mutex mLock;

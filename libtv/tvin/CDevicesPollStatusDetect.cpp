@@ -36,6 +36,7 @@ CDevicesPollStatusDetect::CDevicesPollStatusDetect()
     m_hdmi_status = 0;
     mpObserver = NULL;
     mVdinDetectFd = -1;
+    mVdin2DetectFd = -1;
     if (mEpoll.create() < 0) {
         return;
     }
@@ -69,6 +70,17 @@ int CDevicesPollStatusDetect::startDetect()
         mVdinDetectFd = fd;
 
         LOGD("startDetect get vdin device fd :%d", fd);
+    }
+
+    fd = CTvin::getInstance()->VDIN2_GetVdinDeviceFd();
+    if (fd > 0) {
+        m_event.data.fd = fd;
+        m_event.events = EPOLLIN | EPOLLET;
+        mEpoll.add(fd, &m_event);
+
+        mVdin2DetectFd = fd;
+
+        LOGD("startDetect get vdin2 device fd :%d", fd);
     }
     this->run("CDevicesPollStatusDetect");
     return 0;
@@ -305,6 +317,11 @@ bool CDevicesPollStatusDetect::threadLoop()
                     LOGD("VDIN detected\n");
                     if (mpObserver != NULL) {
                         mpObserver->onVdinSignalChange();
+                    }
+                } else if ( fd == mVdin2DetectFd) {
+                    LOGD("VDIN2 detected\n");
+                    if (mpObserver != NULL) {
+                        mpObserver->onVdin2SignalChange();
                     }
                 }
 

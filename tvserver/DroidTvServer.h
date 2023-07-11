@@ -168,6 +168,9 @@ public:
     Return<int32_t> setPreviewWindowMode(int32_t enable) override;
     Return<void> getBasicVdecStatusInfo(int32_t vdecId, getBasicVdecStatusInfo_cb _hidl_cb) override;
     Return<void> request(const hidl_string& resource, const hidl_string& paras, request_cb _hidl_cb) override;
+    Return<int32_t> StartTvInPIP ( int32_t source_input ) override;
+    Return<int32_t> StopTvInPIP () override;
+    Return<int32_t> IsSupportPIP() override;
 
     Return<void> setCallback(const sp<ITvServerCallback>& callback, ConnectType type) override;
     virtual void onEvent(const TvHidlParcel &hidlParcel);

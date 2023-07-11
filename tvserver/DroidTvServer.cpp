@@ -609,6 +609,18 @@ Return<void> DroidTvServer::getBasicVdecStatusInfo(int32_t vdecId, getBasicVdecS
     return Void();
 }
 
+Return<int32_t> DroidTvServer::StartTvInPIP ( int32_t source_input ) {
+    return mTvServiceIntf->StartTvInPIP(source_input);
+}
+
+Return<int32_t> DroidTvServer::StopTvInPIP () {
+    return mTvServiceIntf->StopTvInPIP();
+}
+
+Return<int32_t> DroidTvServer::IsSupportPIP() {
+    return mTvServiceIntf->IsSupportPIP();
+}
+
 Return<void> DroidTvServer::setCallback(const sp<ITvServerCallback>& callback, ConnectType type) {
     AutoMutex _l(mLock);
     if ((int)type > (int)ConnectType::TYPE_TOTAL - 1) {

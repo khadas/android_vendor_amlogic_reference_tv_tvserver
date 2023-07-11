@@ -66,12 +66,14 @@ namespace  TvEvent {
             mFmt = 0;
             mStatus = 0;
             mReserved = 0;
+            mIsPiP = 0;
         }
         ~SignalInfoEvent() {}
         int mTrans_fmt;
         int mFmt;
         int mStatus;
         int mReserved;
+        int mIsPiP;
     };
 
     class VGAEvent: public CTvEv {

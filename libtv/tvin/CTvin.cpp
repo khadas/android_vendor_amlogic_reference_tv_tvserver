@@ -38,8 +38,8 @@
 #define VDIN1_ATTR_PATH     "/sys/class/vdin/vdin1/attr"
 
 
-
 #define CC_SEL_VDIN_DEV   (0)
+#define CC_SEL_VDIN2_DEV  (2)
 
 /* ADC calibration pattern & format define */
 /* default 100% 8 color-bar */
@@ -65,13 +65,14 @@ CTvin *CTvin::getInstance()
     return mInstance;
 }
 
-CTvin::CTvin() : mAfeDevFd(-1), mVdin0DevFd(-1)
+CTvin::CTvin() : mAfeDevFd(-1), mVdin0DevFd(-1), mVdin2DevFd(-1)
 {
     m_snow_status = false;
 
     memset(&gTvinAFEParam, 0, sizeof(gTvinAFEParam));
     memset(&gTvinAFESignalInfo, 0, sizeof(gTvinAFESignalInfo));
     memset(&m_tvin_param, 0, sizeof(m_tvin_param));
+    memset(&m_tvin2_param, 0, sizeof(m_tvin2_param));
 
     memset(&gTvinVDINParam, 0, sizeof(gTvinVDINParam));
     memset(&gTvinVDINSignalInfo, 0, sizeof(gTvinVDINSignalInfo));
@@ -163,6 +164,11 @@ int CTvin::VDIN_RmTvPath ( void )
     return tvWriteSysfs(SYS_VFM_MAP_PATH, "rm tvpath");
 }
 
+int CTvin::VDIN_RmTvPath2 ( void )
+{
+    return tvWriteSysfs(SYS_VFM_MAP_PATH, "rm tvpath2");
+}
+
 int CTvin::VDIN_RmHdmiDvPath ( void )
 {
     return tvWriteSysfs(SYS_VFM_MAP_PATH, "rm dvhdmiin");
@@ -204,6 +210,10 @@ int CTvin::VDIN_AddVideoPath ( int selPath )
         else
             vdinPath = "add default decoder ";
         break;
+
+    case TV_PATH_VDIN2_DEINTERLACE1_VIDEOQUEUE2:
+        vdinPath = "add tvpath2 vdin2 videopip ";
+        goto end;
     default:
         break;
     }
@@ -237,6 +247,7 @@ int CTvin::VDIN_AddVideoPath ( int selPath )
     } else
         vdinPath += suffixVideoPath;
 
+end:
     ret = VDIN_AddPath (vdinPath.c_str());
 
     if (bNeedAcqVfm) {
@@ -2424,6 +2435,18 @@ int CTvin::Tvin_RemovePath ( tv_path_type_t pathtype )
             }
         }
 
+    } else if (pathtype == TV_PATH_TYPE_TVIN2 ) {
+        for ( i = 0; i < 50; i++ ) {
+            ret = VDIN_RmTvPath2();
+
+            if ( ret > 0 ) {
+                LOGD ( "%s, remove tvin2 path ok, %d ms gone.\n", CFG_SECTION_TV, ( dly * i ) );
+                break;
+            } else {
+                LOGW ( "%s, remove tvin2 path failed, %d ms gone.\n", CFG_SECTION_TV, ( dly * i ) );
+                usleep ( dly * 1000 );
+            }
+        }
     }
 
     return ret;
@@ -2734,3 +2757,206 @@ void CTvin::sendEvent(CheckSourceValidEvent &evt)
     if (mpResObserver)
         mpResObserver->onEvent(evt);
 }
+
+
+//vdin2
+int CTvin::init_vdin2 ( void )
+{
+    int ret = -1;
+    ret = VDIN2_OpenModule();
+    return ret;
+}
+
+int CTvin::uninit_vdin2 ( void )
+{
+    VDIN2_ClosePort();
+    VDIN2_CloseModule();
+    return 0;
+}
+
+int CTvin::VDIN2_OpenModule()
+{
+    char file_name[64] = {0};
+    sprintf ( file_name, "/dev/vdin%d", CC_SEL_VDIN2_DEV );
+    int fd = open ( file_name, O_RDWR );
+    if ( fd < 0 ) {
+        LOGW ( "Open %s error(%s)!\n", file_name, strerror ( errno ) );
+        return -1;
+    }
+    LOGD ( "Open vdin%d module fd = [%d]", CC_SEL_VDIN2_DEV, fd );
+    return fd;
+}
+
+int CTvin::VDIN2_CloseModule()
+{
+    if ( mVdin2DevFd != -1 ) {
+        close ( mVdin2DevFd );
+        mVdin2DevFd = -1;
+    }
+
+    return 0;
+}
+
+int CTvin::VDIN2_GetVdinDeviceFd() {
+    if (mVdin2DevFd < 0) {
+        mVdin2DevFd = VDIN2_OpenModule();
+    }
+
+    return mVdin2DevFd;
+}
+
+int CTvin::VDIN2_DeviceIOCtl ( int request, ... )
+{
+    int tmp_ret = -1;
+    va_list ap;
+    void *arg;
+
+    if (mVdin2DevFd < 0) {
+        mVdin2DevFd = VDIN2_OpenModule();
+    }
+
+    if ( mVdin2DevFd >= 0 ) {
+        va_start ( ap, request );
+        arg = va_arg ( ap, void * );
+
+        va_end ( ap );
+        tmp_ret = ioctl ( mVdin2DevFd, request, arg );
+        return tmp_ret;
+    }
+
+    return -1;
+}
+
+int CTvin::VDIN2_OpenPort ( tvin_port_t port )
+{
+    struct tvin_parm_s vdinParam;
+
+
+    vdinParam.port = port;
+    vdinParam.index = 0;
+    int rt = VDIN2_DeviceIOCtl ( TVIN_IOC_OPEN, &vdinParam );
+    if ( rt < 0 ) {
+        LOGW ( "Vdin2 open port, error(%s)!", strerror ( errno ) );
+    }
+
+    m_tvin2_param.port = port;
+    return rt;
+}
+
+int CTvin::VDIN2_ClosePort()
+{
+
+    int rt = VDIN2_DeviceIOCtl ( TVIN_IOC_CLOSE );
+    if ( rt < 0 ) {
+        LOGW ( "Vdin2 close port, error(%s)!", strerror ( errno ) );
+    }
+
+    m_tvin2_param.port = TVIN_PORT_NULL;
+    return rt;
+}
+
+int CTvin::SwitchVDIN2Port (tvin_port_t source_port )
+{
+    int ret = 0;
+    LOGD ("%s, source_port = %x", __FUNCTION__,  source_port);
+    ret = Tvin2_StopDecoder();
+    if (ret < 0) {
+        LOGW ( "%s,stop decoder failed.", __FUNCTION__);
+        return -1;
+    }
+    VDIN2_ClosePort();
+    if ( VDIN2_OpenPort ( source_port ) < 0 ) {
+        LOGW ( "%s, OpenPort failed, source_port =%x ", __FUNCTION__,  source_port );
+    }
+
+    return 0;
+}
+
+int CTvin::VDIN2_StartDec ( const struct tvin_parm_s *vdinParam )
+{
+    if ( vdinParam == NULL ) {
+        return -1;
+    }
+
+    LOGD ( "VDIN2_StartDec: index = [%d] port = [0x%x] format = [0x%x]\n",
+        vdinParam->index, ( unsigned int ) vdinParam->port, ( unsigned int ) ( vdinParam->info.fmt ));
+
+    int rt = VDIN2_DeviceIOCtl ( TVIN_IOC_START_DEC, vdinParam );
+    if ( rt < 0 ) {
+        LOGW ( "Vdin2 start decode, error(%s)!\n", strerror ( errno ) );
+    }
+
+    return rt;
+
+}
+
+int CTvin::VDIN2_StopDec()
+{
+    int rt = VDIN2_DeviceIOCtl ( TVIN_IOC_STOP_DEC );
+    if ( rt < 0 ) {
+    LOGW ( "Vdin2 stop decode, error(%s)", strerror ( errno ) );
+    }
+
+    return rt;
+}
+
+int CTvin::Tvin2_StartDecoder ( tvin_info_t &info )
+{
+    if (mDecoder2Started)
+        return -2;
+
+    m_tvin2_param.info = info;
+
+    if ( VDIN2_StartDec ( &m_tvin2_param ) >= 0 ) {
+        LOGD ( "StartDecoder2 succeed." );
+        mDecoder2Started = true;
+        return 0;
+    }
+
+    LOGW ( "StartDecoder2 failed." );
+    return -1;
+}
+
+int CTvin::Tvin2_StopDecoder()
+{
+    if (!mDecoder2Started)
+        return 1;
+
+    if ( VDIN2_StopDec() >= 0 ) {
+        LOGD ( "StopDecoder2 ok!" );
+        mDecoder2Started = false;
+        return 0;
+    }
+    return -1;
+}
+
+int CTvin::VDIN2_GetSignalInfo ( struct tvin_info_s *SignalInfo )
+{
+    int rt = VDIN2_DeviceIOCtl ( TVIN_IOC_G_SIG_INFO, SignalInfo );
+    if ( rt < 0 ) {
+        LOGW ( "Vdin2 get signal info, error(%s), ret = %d.\n", strerror ( errno ), rt );
+    }
+    return rt;
+}
+
+int CTvin::VDIN2_SetVdinParam ( const struct tvin_parm_s *vdinParam )
+{
+    int rt = VDIN2_DeviceIOCtl ( TVIN_IOC_S_PARM, vdinParam );
+    if ( rt < 0 ) {
+        LOGW ( "Vdin2 set signal param, error(%s)\n", strerror ( errno ) );
+    }
+
+    return rt;
+}
+
+int CTvin::VDIN2_GetVdinParam ( const struct tvin_parm_s *vdinParam )
+{
+    int rt = VDIN2_DeviceIOCtl ( TVIN_IOC_G_PARM, vdinParam );
+    if ( rt < 0 ) {
+        LOGW ( "Vdin2 get signal param, error(%s)\n", strerror ( errno ) );
+    }
+
+    return rt;
+}
+
+

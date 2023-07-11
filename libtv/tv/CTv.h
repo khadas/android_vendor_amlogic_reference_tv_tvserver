@@ -214,6 +214,11 @@ typedef enum {
     BLOCK_STATE_UNBLOCKED,
 } tv_block_state_e;
 
+typedef enum {
+    TV_SOURCE_MAIN,
+    TV_SOURCE_PIP,
+} tv_source_e;
+
 class CTvPlayer;
 class CDTVTvPlayer;
 class CATVTvPlayer;
@@ -239,6 +244,8 @@ public:
     static const int CLOSE_DEV_FOR_SCAN = 3;
     tvin_info_t m_cur_sig_info;
     tvin_info_t m_last_sig_info;
+    tvin_info_t m_cur_vdin2_sig_info;
+
 
     static const int RECORDING_CMD_STOP = 0;
     static const int RECORDING_CMD_PREPARE = 1;
@@ -270,6 +277,10 @@ public:
     virtual int DoResume(int type);
     virtual int startTvDetect();
 
+    virtual void InitCurrentVdin2SignalInfo ( void );
+    virtual int StartTvInPIP ( tv_source_input_t source_input );
+    virtual int StopTvInPIP ( void );
+
     virtual TvRunStatus_t GetTvStatus();
     virtual int ClearAnalogFrontEnd();
     virtual tv_source_input_t GetLastSourceInput (void);
@@ -280,6 +291,7 @@ public:
     virtual tv_source_input_t GetCurrentSourceInputVirtualLock ( void );
     bool isVirtualSourceInput(tv_source_input_t source_input);
     virtual void InitCurrentSignalInfo ( void );
+
     virtual tvin_info_t GetCurrentSignalInfo ( void );
     int setPreviewWindowMode(bool mode);
     virtual int SetPreviewWindow ( tvin_window_pos_t pos );
@@ -445,6 +457,7 @@ public:
     std::string request(const std::string& resource, const std::string& paras);
 
     int ScreenColorControl(bool color, int freq);
+    int IsSupportPIP();
 private:
     int SendCmdToOffBoardFBCExternalDac(int, int);
     int KillMediaServerClient();
@@ -583,6 +596,7 @@ protected:
     void onSigStatusChange();
     virtual void onSourceConnect(int source_type, int connect_status);
     virtual void onVdinSignalChange();
+    virtual void onVdin2SignalChange();
     virtual void onThermalDetect(int state);
     virtual void ScreenColorChange(int color);
     virtual void onBootvideoRunning();
@@ -614,6 +628,8 @@ protected:
     volatile tv_source_input_t m_source_input;
     volatile tv_source_input_t m_last_source_input;
     volatile tv_source_input_t m_source_input_virtual;
+    volatile tv_source_input_t m_pip_source_input;
+
     volatile int mLastScreenMode;
 
     /* for tvin window mode and pos*/

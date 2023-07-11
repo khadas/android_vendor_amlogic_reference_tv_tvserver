@@ -1098,6 +1098,18 @@ int DroidTvServiceIntf::getBasicVdecStatusInfo(int vdecId, int &decode_time_cost
     return mpTv->getBasicVdecStatusInfo(vdecId, &decode_time_cost, &frame_width, &frame_height, &frame_rate, &error_count, &frame_count, &error_frame_count, &drop_frame_count, &double_write_mode);
 }
 
+int DroidTvServiceIntf::StartTvInPIP ( int32_t source_input ) {
+    return mpTv->StartTvInPIP((tv_source_input_t)source_input);
+}
+
+int DroidTvServiceIntf::StopTvInPIP () {
+    return mpTv->StopTvInPIP();
+}
+
+int DroidTvServiceIntf::IsSupportPIP() {
+    return mpTv->IsSupportPIP();
+}
+
 int DroidTvServiceIntf::processCmd(const Parcel &p) {
     unsigned char dataBuf[512] = {0};
     int ret = -1;

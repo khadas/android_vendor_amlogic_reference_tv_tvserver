@@ -166,6 +166,7 @@ CTv::CTv():mTvDmx(0), mTvDmx1(1), mTvDmx2(2)
     m_win_mode   = NORMAL_WINDOW;
     mCurAnalyzeTsChannelID = -1;
     InitCurrentSignalInfo();
+    InitCurrentVdin2SignalInfo();
     //init gTvinConfig
     gTvinConfig.kernelpet_disable = false;
     gTvinConfig.kernelpet_timeout = -1;
@@ -1979,8 +1980,13 @@ int CTv::OpenTv ( void )
     if (mpTvin->Tvin_RemovePath (TV_PATH_TYPE_TVIN) > 0) {
         mpTvin->VDIN_AddVideoPath(TV_PATH_VDIN_AMLVIDEO2_PPMGR_DEINTERLACE_AMVIDEO);
     }
+    /*if (IsSupportPIP()) {
+        if (mpTvin->Tvin_RemovePath (TV_PATH_TYPE_TVIN2) > 0) {
+            mpTvin->VDIN_AddVideoPath(TV_PATH_VDIN2_DEINTERLACE1_VIDEOQUEUE2);
+        }
+    }*/
     if (mpTvin->Tvin_RemovePath (TV_PATH_TYPE_DEFAULT) > 0) {
-        mpTvin->VDIN_AddVideoPath(TV_PATH_DECODER_AMLVIDEO2_PPMGR_DEINTERLACE_AMVIDEO);
+            mpTvin->VDIN_AddVideoPath(TV_PATH_DECODER_AMLVIDEO2_PPMGR_DEINTERLACE_AMVIDEO);
     }
 
     mEnableLockModule = (SSMReadChannelLockEnValue() == 0);
@@ -1999,6 +2005,7 @@ int CTv::OpenTv ( void )
     //mDevicesPollStatusDetectThread.startDetect();
     //ClearAnalogFrontEnd();
     InitCurrentSignalInfo();
+    InitCurrentVdin2SignalInfo();
     mTvStatus = TV_OPEN_ED;
     return 0;
 }
@@ -2122,6 +2129,24 @@ int CTv::StopTvLock ( void )
         LOGD("%s StopTvLock End SwitchSourceTime Time = %fs\n", __FUNCTION__,getUptimeSeconds());
         return 0;
     }
+}
+
+int CTv::StartTvInPIP ( tv_source_input_t source_input )
+{
+    m_pip_source_input = source_input;
+    tvin_port_t cur_port = mpTvin->Tvin_GetSourcePortBySourceInput ( source_input );
+    return mpTvin->SwitchVDIN2Port(cur_port);
+}
+
+int CTv::StopTvInPIP ( void )
+{
+    m_pip_source_input = SOURCE_INVALID;
+    mpTvin->Tvin2_StopDecoder();
+    int ret = mpTvin->VDIN2_ClosePort();
+    InitCurrentVdin2SignalInfo();
+    LOGD("%s \n", __FUNCTION__);
+
+    return ret;
 }
 
 int CTv::Tv_MiscSetBySource ( tv_source_input_t source_input )
@@ -2632,7 +2657,7 @@ void CTv::onSigToNoSig()
         }
     } else {
         if (SOURCE_TV == m_source_input) {
-            if (needSnowEffect()) {
+            if (needSnowEffect()) {//first open snow
                 SetSnowShowEnable(true);
                 //5 means VPP_DISPLAY_MODE_FULL
                 tvSetDisplaymode(m_source_input, 5, 0);
@@ -2725,6 +2750,20 @@ void CTv::InitCurrentSignalInfo ( void )
     m_last_sig_info.aspect_ratio   = TVIN_ASPECT_NULL;
     m_last_sig_info.amdolby_vision = 0;
     m_last_sig_info.low_latency    = 0;
+}
+
+void CTv::InitCurrentVdin2SignalInfo ( void )
+{
+    m_cur_vdin2_sig_info.fps = 0;
+    m_cur_vdin2_sig_info.is_dvi = 0;
+    m_cur_vdin2_sig_info.trans_fmt      = TVIN_TFMT_2D;
+    m_cur_vdin2_sig_info.fmt            = TVIN_SIG_FMT_NULL;
+    m_cur_vdin2_sig_info.status         = TVIN_SIG_STATUS_NULL;
+    m_cur_vdin2_sig_info.cfmt           = COLOR_FMT_MAX;
+    m_cur_vdin2_sig_info.hdr_info       = 0;
+    m_cur_vdin2_sig_info.aspect_ratio   = TVIN_ASPECT_NULL;
+    m_cur_vdin2_sig_info.amdolby_vision = 0;
+    m_cur_vdin2_sig_info.low_latency    = 0;
 }
 
 tvin_info_t CTv::GetCurrentSignalInfo ( void )
@@ -3812,6 +3851,47 @@ void CTv::onVdinSignalChange()
     }
 }
 
+void CTv::onVdin2SignalChange() {
+
+    LOGD("%s: source = %d \n", __FUNCTION__, m_pip_source_input);
+    if (m_pip_source_input < SOURCE_HDMI1) return;
+    int ret = mpTvin->VDIN2_GetSignalInfo ( &m_cur_vdin2_sig_info );
+    if (ret < 0) {
+        LOGD("Get vdin2 Signal Info error!\n");
+        m_cur_vdin2_sig_info.status = TVIN_SIG_STATUS_NULL;
+    }
+
+    LOGD("%s: trans_fmt is %d, sig_fmt is %d, status is %d, isDVI is %d, hdr_info is 0x%x\n", __FUNCTION__,
+    m_cur_vdin2_sig_info.trans_fmt, m_cur_vdin2_sig_info.fmt, m_cur_vdin2_sig_info.status, m_cur_vdin2_sig_info.is_dvi, m_cur_vdin2_sig_info.hdr_info);
+    if ( m_cur_vdin2_sig_info.status == TVIN_SIG_STATUS_STABLE ) {
+        ret = mpTvin->Tvin2_StartDecoder(m_cur_vdin2_sig_info);
+
+        TvEvent::SignalInfoEvent ev;
+        ev.mTrans_fmt = m_cur_vdin2_sig_info.trans_fmt;
+        ev.mFmt = m_cur_vdin2_sig_info.fmt;
+        ev.mStatus = m_cur_vdin2_sig_info.status;
+        ev.mIsPiP = TV_SOURCE_PIP;
+        sendTvEvent ( ev );
+    } else if ( m_cur_vdin2_sig_info.status == TVIN_SIG_STATUS_UNSTABLE ) {
+        ret = mpTvin->Tvin2_StopDecoder();
+
+    } else if ( m_cur_vdin2_sig_info.status == TVIN_SIG_STATUS_NOTSUP ) {
+        ret = mpTvin->Tvin2_StopDecoder();
+
+    } else if ( m_cur_vdin2_sig_info.status == TVIN_SIG_STATUS_NOSIG ) {
+        ret = mpTvin->Tvin2_StopDecoder();
+
+        TvEvent::SignalInfoEvent ev;
+        ev.mTrans_fmt = m_cur_vdin2_sig_info.trans_fmt;
+        ev.mFmt = m_cur_vdin2_sig_info.fmt;
+        ev.mStatus = m_cur_vdin2_sig_info.status;
+        ev.mIsPiP = TV_SOURCE_PIP;
+        sendTvEvent ( ev );
+    } else {
+        InitCurrentVdin2SignalInfo();
+    }
+
+}
 
 CTvRecord *CTv::getRecorder(const char *id, const char *param) {
     CTvRecord *recorder = RecorderManager::getInstance().getDev(id);
@@ -4510,5 +4590,17 @@ void CTv::ScreenColorChange(int color) {
             }
         }
     }
+}
+
+int CTv::IsSupportPIP()
+{
+    int ret = 0;
+    if (isFileExist("/dev/vdin2")) {
+        LOGD("%s: support HDMI PIP\n",__FUNCTION__);
+        ret = 1;
+    } else {
+        LOGD("%s: unsupport HDMI PIP\n",__FUNCTION__);
+    }
+    return ret;
 }
 

@@ -594,6 +594,7 @@ typedef struct vdin_vrr_freesync_param_s {
 enum {
     TV_PATH_VDIN_AMLVIDEO2_PPMGR_DEINTERLACE_AMVIDEO,
     TV_PATH_DECODER_AMLVIDEO2_PPMGR_DEINTERLACE_AMVIDEO,
+    TV_PATH_VDIN2_DEINTERLACE1_VIDEOQUEUE2,
 };
 
 #define CAMERA_IOC_MAGIC 'C'
@@ -672,6 +673,7 @@ typedef struct tvin_window_pos_s {
 typedef enum tv_path_type_e {
     TV_PATH_TYPE_DEFAULT,
     TV_PATH_TYPE_TVIN,
+    TV_PATH_TYPE_TVIN2,
     TV_PATH_TYPE_MAX,
 } tv_path_type_t;
 
@@ -749,6 +751,7 @@ public:
     int VDIN_AddPath ( const char *videopath );
     int VDIN_RmDefPath ( void );
     int VDIN_RmTvPath ( void );
+    int VDIN_RmTvPath2 ( void );
     int VDIN_RmHdmiDvPath ( void );
     int VDIN_AddVideoPath ( int selPath );
 
@@ -833,6 +836,27 @@ public:
     int  Resman_Query(void * res_status);
     void Resman_FreeRes(int res_type);
     void Resman_Release();
+
+
+    //vdin2
+    int init_vdin2();
+    int uninit_vdin2( void );
+    int VDIN2_OpenModule();
+    int VDIN2_CloseModule();
+    int VDIN2_DeviceIOCtl ( int request, ... );
+    int VDIN2_GetDeviceFileHandle();
+    int VDIN2_OpenPort ( tvin_port_t port );
+    int VDIN2_ClosePort();
+    int VDIN2_StartDec ( const struct tvin_parm_s *vdinParam );
+    int VDIN2_StopDec();
+    int Tvin2_StartDecoder ( tvin_info_t &info );
+    int Tvin2_StopDecoder();
+    int VDIN2_GetVdinDeviceFd();
+    int VDIN2_GetSignalInfo ( struct tvin_info_s *SignalInfo );
+    int VDIN2_SetVdinParam ( const struct tvin_parm_s *vdinParam );
+    int VDIN2_GetVdinParam ( const struct tvin_parm_s *vdinParam );
+    int SwitchVDIN2Port (tvin_port_t source_port );
+
     /*******************************************extend funs*********************/
     static tv_source_input_type_t Tvin_SourcePortToSourceInputType ( tvin_port_t source_port );
     static tv_source_input_type_t Tvin_SourceInputToSourceInputType ( tv_source_input_t source_input );
@@ -917,5 +941,10 @@ private:
 
     char config_tv_path[64];
     char config_default_path[64];
+
+    //vdin2
+    int mVdin2DevFd;
+    tvin_parm_t m_tvin2_param;
+    bool mDecoder2Started;
 };
 #endif
