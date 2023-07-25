@@ -127,6 +127,7 @@ cc_binary {
         "vendor/amlogic/reference/libdvr/include",
         "vendor/amlogic/common/mediahal_sdk/include",
         "hardware/amlogic/media/amcodec/include",
+		"vendor/amlogic/common/frameworks/services",
     ],
 
     header_libs: [

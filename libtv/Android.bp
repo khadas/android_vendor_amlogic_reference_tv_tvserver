@@ -71,6 +71,7 @@ cc_library_shared {
     ],
 
 include_dirs: [
+		"vendor/amlogic/common/frameworks/services",
         "external/jsoncpp/include",
     ],
 
@@ -85,6 +86,8 @@ include_dirs: [
         "libbinder",
         "libtvbinder",
         "libsystemcontrolservice",
+        "vendor.amlogic.hardware.systemcontrol@1.0",
+        "vendor.amlogic.hardware.systemcontrol@1.1",
         "libpqcontrol",
         //"libzvbi",
         "libam_mw",

@@ -222,7 +222,8 @@ class CTv : public CDevicesPollStatusDetect::ISourceConnectObserver,
             public CTvSubtitle::IObserver,
             public CBootvideoStatusDetect::IBootvideoStatusObserver,
             public CTv2d4GHeadSetDetect::IHeadSetObserver,
-            public CTvRecord::IObserver {
+            public CTvRecord::IObserver,
+            public SysClientcallback::IScreenColorChangeObserver {
 
 public:
     static const int TV_ACTION_NULL = 0x0000;
@@ -582,7 +583,7 @@ protected:
     virtual void onSourceConnect(int source_type, int connect_status);
     virtual void onVdinSignalChange();
     virtual void onThermalDetect(int state);
-
+    virtual void ScreenColorChange(int color);
     virtual void onBootvideoRunning();
     virtual void onBootvideoStopped();
 
@@ -631,6 +632,7 @@ protected:
     CTvin *mpTvin;
     CTvGpio *pGpio;
     CTvPanel *mPanel;
+    SysClientcallback *mSysClient;
 
     bool mPreviewEnabled;
     bool mbSameSourceEnableStatus;

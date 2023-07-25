@@ -123,7 +123,8 @@ CTv::CTv():mTvDmx(0), mTvDmx1(1), mTvDmx2(2)
     // Initialize SQLite.
     sqlite3_initialize();
     CTvDatabase::GetTvDb()->InitTvDb ( TV_DB_PATH );
-
+    mSysClient = SysClientcallback::getInstance();
+    mSysClient->setObserver(this);
     if ( CTvDimension::isDimensionTblExist() == false ) {
         CTvDimension::builtinAtscDimensions();
     }
@@ -2013,7 +2014,8 @@ int CTv::StartTvLock ()
     //tvWriteSysfs("/sys/power/wake_lock", "tvserver.run");
 
     setDvbLogLevel();
-    mAv.SetVideoLayerStatus(DISABLE_VIDEO_LAYER);
+    ScreenColorControl(false,VIDEO_LAYER_COLOR_SHOW_ALWAYES);
+    //mAv.SetVideoLayerStatus(DISABLE_VIDEO_LAYER);
     TvMisc_EnableWDT ( gTvinConfig.kernelpet_disable, gTvinConfig.userpet, gTvinConfig.kernelpet_timeout, gTvinConfig.userpet_timeout, gTvinConfig.userpet_reset );
     mpTvin->TvinApi_SetCompPhaseEnable ( 1 );
     mpTvin->VDIN_EnableRDMA ( 1 );
@@ -2072,13 +2074,13 @@ int CTv::StopTvLock ( void )
 
         tv_source_input_type_t current_source_type = CTvin::Tvin_SourceInputToSourceInputType(m_source_input);
         LOGD("%s current finish source type [%d]\n",__FUNCTION__,current_source_type);
-        if (SOURCE_TYPE_HDMI == current_source_type ) {
-            CVpp::getInstance()->VPP_setVideoColor(true);
-        }
-
+        //if (SOURCE_TYPE_HDMI == current_source_type ) {
+        //    CVpp::getInstance()->VPP_setVideoColor(true);
+        //}
+        ScreenColorControl(false, VIDEO_LAYER_COLOR_SHOW_ALWAYES);
+        mAv.SetVideoScreenColor(VIDEO_LAYER_BLACK);
         mpTvin->Tvin_StopDecoder();
         mpTvin->VDIN_ClosePort();
-
         //mFrontDev->SetAnalogFrontEndTimerSwitch(0);
 
         setAudioChannel(TV_AOUT_OUTPUT_STEREO);
@@ -4383,12 +4385,19 @@ std::string CTv::request(const std::string& resource, const std::string& paras)
          unsigned int dtv_mute = paramGetInt(paras.c_str(), NULL, "DTV_mute", 0);
          mAv.AudioSetMute(atv_mute, dtv_mute);
          return std::string("{\"ret\":0}");
+    } else if (std::string("setTestPattern") == resource) {
+        int blue = paramGetInt(paras.c_str(), NULL, "blue", 0);
+        if (blue) {
+            mAv.SetVideoScreenColor(VIDEO_LAYER_BLUE);
+        } else {
+            mAv.SetVideoScreenColor(VIDEO_LAYER_BLACK);
+        }
+        return std::string("{\"ret\":0}");
     }
     return std::string("{\"ret\":1}");
 }
 
 int CTv::ScreenColorControl(bool color, int freq) {
-    int ret = 0;
     if (mIsMultiDemux) {//new path
         switch (freq) {
             case VIDEO_LAYER_COLOR_SHOW_DISABLE://disable color
@@ -4426,5 +4435,50 @@ int CTv::ScreenColorControl(bool color, int freq) {
         }
     }
     return 0;
+}
+
+void CTv::ScreenColorChange(int color) {
+    LOGD("%s  new color:%d, m_source_input:%d, m_cur_sig_info.status:%d\n",__FUNCTION__, color, m_source_input, m_cur_sig_info.status);
+    if (m_source_input != SOURCE_INVALID) {//for tvserver source
+        tv_source_input_type_t input = mpTvin->Tvin_SourceInputToSourceInputType(m_source_input);
+        if (SOURCE_TYPE_TV == input) {//for atv
+            if (mBlockState == BLOCK_STATE_BLOCKED) {
+                 LOGD("%s ATV channel blocked\n",__FUNCTION__);
+                ScreenColorControl(true,VIDEO_LAYER_COLOR_SHOW_ALWAYES);
+            } else if (m_cur_sig_info.status == TVIN_SIG_STATUS_NOSIG) {
+                if (getScreenColorSetting()) {
+                     ScreenColorControl(true,VIDEO_LAYER_COLOR_SHOW_ALWAYES);//ATV show blue
+                 } else {
+                     ScreenColorControl(true,VIDEO_LAYER_COLOR_SHOW_ONCE);//ATV show snow
+                 }
+            } else {
+                LOGD("%s ATV signal normal, needn't do anything\n",__FUNCTION__);
+            }
+        } else if (SOURCE_TYPE_HDMI == input || SOURCE_TYPE_AV == input) {//for HDMI/AV
+            if  (m_cur_sig_info.status == TVIN_SIG_STATUS_NOSIG) {
+                ScreenColorControl(true,VIDEO_LAYER_COLOR_SHOW_ONCE);
+            }
+        }
+    } else {
+    //for none tune source,only set test pattern , do not control video layer status
+        int ret = -1;
+        char buf[256] = {0};
+        ret = tvReadSysfs("/sys/class/video/disable_video", buf);
+        if (ret < 0) {
+            LOGD("%s: read /sys/class/video/disable_video error, return!\n",__FUNCTION__);
+        }
+        ret = atoi(buf);
+        if (ret != 1) {
+            LOGD("%s: video has enable!,only set black\n",__FUNCTION__);
+            mAv.SetVideoScreenColor(VIDEO_LAYER_BLACK);
+        } else {
+            LOGD("%s: video is disabled!\n",__FUNCTION__);
+            if (getScreenColorSetting()) {
+                mAv.SetVideoScreenColor(VIDEO_LAYER_BLUE);
+            } else {
+                mAv.SetVideoScreenColor(VIDEO_LAYER_BLACK);
+            }
+        }
+    }
 }
 

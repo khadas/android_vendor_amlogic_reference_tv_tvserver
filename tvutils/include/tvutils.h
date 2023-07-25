@@ -21,6 +21,9 @@
 #include "PQType.h"
 #include "json/json.h"
 
+#include <systemcontrol/SystemControlClient.h>
+using namespace android;
+
 #ifndef DVB_SUCCESS
 #define DVB_SUCCESS     (0)
 #endif
@@ -49,6 +52,39 @@ static const char *PATH_WDT_USR_PET_RESET_EN_49 = "/sys/module/aml_wdt/parameter
 static const char *PATH_AFE_FORCE_NOSTD_49      = "/sys/module/tvin_afe/parameters/force_nostd";
 static const char *PATH_LCD_SS_49               = "/sys/class/lcd/ss";
 static const char *PATH_LCD_SS_54               = "/sys/class/aml_lcd/ss";
+
+class SysClientcallback: public SysCtrlListener {
+public:
+    SysClientcallback() ;
+    ~SysClientcallback() ;
+
+    void notify(int   event __unused) {};
+    void notifyFBCUpgrade(int state __unused, int param __unused) {};
+    void onSetDisplayMode(int mode __unused) {};
+    void onHdrInfoChange(int newHdrInfo __unused) {};
+    void onAudioEvent(int param1 __unused, int param2 __unused, int param3 __unused, int param4 __unused) {};
+    void onDensityChange(int param1 __unused,int param2 __unused, int param3 __unused) {};
+    void onScreenColorChange(int newColor);
+
+    class IScreenColorChangeObserver {
+    public:
+        IScreenColorChangeObserver() {};
+        virtual ~IScreenColorChangeObserver() {};
+        virtual void ScreenColorChange(int color) = 0;
+    };
+
+    void setObserver ( IScreenColorChangeObserver *pOb ) {
+        mpObserver = pOb;
+    };
+
+    static SysClientcallback *getInstance();;
+
+private:
+    static SysClientcallback *mInstance;
+    IScreenColorChangeObserver *mpObserver;
+    SystemControlClient* mSysClient;
+    sp<SysCtrlListener> mListener;
+};
 
 void setProperty(const char *key, const char *value);
 bool getProperty(const char *key, char *value);

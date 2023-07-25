@@ -31,7 +31,7 @@
 
 #include <utils/threads.h>
 #include <binder/IServiceManager.h>
-#include <systemcontrol/SystemControlClient.h>
+//#include <systemcontrol/SystemControlClient.h>
 
 #include "include/tvconfig.h"
 #include "include/tvutils.h"
@@ -52,6 +52,35 @@ static unsigned int user_pet_terminal = 1;
 
 static Mutex amLock;
 static sp<SystemControlClient> sysctrlClient = nullptr;
+
+SysClientcallback *SysClientcallback::mInstance;
+SysClientcallback *SysClientcallback::getInstance()
+{
+    if (NULL == mInstance) mInstance = new SysClientcallback();
+    return mInstance;
+}
+
+SysClientcallback::SysClientcallback() {
+    mSysClient = SystemControlClient::getInstance();
+    if (mSysClient != nullptr) {
+        mListener = this;
+        mSysClient->setListener(mListener);
+    }
+}
+
+SysClientcallback::~SysClientcallback() {
+    mpObserver = nullptr;
+    mSysClient = nullptr;
+    mListener = nullptr;
+};
+
+void SysClientcallback::onScreenColorChange(int newColor) {
+    LOGE("%s:newcolor is = %d", __FUNCTION__, newColor);
+    if (mpObserver != NULL) {
+        mpObserver->ScreenColorChange(newColor);
+    }
+}
+
 static const sp<SystemControlClient> &getSystemControlService()
 {
     Mutex::Autolock _l(amLock);
