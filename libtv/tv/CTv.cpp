@@ -1346,6 +1346,11 @@ int CTv::playDtmbProgram ( int progId )
 
 int CTv::playAtvProgram (int freq, int videoStd, int audioStd, int vfmt, int soundsys, int fineTune __unused, int audioCompetition __unused)
 {
+
+    if (mTvStatus >= TV_STOP_ED) {
+        LOGD("%s: atv source is stoped! return\n", __FUNCTION__);
+        return 0;
+    }
     LOGD("%s Start SwitchSourceTime = %fs",__FUNCTION__,getUptimeSeconds());
     SetSourceSwitchInputLocked(m_source_input_virtual, SOURCE_TV);
     mTvAction |= TV_ACTION_IN_VDIN;
