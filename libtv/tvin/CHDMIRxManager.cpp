@@ -154,7 +154,8 @@ int CHDMIRxManager::SetHdmiPortCecPhysicAddr()
     memset(buf, 0, sizeof(buf));
     sprintf(buf, "%d", val);
     int isLoadEdidWithPort = config_get_int(CFG_SECTION_HDMI, TV_CONFIG_LOAD_EDID_WITH_PORT_EN, 1);
-    if (!isLoadEdidWithPort) {//new func,needn't set edid port map
+    //new func,needn't set edid port map,only 5.15 support
+    if (!isLoadEdidWithPort || (getKernelMajorVersion() == 5 && getKernelMinorVersion() == 4 )) {
         int kernelVersion = getKernelMajorVersion();
         if (kernelVersion > 4) {
             tvWriteSysfs(HDMI_CEC_PORT_MAP_54,buf);
