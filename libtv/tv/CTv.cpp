@@ -1413,7 +1413,7 @@ int CTv::setFrontEnd ( const char *paras, bool force )
     LOGD("%s: mTvAction = %#x, paras = %s, m_source_input = %d. SwitchSourceTime = %fs",
             __FUNCTION__, mTvAction, paras, m_source_input,getUptimeSeconds());
 
-    if (mTvAction & TV_ACTION_SCANNING || m_source_input == SOURCE_INVALID) {
+    if (mTvAction & TV_ACTION_SCANNING) {
         return -1;
     }
     LOGD("%s: source_input_virtual[%d], mDTvSigStaus[%d]",__FUNCTION__,m_source_input_virtual,mDTvSigStaus);
