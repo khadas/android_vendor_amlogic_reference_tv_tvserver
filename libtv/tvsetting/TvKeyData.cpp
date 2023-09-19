@@ -1555,7 +1555,7 @@ int getEdidFileSize(char *fileName) {
 
 int getLoadEdidType(int file1Size, int file2Size) {
 
-    int ret = 0;
+    int ret = 2;
     if (file1Size == 256) {
         if (file2Size ==256) {
             ret = 0;
