@@ -2549,7 +2549,7 @@ void CTv::onSigToUnstable()
             }
         }
     } else {
-        ScreenColorControl(true,VIDEO_LAYER_COLOR_SHOW_ALWAYES);
+        ScreenColorControl(false,VIDEO_LAYER_COLOR_SHOW_ALWAYES);
         mpTvin->Tvin_StopDecoder();
     }
 }
@@ -3107,6 +3107,7 @@ int CTv::Tv_SetVdinForPQ (int gameStatus, int pcStatus, int autoSwitchFlag)
         }
         //tvin_port_t cur_port = mpTvin->Tvin_GetSourcePortBySourceInput(m_source_input);
         //mpTvin->SwitchPort (cur_port);
+        ScreenColorControl(false, VIDEO_LAYER_COLOR_SHOW_ALWAYES);
         if (mpTvin->Tvin_StopDecoder() < 0) {
         LOGW ( "%s,stop decoder failed.", __FUNCTION__);
         }
@@ -3435,6 +3436,7 @@ int CTv::SetHdmiEdidVersion(tv_hdmi_port_id_t port, tv_hdmi_edid_version_t versi
     if (m_source_input == (port + 4) ) {
         tv_hdmi_edid_version_t currentVersion = SSMReadHDMIEdidVersion(port);
         if (currentVersion != version) {
+            ScreenColorControl(false, VIDEO_LAYER_COLOR_SHOW_ALWAYES);
             mpTvin->Tvin_StopDecoder();
 
             char tmp[32] = {0};

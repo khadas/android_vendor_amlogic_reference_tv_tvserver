@@ -31,14 +31,18 @@ CVideotunnel::CVideotunnel()
 
 CVideotunnel::~CVideotunnel()
 {
-    mDevFd = -1;
+    CloseVideotunnel();
     mTunnelId = -1;
     mColor = 0;
 }
 
 int CVideotunnel::OpenVideotunnel()
 {
-    mDevFd = -1;
+
+    if (mDevFd >= 0) {
+        return mDevFd;
+    }
+
     mDevFd = meson_vt_open();
     if (mDevFd < 0) {
         LOGE("%s: open meson_vt error!",__FUNCTION__);
@@ -84,7 +88,6 @@ int CVideotunnel::SetVideotunnelSolidColor(tv_set_color_frame cmd, tv_set_color_
     ret = OpenVideotunnel();
     if (ret >= 0) {
         ret = meson_vt_set_solid_color(mDevFd, mTunnelId, (vt_color_cmd)cmd, (vt_color_data)cmd_data);
-        CloseVideotunnel();
     } else {
         LOGD("%s: Open Video tunnel error!",__FUNCTION__);
     }
