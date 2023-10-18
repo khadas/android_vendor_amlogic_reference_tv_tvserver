@@ -2411,6 +2411,15 @@ void CTv::onSigToStable()
 void CTv::onSigStillStable()
 {
     LOGD ( "%s, signal Still Stable!\n", __FUNCTION__);
+
+    if (m_source_input == SOURCE_TV ) {//plug/unplug cable still display normally
+        if (getScreenStaticFrameEnable()) {
+            mAv.DisableVideoBlackout();
+        } else {
+            mAv.EnableVideoBlackout();
+        }
+    }
+
     if (needSnowEffect() && mpTvin->getSnowStatus()) {
         SetSnowShowEnable( false );
         mpTvin->Tvin_StopDecoder();
@@ -2430,11 +2439,6 @@ void CTv::onSigStillStable()
         //    CVpp::getInstance()->VPP_setVideoColor(true);
         //}
         ScreenColorControl(false, VIDEO_LAYER_COLOR_SHOW_ALWAYES);
-    } else if ( getScreenStaticFrameEnable() && SOURCE_TV == m_source_input && !isChannelBlockStatusChanged()) {
-        LOGD ( "%s, nothing to do\n", __FUNCTION__);
-    } else {
-        //CVpp::getInstance()->VPP_setVideoColor(false);
-        ScreenColorControl(false, VIDEO_LAYER_COLOR_SHOW_ONCE);
     }
     LOGD ( "%s, startDecoder End SwitchSourceTime = %fs\n", __FUNCTION__,getUptimeSeconds());
     //showboz  codes from  start decode fun
