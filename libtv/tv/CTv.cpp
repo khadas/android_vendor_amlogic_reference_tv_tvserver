@@ -1429,13 +1429,14 @@ int CTv::setFrontEnd ( const char *paras, bool force )
     } else {
         LOGD("%s: current source[%d], needn't static frame",__FUNCTION__,m_source_input);
         mAv.EnableVideoBlackout();
-        if (SOURCE_ADTV == m_source_input_virtual && (mBlockStatusChanged || BLOCK_STATE_BLOCKED == mChannelBlockState)) {
-            CVideotunnel::getInstance()->VT_setvideoColor(false, true);
+        //if change channel want display blue color,use this
+        /*if (SOURCE_ADTV == m_source_input_virtual && (mBlockStatusChanged || BLOCK_STATE_BLOCKED == mChannelBlockState)) {
+            ScreenColorControl(false, VIDEO_LAYER_COLOR_SHOW_ALWAYES);
         } else {
-            CVideotunnel::getInstance()->VT_setvideoColor(true, true);
-            if (getScreenColorSetting())
-            mAv.SetVideoScreenColor(VIDEO_LAYER_BLUE);
-        }
+            ScreenColorControl(true, VIDEO_LAYER_COLOR_SHOW_ALWAYES);
+        }*/
+        //default set change channel is black
+        ScreenColorControl(false, VIDEO_LAYER_COLOR_SHOW_ALWAYES);
     }
     mChannelLastBlockState = mChannelBlockState;
     stopPlaying(false);
@@ -2489,6 +2490,12 @@ void CTv::isVideoFrameAvailable(unsigned int u32NewFrameCount)
 {
     unsigned int u32TimeOutCount = 0;
     while (!mIsMultiDemux) {//new path, this node has inactive
+        if (m_source_input == SOURCE_TV || m_source_input == SOURCE_DTV) {
+            if ((mTvAction & TV_ACTION_PLAYING) != TV_ACTION_PLAYING) {
+            LOGD("%s not play,return", __FUNCTION__);
+            return;
+            }
+        }
         if ((unsigned int)mAv.getVideoFrameCount() >= u32NewFrameCount) {
             LOGD("%s video available SwitchSourceTime = %f", __FUNCTION__,getUptimeSeconds());
             break;

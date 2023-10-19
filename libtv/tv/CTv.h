@@ -87,7 +87,7 @@ static const char *TV_DB_PATH = "/param/dtv.db";
 /*support tconless function*/
 //#define SUPPORT_PANEL
 
-#define NEW_FRAME_TIME_OUT_COUNT  100
+#define NEW_FRAME_TIME_OUT_COUNT  200
 
 
 struct vframe_comm_s {
