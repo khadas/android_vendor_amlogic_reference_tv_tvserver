@@ -488,6 +488,7 @@ private:
     tv_block_state_e mChannelBlockState;
     tv_block_state_e mChannelLastBlockState;
     bool mBlockStatusChanged;
+    bool mNoneStaticChange;
     bool mIsMultiDemux; //Indicates whether the new path is supported
 protected:
     class CTvMsgQueue: public CMsgQueueThread, public CAv::IObserver, public CTvin::IObserver

@@ -1421,9 +1421,10 @@ int CTv::setFrontEnd ( const char *paras, bool force )
     if (mTvAction & TV_ACTION_SCANNING) {
         return -1;
     }
-    LOGD("%s: source_input_virtual[%d], mDTvSigStaus[%d]",__FUNCTION__,m_source_input_virtual,mDTvSigStaus);
+    LOGD("%s: source_input_virtual[%d], mDTvSigStaus[%d], mNoneStaticChange[%d]",__FUNCTION__,
+        m_source_input_virtual, mDTvSigStaus, mNoneStaticChange);
     if (SOURCE_ADTV == m_source_input_virtual && getScreenStaticFrameEnable() && mDTvSigStaus
-        && !isChannelBlockStatusChanged()) {
+        && !isChannelBlockStatusChanged() && !mNoneStaticChange) {
         LOGD("%s: current source[%d], set static frame",__FUNCTION__,m_source_input);
         mAv.DisableVideoBlackout();
     } else {
@@ -1988,6 +1989,7 @@ int CTv::OpenTv ( void )
     mChannelBlockState = BLOCK_STATE_NONE;
     mChannelLastBlockState = BLOCK_STATE_NONE;
     mBlockStatusChanged = false;
+    mNoneStaticChange = false;
 
     Tvin_GetTvinConfig();
     m_last_source_input = SOURCE_INVALID;
@@ -2034,6 +2036,7 @@ int CTv::StartTvLock ()
     mChannelBlockState = BLOCK_STATE_NONE;
     mChannelLastBlockState = BLOCK_STATE_NONE;
     mBlockStatusChanged = true;
+    mNoneStaticChange = false;
     LOGD("StartTvLock end");
     return 0;
 }
@@ -4409,6 +4412,15 @@ std::string CTv::request(const std::string& resource, const std::string& paras)
             mAv.SetVideoScreenColor(VIDEO_LAYER_BLUE);
         } else {
             mAv.SetVideoScreenColor(VIDEO_LAYER_BLACK);
+        }
+        return std::string("{\"ret\":0}");
+    } else if (std::string("ADTV.setNoneStaticChangetoCurrentProgram") == resource) {
+        int Scrambled = paramGetInt(paras.c_str(), NULL, "Scrambled", 0);
+        int RadioChannel = paramGetInt(paras.c_str(), NULL, "RadioChannel", 0);
+        if (Scrambled || RadioChannel) {
+            mNoneStaticChange = true;
+        } else {
+            mNoneStaticChange = false;
         }
         return std::string("{\"ret\":0}");
     }
