@@ -27,6 +27,7 @@
 #define AFORMAT_AC4 29
 
 #define VALID_PID(_pid_) ((_pid_)>0 && (_pid_)<0x1fff)
+static volatile bool mIsVideoSupport = true;
 
 CAv::CAv()
 {
@@ -849,7 +850,7 @@ int CAv::StartTS(unsigned short vpid, unsigned short apid, unsigned short pcrid,
         LOGD("%s: ret is %d\n", __FUNCTION__, ret);
         return -1;
     }
-
+    mIsVideoSupport = true;
     return 0;
 #else
     return -1;
@@ -1673,6 +1674,12 @@ void CAv::av_evt_callback_tsplayer(void *user_data, am_tsplayer_event *event)
 
     LOGD("video_callback type %d\n", event? event->type : 0);
 
+    if (event->type == AM_TSPLAYER_EVENT_TYPE_DECODE_VIDEO_UNSUPPORT) {
+        mIsVideoSupport = false;
+    } else if (event->type != AM_TSPLAYER_EVENT_TYPE_DECODE_FIRST_FRAME_AUDIO) {
+        mIsVideoSupport = true;
+    }
+
     switch (event->type) {
         case AM_TSPLAYER_EVENT_TYPE_DECODER_DATA_LOSS:
             LOGD("event type demod data loss");
@@ -1705,17 +1712,18 @@ void CAv::av_evt_callback_tsplayer(void *user_data, am_tsplayer_event *event)
             pAv->mCurAvEvent.param = (long)event->event.scramling.scramling;
             pAv->mpObserver->onEvent(pAv->mCurAvEvent);
             break;
-            /*case AM_AV_EVT_VIDEO_NOT_SUPPORT: {
+        case AM_TSPLAYER_EVENT_TYPE_DECODE_VIDEO_UNSUPPORT: {
             pAv->mCurAvEvent.type = AVEvent::EVENT_AV_UNSUPPORT;
-            pAv->mCurAvEvent.param = ( long )param;
             pAv->mpObserver->onEvent(pAv->mCurAvEvent);
             break;
-            }*/
+            }
         case AM_TSPLAYER_EVENT_TYPE_FIRST_FRAME:
         case AM_TSPLAYER_EVENT_TYPE_DECODE_FIRST_FRAME_AUDIO: {
-            pAv->mCurAvEvent.type = AVEvent::EVENT_AV_VIDEO_AVAILABLE;
-            pAv->mCurAvEvent.param = ( long )&event->event.video_format;
-            pAv->mpObserver->onEvent(pAv->mCurAvEvent);
+            if (mIsVideoSupport) {
+                pAv->mCurAvEvent.type = AVEvent::EVENT_AV_VIDEO_AVAILABLE;
+                pAv->mCurAvEvent.param = ( long )&event->event.video_format;
+                pAv->mpObserver->onEvent(pAv->mCurAvEvent);
+            }
 
             ret = AmTsPlayer_getSyncInstansNo(pAv->mSession, &sync_instance_no);
             if (ret != AM_TSPLAYER_OK) {

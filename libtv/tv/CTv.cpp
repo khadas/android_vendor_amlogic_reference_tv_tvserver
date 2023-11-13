@@ -417,7 +417,12 @@ void CTv::onEvent(const CAv::AVEvent &ev)
         break;
     }
     case CAv::AVEvent::EVENT_AV_UNSUPPORT: {
-        LOGD("To AVS or AVS+ format");//just avs format,  not unsupport, and avs avs+
+        LOGD("EVENT_AV_UNSUPPORT");
+        ScreenColorControl(false, VIDEO_LAYER_COLOR_SHOW_ALWAYES);
+        TvEvent::AVPlaybackEvent AvPlayBackEvt;
+        AvPlayBackEvt.mMsgType = TvEvent::AVPlaybackEvent::EVENT_AV_UNSUPPORT;
+        AvPlayBackEvt.mProgramId = (int)ev.param;
+        sendTvEvent(AvPlayBackEvt);
         break;
     }
     case CAv::AVEvent::EVENT_PLAY_UPDATE:
