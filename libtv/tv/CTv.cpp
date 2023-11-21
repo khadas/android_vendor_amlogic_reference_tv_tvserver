@@ -238,12 +238,16 @@ void CTv::onEvent ( const CFrontEnd::FEEvent &ev )
             ev.mReserved = 0;
             sendTvEvent ( ev );
             setFEStatus(1);
+            //When switching streams, enabling the video layer may lead to screen flickering.
+            //DTV enable video follw avevent.
+            /*
             if (mIsMultiDemux) {
                 CVideotunnel::getInstance()->VT_disableColorFrame();
                 mAv.SetVideoScreenColor(VIDEO_LAYER_BLACK);
             } else {
                 CVpp::getInstance()->VPP_setVideoColor(false);
             }
+            */
             if (propertyGetBool("vendor.tv.dtv.tsplayer.enable", false)) {
                 mAv.EnableVideoNow(false);
             }
@@ -345,7 +349,8 @@ void CTv::onEvent(const CAv::AVEvent &ev)
             LOGD("tv stopping or playing, no need CAv::AVEvent::EVENT_AV_STOP");
             break;
         }
-        CVpp::getInstance()->VPP_setVideoColor(true);
+        //CVpp::getInstance()->VPP_setVideoColor(true);
+        ScreenColorControl(true, VIDEO_LAYER_COLOR_SHOW_ALWAYES);
         TvEvent::SignalInfoEvent ev;
         ev.mStatus = TVIN_SIG_STATUS_NOSIG;
         ev.mTrans_fmt = TVIN_TFMT_2D;
@@ -370,7 +375,8 @@ void CTv::onEvent(const CAv::AVEvent &ev)
 
     case CAv::AVEvent::EVENT_AV_SCAMBLED: {
 
-        CVpp::getInstance()->VPP_setVideoColor(true);
+        //CVpp::getInstance()->VPP_setVideoColor(true);
+        ScreenColorControl(true, VIDEO_LAYER_COLOR_SHOW_ALWAYES);
         TvEvent::AVPlaybackEvent AvPlayBackEvt;
         AvPlayBackEvt.mMsgType = TvEvent::AVPlaybackEvent::EVENT_AV_SCAMBLED;
         AvPlayBackEvt.mProgramId = (int)ev.param;
@@ -747,7 +753,7 @@ int CTv::dtvScan(int mode, int scan_mode, int beginFreq, int endFreq, int para1,
     LOGD("mode[%#x], scan_mode[%#x], freq[%d-%d], para[%d,%d] %s",
         mode, scan_mode, beginFreq, endFreq, para1, para2, __FUNCTION__);
     //mTvEpg.leaveChannel();
-    CVpp::getInstance()->VPP_setVideoColor(true);
+    //CVpp::getInstance()->VPP_setVideoColor(true);
     mAv.StopTS();
 
     if (scan_mode == TV_SCAN_DTVMODE_MANUAL) {
