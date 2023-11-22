@@ -182,16 +182,23 @@ int CTvin::VDIN_AddVideoPath ( int selPath )
     std::string vdinDvPath;
     char buf[32] = {0};
     int add_vdetect = 0;
-    std::string suffixVideoPath("ppmgr deinterlace amvideo");
-    std::string suffixVideoPath_fixed_tunnel("deinterlace videoqueue.0");
     std::string videodetectPath("vdetect.0 ");
+    std::string ppmgrPath("ppmgr ");
+    std::string deinterlacePath("deinterlace ");
+    std::string amvideoPath("amvideo ");
+    std::string videoqueuePath("videoqueue.0 ");
     bool amlvideo2Exist = isFileExist(AMLVIDEO2_DEV_PATH);
-    int fixed_tunnel = 0;
+    int fixed_tunnel = 0, di_backend_en = 0;
     char value[PROPERTY_VALUE_MAX];
     if (property_get("vendor.tv.fixed_tunnel", value, NULL) > 0) {
         fixed_tunnel = atoi(value);
     }
     ALOGD("fixed_tunnel =%d", fixed_tunnel);
+
+    if (property_get("vendor.di_backend.enable", value, NULL) > 0) {
+        di_backend_en = atoi(value);
+    }
+    ALOGD("di_backend_en = %d", di_backend_en);
 
     switch ( selPath ) {
     case TV_PATH_VDIN_AMLVIDEO2_PPMGR_DEINTERLACE_AMVIDEO:
@@ -243,9 +250,16 @@ int CTvin::VDIN_AddVideoPath ( int selPath )
         } else {
             LOGW("remove hdmiddv path faild\n");
         }
-        vdinPath += suffixVideoPath_fixed_tunnel;
-    } else
-        vdinPath += suffixVideoPath;
+
+        if (di_backend_en == 0)
+                vdinPath += deinterlacePath;
+        vdinPath += videoqueuePath;
+    } else {
+        vdinPath += ppmgrPath;
+        if (di_backend_en == 0)
+                vdinPath += deinterlacePath;
+        vdinPath += amvideoPath;
+    }
 
 end:
     ret = VDIN_AddPath (vdinPath.c_str());
