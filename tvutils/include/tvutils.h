@@ -122,14 +122,12 @@ int tvSetCurrentHdrInfo(int hdr_info);
 int tvSetCurrentAspectRatioInfo(int AspectRatioInfo);
 int tvSetDisplaymode(int source_input, int mode, int isSave);
 int tvGetDisplaymode(int source_input);
-
 //PQ end
 
 int setVideoColor(int color);
-
 int getScreenColorSetting();
-
 int getScreenStaticFrameEnable();
+int tvsetAudioParam(int param1, int param2, int param3, int param4);
 
 extern int Tv_MiscRegs(const char *cmd);
 

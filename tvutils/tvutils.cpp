@@ -457,6 +457,18 @@ int tvGetDisplaymode(int source_input)
 
 //PQ end
 
+int tvsetAudioParam(int param1, int param2, int param3, int param4)
+{
+    int s32Ret = -1;
+    const sp<SystemControlClient> &sws = getSystemControlService();
+    if (sws != nullptr) {
+        s32Ret = sws->setAudioParam(param1,param2,param3,param4);
+        return s32Ret;
+    }
+    return -1;
+
+}
+
 int Tv_MiscRegs(const char *cmd)
 {
     FILE *fp = NULL;

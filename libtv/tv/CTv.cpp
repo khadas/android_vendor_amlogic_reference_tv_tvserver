@@ -3774,6 +3774,12 @@ int CTv::setPictureModeBySignal(pq_mode_switch_type_t switchType)
         if (NewPictureMode != VPP_PICTURE_MODE_MAX) {
             ret = CVpp::getInstance()->SetPQMode(NewPictureMode, m_source_input, m_cur_sig_info.fmt,
                                                  m_cur_sig_info.trans_fmt, INDEX_2D, 1, switchType);
+            //set audio pqmode for game && reset for other pqmode
+            if (NewPictureMode == VPP_PICTURE_MODE_GAME) {
+                tvsetAudioParam(31,1,0,0);
+            } else {
+                tvsetAudioParam(31,0,0,0);
+            }
         }
     }else {
         LOGD("%s, PQ mode set by user!\n", __FUNCTION__);
