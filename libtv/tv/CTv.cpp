@@ -228,7 +228,7 @@ void CTv::onEvent ( const CFrontEnd::FEEvent &ev )
 
 
     if ( ev.mCurSigStaus == CFrontEnd::FEEvent::EVENT_FE_HAS_SIG ) {
-        LOGD("onEvent fe lock");
+        LOGD("onEvent fe lock, Tsplayer Status:[%d]", tsplayerStatus);
         if (/*m_source_input == SOURCE_TV || */m_source_input == SOURCE_DTV && (mTvAction & TV_ACTION_PLAYING)) {//atv and other tvin source    not to use it, and if not playing, not use have sig
             mDTvSigStaus = true;
             TvEvent::SignalInfoEvent ev;
@@ -238,6 +238,12 @@ void CTv::onEvent ( const CFrontEnd::FEEvent &ev )
             ev.mReserved = 0;
             sendTvEvent ( ev );
             setFEStatus(1);
+
+            //only tsplayer is playing to show
+            if (tsplayerStatus == CAv::AVEvent::EVENT_AV_RESUME ||
+                tsplayerStatus > CAv::AVEvent::EVENT_AV_STOP) {
+                ScreenColorControl(false, VIDEO_LAYER_COLOR_SHOW_DISABLE);
+            }
             //When switching streams, enabling the video layer may lead to screen flickering.
             //DTV enable video follw avevent.
             /*
@@ -260,6 +266,7 @@ void CTv::onEvent ( const CFrontEnd::FEEvent &ev )
                 LOGD("tv stopping, no need CAv::AVEvent::EVENT_AV_STOP");
                 return;
             }
+            /*
             if (mIsMultiDemux) {
                 CVideotunnel::getInstance()->VT_setvideoColor(true, true);
                 if (getScreenColorSetting()) {
@@ -270,6 +277,8 @@ void CTv::onEvent ( const CFrontEnd::FEEvent &ev )
             } else {
                 CVpp::getInstance()->VPP_setVideoColor(true);
             }
+            */
+            ScreenColorControl(true, VIDEO_LAYER_COLOR_SHOW_ALWAYES);
 
             mDTvSigStaus = false;
             TvEvent::SignalInfoEvent ev;
@@ -343,6 +352,7 @@ void CTv::onEvent (const CTvRrt::RrtEvent &ev)
 void CTv::onEvent(const CAv::AVEvent &ev)
 {
     LOGD ( "onEvent AVEvent = %d", ev.type);
+    tsplayerStatus = ev.type;
     switch ( ev.type ) {
     case CAv::AVEvent::EVENT_AV_STOP: {
         if ( mTvAction & TV_ACTION_STOPING || mTvAction & TV_ACTION_PLAYING) {

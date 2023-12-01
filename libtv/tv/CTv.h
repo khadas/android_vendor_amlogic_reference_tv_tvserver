@@ -658,6 +658,9 @@ protected:
     bool mDTvSigStaus;//for dtv static frame func,default true
     bool mDLGStatus;
 
+    //for DTV status detection
+    volatile int tsplayerStatus;
+
 public:
     friend CTvPlayer;
     friend CDTVTvPlayer;
