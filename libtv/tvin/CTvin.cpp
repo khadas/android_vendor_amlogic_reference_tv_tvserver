@@ -336,6 +336,12 @@ int CTvin::VDIN_OpenPort ( tvin_port_t port )
                 __FUNCTION__,  port);
     }
 
+    if (property_set("vendor.tv.vdin.opened", "1") != 0) {
+        LOGD ( "%s, set vendor.tv.vdin.opened [1], error", __FUNCTION__);
+    } else {
+        LOGD ( "%s, set vendor.tv.vdin.opened [1], success", __FUNCTION__);
+    }
+
     return rt;
 }
 
@@ -353,8 +359,13 @@ int CTvin::VDIN_ClosePort()
     if ( rt < 0 ) {
         LOGW ( "Vdin close port, error(%s)!", strerror ( errno ) );
     }
-
     m_tvin_param.port = TVIN_PORT_NULL;
+
+    if (property_set("vendor.tv.vdin.opened", "0") != 0) {
+        LOGD ( "%s, set vendor.tv.vdin.opened [0], error", __FUNCTION__);
+    } else {
+        LOGD ( "%s, set vendor.tv.vdin.opened [0], success", __FUNCTION__);
+    }
 
     return rt;
 }
@@ -2321,8 +2332,22 @@ bool CTvin::getSnowStatus()
 int CTvin::SwitchPort (tvin_port_t source_port )
 {
     int ret = 0;
-
     AutoMutex _l(mLock);
+
+    int waitCount = 0;
+    char property[PROPERTY_VALUE_MAX];
+    while (property_get("vendor.tv.camera.opened", property, NULL) > 0) {
+        if (atoi(property) > 0 ) {
+            if (waitCount++ >= 20) {
+                LOGD ("%s, wait camera release 1s time out!", __FUNCTION__);
+                break;
+            }
+            usleep(5000);
+        } else {
+            LOGD ("%s, vdin is free", __FUNCTION__);
+            break;
+        }
+    }
 
     LOGD ("%s, source_port = %x", __FUNCTION__,  source_port);
     ret = Tvin_StopDecoder();
