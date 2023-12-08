@@ -384,13 +384,16 @@ void CTv::onEvent(const CAv::AVEvent &ev)
     }
 
     case CAv::AVEvent::EVENT_AV_SCAMBLED: {
-
+        if (mCurrentProgramIsScambled) {
+        LOGD("Scambled program");
         //CVpp::getInstance()->VPP_setVideoColor(true);
         ScreenColorControl(true, VIDEO_LAYER_COLOR_SHOW_ALWAYES);
         TvEvent::AVPlaybackEvent AvPlayBackEvt;
         AvPlayBackEvt.mMsgType = TvEvent::AVPlaybackEvent::EVENT_AV_SCAMBLED;
         AvPlayBackEvt.mProgramId = (int)ev.param;
         sendTvEvent(AvPlayBackEvt);
+        }
+
         break;
     }
     case CAv::AVEvent::EVENT_AV_VIDEO_AVAILABLE: {
@@ -2060,6 +2063,7 @@ int CTv::StartTvLock ()
     mChannelLastBlockState = BLOCK_STATE_NONE;
     mBlockStatusChanged = true;
     mNoneStaticChange = false;
+    mCurrentProgramIsScambled = false;
     LOGD("StartTvLock end");
     return 0;
 }
@@ -4513,6 +4517,8 @@ std::string CTv::request(const std::string& resource, const std::string& paras)
     } else if (std::string("ADTV.setNoneStaticChangetoCurrentProgram") == resource) {
         int Scrambled = paramGetInt(paras.c_str(), NULL, "Scrambled", 0);
         int RadioChannel = paramGetInt(paras.c_str(), NULL, "RadioChannel", 0);
+
+        mCurrentProgramIsScambled = (Scrambled?true:false);
         if (Scrambled || RadioChannel) {
             mNoneStaticChange = true;
         } else {
