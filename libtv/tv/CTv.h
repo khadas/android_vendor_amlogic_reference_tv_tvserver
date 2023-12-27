@@ -644,6 +644,7 @@ protected:
     volatile tv_config_t gTvinConfig;
     bool mAutoSetDisplayFreq;
     int m_sig_spdif_nums;
+    bool mIsLoadEdidWithPort;
     /** for HDMI-in sampling detection. **/
     /** for display mode to bottom **/
 

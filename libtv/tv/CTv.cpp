@@ -101,6 +101,7 @@ CTv::CTv():mTvDmx(0), mTvDmx1(1), mTvDmx2(2)
     mEnableLockModule = false;
     mSupportChannelLock = false;
     mBlockState = BLOCK_STATE_NONE;
+    mIsLoadEdidWithPort = false;
     mTvMsgQueue->startMsgQueue();
     /*int kernelVersion = getKernelMajorVersion();
     if (kernelVersion > 4) {//kernel 5.4
@@ -1980,6 +1981,14 @@ int CTv::OpenTv ( void )
         mAutoSetDisplayFreq = false;
     }
 
+    int isLoadEdidWithPort = config_get_int(CFG_SECTION_HDMI, TV_CONFIG_LOAD_EDID_WITH_PORT_EN, 1);
+    if (getKernelMajorVersion() == 5 && getKernelMinorVersion() == 1 && isLoadEdidWithPort) {
+        LOGD("%s: Load Edid With Port!\n", __FUNCTION__);
+        mIsLoadEdidWithPort = true;
+    } else {
+        mIsLoadEdidWithPort = false;
+    }
+
     //LOAD EDID
     mHDMIRxManager.SetHdmiPortCecPhysicAddr();
     int edidAutoLoadEnable = config_get_int(CFG_SECTION_HDMI, CFG_HDMI_EDID_AUTO_LOAD_EN, 1);
@@ -3317,7 +3326,13 @@ int CTv::TV_SetVRREnable (bool enable)
     tvWriteSysfs(VRR_FUNC_CTRL_PATH, (int)enable );
     SSMSaveVRREnable(int8_t(enable));
     mVrrStatus = enable;
-    mHDMIRxManager.HdmiRxEdidUpdate();
+    if (mIsLoadEdidWithPort) {
+        for (int i=HDMI_PORT_1;i<HDMI_PORT_MAX;i++) {
+            mHDMIRxManager.HdmiRxEdidUpdateWithPort(i);
+        }
+    } else {
+        mHDMIRxManager.HdmiRxEdidUpdate();
+    }
     LOGD("%s: Set VRR success!\n", __FUNCTION__);
 
     return 0;
@@ -3365,7 +3380,13 @@ int CTv::SetVRRStatusBySignal(void)
 
     LOGD("%s:update VRR status:[%d] !\n", __FUNCTION__, mVrrStatus );
     mVRRStatusChange = true;
-    mHDMIRxManager.HdmiRxEdidUpdate();
+    if (mIsLoadEdidWithPort) {
+        for (int i=HDMI_PORT_1;i<HDMI_PORT_MAX;i++) {
+            mHDMIRxManager.HdmiRxEdidUpdateWithPort(i);
+        }
+    } else {
+        mHDMIRxManager.HdmiRxEdidUpdate();
+    }
     return ret;
 }
 
@@ -3457,8 +3478,7 @@ int CTv::LoadEdidData(int isNeedBlackScreen, int isDolbyVisionEnable, int isDlgV
     }
 
     bool isLoadDvEdid = IsNeedLoadDolbyVisionEdid(isDolbyVisionEnable);
-    int isLoadEdidWithPort = config_get_int(CFG_SECTION_HDMI, TV_CONFIG_LOAD_EDID_WITH_PORT_EN, 1);
-    if (getKernelMajorVersion() == 5 && getKernelMinorVersion() == 1 && isLoadEdidWithPort) {
+    if (mIsLoadEdidWithPort) {
         LOGD("%s:Load edid with port!\n", __FUNCTION__);
         ret = SSMLoadHDMIEdidDataWithPort(isLoadDvEdid, isDlgVisionEnable);
     } else {
@@ -3481,7 +3501,13 @@ int CTv::LoadEdidData(int isNeedBlackScreen, int isDolbyVisionEnable, int isDlgV
             tvWriteSysfs(VRR_FUNC_CTRL_PATH, 0 );
             mVrrStatus = false;
         }
-        mHDMIRxManager.HdmiRxEdidUpdate();
+        if (mIsLoadEdidWithPort) {
+            for (int i=HDMI_PORT_1;i<HDMI_PORT_MAX;i++) {
+                mHDMIRxManager.HdmiRxEdidUpdateWithPort(i);
+            }
+        } else {
+            mHDMIRxManager.HdmiRxEdidUpdate();
+        }
     } else {
         LOGE("%s failed!\n", __FUNCTION__);
     }
@@ -3547,8 +3573,7 @@ int CTv::SetHdmiEdidVersion(tv_hdmi_port_id_t port, tv_hdmi_edid_version_t versi
                 }
             }
 
-            int isSetEdidVersionWithPort = config_get_int(CFG_SECTION_HDMI, TV_CONFIG_LOAD_EDID_WITH_PORT_EN, 1);
-            if (getKernelMajorVersion() == 5 && getKernelMinorVersion() == 1 && isSetEdidVersionWithPort) {
+            if (mIsLoadEdidWithPort) {
                 mHDMIRxManager.HdmiRxEdidUpdateWithPort(port);
             } else {
                 mHDMIRxManager.HdmiRxEdidUpdate();
