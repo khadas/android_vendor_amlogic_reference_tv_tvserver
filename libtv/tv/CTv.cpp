@@ -3189,6 +3189,10 @@ int CTv::Tv_SetVdinForPQ (int gameStatus, int pcStatus, int autoSwitchFlag)
         ret = mpTvin->VDIN_SetGameMode((pq_status_update_e)gameStatus);
     }
 
+    if (m_source_input != SOURCE_INVALID) {
+        setDlgControl();
+    }
+
     if (autoSwitchFlag == PQ_MODE_SWITCH_TYPE_INIT) {
         MnoNeedAutoSwitchToMonitorMode = false;
     } else {
@@ -3223,6 +3227,9 @@ int CTv::Tv_SetDLGEnable(bool enable)
         }
 
         if ( 0 == ret ) {
+            if (m_source_input != SOURCE_INVALID) {
+                setDlgControl();
+            }
             LOGD("%s:update DLG EDID status success!\n",__FUNCTION__);
         } else {
             LOGD("%s:update DLG EDID status fail!\n",__FUNCTION__);

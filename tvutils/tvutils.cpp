@@ -1416,8 +1416,15 @@ int getKernelMinorVersion(void)
     }
     LOGD("%s: kernel minor version is %d.", __FUNCTION__, retVal);
     return retVal;
+}
 
-
-
+void setDlgControl()
+{
+    const sp<SystemControlClient> &sws = getSystemControlService();
+    if (sws != nullptr) {
+        sws->dlgControl();
+    } else {
+        LOGD("%s: getSystemControlService error ", __FUNCTION__);
+    }
 }
 
