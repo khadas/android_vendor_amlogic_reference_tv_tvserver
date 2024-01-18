@@ -1253,7 +1253,9 @@ int CFrontEnd::GetTSSource(AM_DMX_Source_t *src)
 {
     int isTV = config_get_int(CFG_SECTION_TV, FRONTEND_TS_SOURCE, 0);
 
-    if (isTV == 2) {
+    if (isTV == 3) {
+        *src = AM_DMX_SRC_TS3;
+    } else if (isTV == 2) {
         *src = AM_DMX_SRC_TS2;
     } else if (isTV == 1) {
         *src = AM_DMX_SRC_TS1;
