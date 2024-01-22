@@ -1036,15 +1036,14 @@ void CTv::operateDeviceForScan(int type)
     CTvin::CheckSourceValidEvent evt;
     evt.source = SOURCE_TV;
     mpTvin->sendEvent(evt);
-    usleep(10000);
 
-    if (type & OPEN_DEV_FOR_SCAN_ATV) {
+    if (type == OPEN_DEV_FOR_SCAN_ATV) {
             mFrontDev->Open(TV_FE_AUTO);
             mFrontDev->SetAnalogFrontEndTimerSwitch(1);
-     }else if  (type & OPEN_DEV_FOR_SCAN_DTV) {
+     }else if  (type == OPEN_DEV_FOR_SCAN_DTV) {
             mFrontDev->Open(TV_FE_AUTO);
             mFrontDev->SetAnalogFrontEndTimerSwitch(0);
-     }else if  (type & CLOSE_DEV_FOR_SCAN) {
+     }else if  (type == CLOSE_DEV_FOR_SCAN) {
             mFrontDev->SetAnalogFrontEndTimerSwitch(0);
      }
 }

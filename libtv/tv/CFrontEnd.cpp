@@ -137,12 +137,21 @@ int CFrontEnd::Open(int mode)
     if (mbFEOpened == false) {
         if (TV_FE_ANALOG != mode) {
             LOGD("FE Open [%d->%d]", mCurMode, mode);
-
-            rc = AM_FEND_Open(mFrontDevID, &para);
-            if ((rc != AM_FEND_ERR_BUSY) && (rc != 0)) {
-                LOGD("%s,frontend dev[%d] open failed! dvb error id is %d\n",
+            int retry_time = 10;
+            for (int i = 0; i <= retry_time; i++) {
+                rc = AM_FEND_Open(mFrontDevID, &para);
+                if ((rc != AM_FEND_ERR_BUSY) && (rc != 0)) {
+                    LOGD("%s,frontend dev[%d] open failed! dvb error id is %d, retry %d times\n",
+                        __FUNCTION__, mFrontDevID, rc, i);
+                } else {
+                    break;
+                }
+                if (i == retry_time) {
+                    LOGE("%s,frontend dev[%d] open failed! dvb error id is %d, return -1!\n",
                         __FUNCTION__, mFrontDevID, rc);
-                return -1;
+                    return -1;
+                }
+                usleep(20000);
             }
             AM_EVT_Subscribe(mFrontDevID, AM_FEND_EVT_STATUS_CHANGED, dmd_fend_callback, (void *)this);
             LOGD("%s,frontend dev[%d] open success!\n", __FUNCTION__, mFrontDevID);
