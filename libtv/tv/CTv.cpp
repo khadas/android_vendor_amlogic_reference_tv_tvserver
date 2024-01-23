@@ -2698,17 +2698,18 @@ void CTv::onSigToNoSig()
                 mpTvin->Tvin_StartDecoder(m_cur_sig_info);
             }
             if (getScreenColorSetting() == VIDEO_LAYER_COLOR_BLUE) {
-                CVpp::getInstance()->VPP_setVideoColor(true);
+                ScreenColorControl(true, VIDEO_LAYER_COLOR_SHOW_ALWAYES);
             } else {
                 if (needSnowEffect()) {
                     mAv.EnableVideoNow(false);
-                    CVpp::getInstance()->VPP_setVideoColor(false);
+                    ScreenColorControl(false, VIDEO_LAYER_COLOR_SHOW_DISABLE);
                 } else {
-                    CVpp::getInstance()->VPP_setVideoColor(true);
+                    ScreenColorControl(true, VIDEO_LAYER_COLOR_SHOW_ALWAYES);
                 }
             }
         } else {
-            CVpp::getInstance()->VPP_setVideoColor(true);
+            ScreenColorControl(true, VIDEO_LAYER_COLOR_SHOW_ALWAYES);
+            //CVpp::getInstance()->VPP_setVideoColor(true);
             mpTvin->Tvin_StopDecoder();
         }
     }
