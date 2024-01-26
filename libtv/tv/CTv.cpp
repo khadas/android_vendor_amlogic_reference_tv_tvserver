@@ -240,6 +240,11 @@ void CTv::onEvent ( const CFrontEnd::FEEvent &ev )
             sendTvEvent ( ev );
             setFEStatus(1);
 
+            if (BLOCK_STATE_BLOCKED == mChannelBlockState) {
+                LOGD("%s, current has been block, return!", __FUNCTION__);
+                return;
+            }
+
             //only tsplayer is playing to show
             if (tsplayerStatus == CAv::AVEvent::EVENT_AV_RESUME ||
                 tsplayerStatus > CAv::AVEvent::EVENT_AV_STOP) {
