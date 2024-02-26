@@ -122,6 +122,9 @@ int tvSetCurrentHdrInfo(int hdr_info);
 int tvSetCurrentAspectRatioInfo(int AspectRatioInfo);
 int tvSetDisplaymode(int source_input, int mode, int isSave);
 int tvGetDisplaymode(int source_input);
+int tvSetDLGEnable(int enable);
+int tvGetDLGEnable();
+
 //PQ end
 
 int setVideoColor(int color);

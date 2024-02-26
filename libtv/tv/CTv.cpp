@@ -3220,10 +3220,10 @@ int CTv::Tv_SetDLGEnable(bool enable)
         int amdvEnableState = GetAmdvEnable();
         if ( enable ) {
             ret = LoadEdidData(1,amdvEnableState,1);
-             if ( 0 == ret ) SSMSaveDLGEnable(1);
+             if ( 0 == ret ) tvSetDLGEnable(1);
         } else {
             ret = LoadEdidData(1,amdvEnableState,0);
-            if ( 0 == ret ) SSMSaveDLGEnable(0);
+            if ( 0 == ret ) tvSetDLGEnable(0);
         }
 
         if ( 0 == ret ) {
@@ -3243,8 +3243,7 @@ int CTv::Tv_SetDLGEnable(bool enable)
 
 int CTv::Tv_GetDLGEnable()
 {
-    int8_t dlgEnable = 0;
-    SSMReadDLGEnable(&dlgEnable);
+    int dlgEnable = tvGetDLGEnable();
     LOGD("%s:DLG status [%d] !\n",__FUNCTION__,dlgEnable);
     return dlgEnable;
 }
@@ -3294,8 +3293,9 @@ int CTv::SupportDlg()
     }
 
     std::string parm = buf;
-    std::string validstring = "3840x1080p120hz";
-    if (parm.find(validstring) != -1) {
+    std::string supportCap1 = "3840x1080";
+    std::string supportCap2 = "3840x2160";
+    if (parm.find(supportCap1) != -1 && parm.find(supportCap2) != -1) {
         LOGD("%s: find exist!\n",__FUNCTION__);
         ret = 0;
     }else{
