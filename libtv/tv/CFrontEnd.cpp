@@ -137,7 +137,7 @@ int CFrontEnd::Open(int mode)
     if (mbFEOpened == false) {
         if (TV_FE_ANALOG != mode) {
             LOGD("FE Open [%d->%d]", mCurMode, mode);
-            int retry_time = 10;
+            int retry_time = 20;
             for (int i = 0; i <= retry_time; i++) {
                 rc = AM_FEND_Open(mFrontDevID, &para);
                 if ((rc != AM_FEND_ERR_BUSY) && (rc != 0)) {
