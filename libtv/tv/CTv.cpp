@@ -3922,7 +3922,6 @@ void CTv::onVdinSignalChange()
 void CTv::onVdin2SignalChange() {
 
     LOGD("%s: source = %d \n", __FUNCTION__, m_pip_source_input);
-    if (m_pip_source_input < SOURCE_HDMI1) return;
     int ret = mpTvin->VDIN2_GetSignalInfo ( &m_cur_vdin2_sig_info );
     if (ret < 0) {
         LOGD("Get vdin2 Signal Info error!\n");

@@ -268,12 +268,14 @@ void DroidTvServiceIntf::onTvEvent(const CTvEv &ev)
         TvEvent::SignalInfoEvent *pEv = (TvEvent::SignalInfoEvent *)(&ev);
         TvHidlParcel hidlParcel;
         hidlParcel.msgType = SIGNAL_DETECT_CALLBACK;
-        hidlParcel.bodyInt.resize(4);
+        hidlParcel.bodyInt.resize(5);
         hidlParcel.bodyInt[0] = pEv->mTrans_fmt;
         hidlParcel.bodyInt[1] = pEv->mFmt;
         hidlParcel.bodyInt[2] = pEv->mStatus;
         hidlParcel.bodyInt[3] = pEv->mReserved;
-        LOGD("Tv Event signal detect mTrans_fmt =%d, mFmt = %d, mStatus = %d, mReserved = %d", pEv->mTrans_fmt, pEv->mFmt, pEv->mStatus, pEv->mReserved);
+        hidlParcel.bodyInt[4] = pEv->mIsPiP;
+        LOGD("Tv Event signal detect mTrans_fmt =%d, mFmt = %d, mStatus = %d, mReserved = %d, mIsPiP = %d",
+            pEv->mTrans_fmt, pEv->mFmt, pEv->mStatus, pEv->mReserved, pEv->mIsPiP);
         mNotifyListener->onEvent(hidlParcel);
         break;
     }
