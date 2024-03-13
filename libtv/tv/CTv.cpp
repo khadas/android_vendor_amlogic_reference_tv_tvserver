@@ -2128,10 +2128,9 @@ int CTv::StopTvLock ( void )
 
         tv_source_input_type_t current_source_type = CTvin::Tvin_SourceInputToSourceInputType(m_source_input);
         LOGD("%s current finish source type [%d]\n",__FUNCTION__,current_source_type);
-        //if (SOURCE_TYPE_HDMI == current_source_type ) {
-        //    CVpp::getInstance()->VPP_setVideoColor(true);
-        //}
-        ScreenColorControl(false, VIDEO_LAYER_COLOR_SHOW_ALWAYES);
+
+        //vt interface has delay,so use disable video layer instead of vt.
+        mAv.SetVideoLayerStatus(DISABLE_VIDEO_LAYER);
         mAv.SetVideoScreenColor(VIDEO_LAYER_BLACK);
         mpTvin->Tvin_StopDecoder();
         mpTvin->VDIN_ClosePort();
@@ -2153,7 +2152,6 @@ int CTv::StopTvLock ( void )
         mTvAction &= ~TV_ACTION_STOPING;
         mTvStatus = TV_STOP_ED;
         MnoNeedAutoSwitchToMonitorMode = false;
-        CVpp::getInstance()->VPP_setVideoColor(false);
         // if (m_bTsPlayerRls == false) {
         //     mAv.delPlayer();
         //     m_bTsPlayerRls = true;
