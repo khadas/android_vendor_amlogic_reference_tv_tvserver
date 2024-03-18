@@ -4558,12 +4558,13 @@ std::string CTv::request(const std::string& resource, const std::string& paras)
             mAv.SetVideoScreenColor(VIDEO_LAYER_BLACK);
         }
         return std::string("{\"ret\":0}");
-    } else if (std::string("ADTV.setNoneStaticChangetoCurrentProgram") == resource) {
+    } else if (std::string("ADTV.setNoneStaticChangeToCurrentProgram") == resource) {
         int Scrambled = paramGetInt(paras.c_str(), NULL, "Scrambled", 0);
         int RadioChannel = paramGetInt(paras.c_str(), NULL, "RadioChannel", 0);
+        int invalidService = paramGetInt(paras.c_str(), NULL, "invalidService", 0);
 
         mCurrentProgramIsScambled = (Scrambled?true:false);
-        if (Scrambled || RadioChannel) {
+        if (Scrambled || RadioChannel || invalidService) {
             mNoneStaticChange = true;
         } else {
             mNoneStaticChange = false;
