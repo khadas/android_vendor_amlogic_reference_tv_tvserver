@@ -3918,6 +3918,23 @@ void CTv::onVdinSignalChange()
             LOGD("%s: VRR change!\n", __FUNCTION__);
             setPictureModeBySignal(PQ_MODE_SWITCH_TYPE_AUTO);
             break;
+        case TVIN_SIG_CHG_QMS: {
+            LOGD("%s: QMS change!\n", __FUNCTION__);
+            vdin_qms_param_t qmsInfo;
+            memset(&qmsInfo, 0, sizeof(vdin_qms_param_t));
+            int ret = mpTvin->VDIN_GetQmsParm(&qmsInfo);
+            if (ret < 0) {
+                LOGD("%s: Get QMS Info error!\n", __FUNCTION__);
+            } else {
+                LOGD("%s: send QMS change event, new fps：%d!\n", __FUNCTION__, qmsInfo.qms_fr);
+                TvEvent::QMSEvent ev;
+                ev.qms_en = (int)qmsInfo.qms_en;
+                ev.qms_fps = (int)qmsInfo.qms_fr;
+                ev.qms_base_fps = (int)qmsInfo.qms_base_fr;
+                sendTvEvent ( ev );
+            }
+            break;
+        }
         default:
             LOGD("%s: invalid vdin event!\n", __FUNCTION__);
             break;

@@ -502,7 +502,8 @@ typedef enum tvin_sig_change_flag_e {
      TVIN_SIG_CHG_VS_FRQ    = 0x80,
      TVIN_SIG_CHG_DV_ALLM   = 0x100,/*allm info*/
      TVIN_SIG_CHG_AFD       = 0x200,/*aspect ratio*/
-     TVIN_SIG_CHG_VRR       = 0x1000, /*vrr*/
+     TVIN_SIG_CHG_VRR       = 0x1000, /*gaming-vrr*/
+     TVIN_SIG_CHG_QMS        = 0x2000, /* qms-vrr */
      TVIN_SIG_CHG_STS       = 0x80000000, /*sm state change*/
 } tvin_sig_change_flag_t;
 
@@ -528,6 +529,12 @@ typedef struct vdin_vrr_freesync_param_s {
     unsigned char local_dimming_disable;
     unsigned char native_color_en;
 } vdin_vrr_freesync_param_t;
+
+typedef struct vdin_qms_param_s {
+    unsigned char qms_en;
+    unsigned int qms_fr;//fps
+    unsigned char qms_base_fr;//base fps
+} vdin_qms_param_t;
 // ***************************************************************************
 // *** IOCTL command definition **********************************************
 // ***************************************************************************
@@ -559,6 +566,10 @@ typedef struct vdin_vrr_freesync_param_s {
 #define TVIN_IOC_SET_AUTO_RATIO_EN  _IOW(TVIN_IOC_MAGIC, 0x4c, unsigned int)
 #define TVIN_IOC_GET_LATENCY_MODE   _IOR(TVIN_IOC_MAGIC, 0X4d, struct tvin_latency_s)
 #define TVIN_IOC_G_EVENT_INFO       _IOW(TVIN_IOC_MAGIC, 0x0a, struct vdin_event_info_s)
+//vdin get VRR status
+#define TVIN_IOC_G_VRR_STATUS       _IOR(TVIN_IOC_MAGIC, 0x53, struct vdin_vrr_freesync_param_s)
+//vdin get QMS status
+#define TVIN_IOC_G_QMS_STATUS		_IOR(TVIN_IOC_MAGIC, 0x57, struct vdin_qms_param_s)
 
 //TVAFE
 #define TVIN_IOC_S_AFE_ADC_CAL      _IOW(TVIN_IOC_MAGIC, 0x11, struct tvafe_adc_cal_s)
@@ -585,8 +596,6 @@ typedef struct vdin_vrr_freesync_param_s {
 #define TVIN_IOC_S_PC_MODE          _IOW(TVIN_IOC_MAGIC, 0x50, unsigned int)
 //vdin get source option:
 #define TVIN_IOC_G_INPUT_TIMING     _IOR(TVIN_IOC_MAGIC, 0x52, struct tvin_format_s)
-//vdin get VRR status
-#define TVIN_IOC_G_VRR_STATUS       _IOR(TVIN_IOC_MAGIC, 0x53, struct vdin_vrr_freesync_param_s)
 // ***************************************************************************
 // *** add more **********************************************
 // ***************************************************************************
@@ -797,6 +806,7 @@ public:
                                          char *BestDisplayMode);
     int VDIN_GetFrameRateSupportList(std::vector<std::string> *supportFrameRates);
     int VDIN_GetVrrFreesyncParm(vdin_vrr_freesync_param_s *vrr_parm);
+    int VDIN_GetQmsParm(vdin_qms_param_s *qms_parm);
 
     int AFE_OpenModule ( void );
     void AFE_CloseModule ( void );    int AFE_SetCVBSStd ( tvin_sig_fmt_t cvbs_fmt );

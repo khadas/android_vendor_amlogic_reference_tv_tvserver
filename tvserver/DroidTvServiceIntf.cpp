@@ -534,6 +534,18 @@ void DroidTvServiceIntf::onTvEvent(const CTvEv &ev)
         break;
     }
 
+    case CTvEv::TV_EVENT_QMS: {
+         TvEvent::QMSEvent *pEv = (TvEvent::QMSEvent *)(&ev);
+         TvHidlParcel hidlParcel;
+         hidlParcel.msgType = QMS_EVENT_CALLBACK;
+         hidlParcel.bodyInt.resize(3);
+         hidlParcel.bodyInt[0] = pEv->qms_en;
+         hidlParcel.bodyInt[1] = pEv->qms_fps;
+         hidlParcel.bodyInt[2] = pEv->qms_base_fps;
+         mNotifyListener->onEvent(hidlParcel);
+         break;
+    }
+
     default:
         break;
     }

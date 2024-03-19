@@ -2719,6 +2719,16 @@ int CTvin::VDIN_GetVrrFreesyncParm(vdin_vrr_freesync_param_s *vrr_parm)
     return ret;
 }
 
+int CTvin::VDIN_GetQmsParm(vdin_qms_param_s *qms_parm)
+{
+    int ret = VDIN_DeviceIOCtl(TVIN_IOC_G_QMS_STATUS, qms_parm);
+    if (ret < 0) {
+        LOGE("%s failed, error(%s)!", __FUNCTION__, strerror(errno));
+    }
+
+    return ret;
+}
+
 bool CTvin::Tvin_SupportResman()
 {
     return mSupportResman;
