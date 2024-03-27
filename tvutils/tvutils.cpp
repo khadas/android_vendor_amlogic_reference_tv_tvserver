@@ -177,7 +177,6 @@ int readSys(const char *path, char *buf, int count) {
     }
 
     len = read(fd, buf, count);
-    buf[sizeof(buf)-1] = '\0';
     if (len < 0) {
         LOGE("read %s error, %s\n", path, strerror(errno));
         goto exit;

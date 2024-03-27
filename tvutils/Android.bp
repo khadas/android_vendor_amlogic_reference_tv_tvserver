@@ -63,7 +63,10 @@ cc_library_static {
     //DVB define
     // ANDROIDMK TRANSLATION ERROR: unsupported conditional
     // ifeq ($(BOARD_HAS_ADTV),true)
-    cflags: ["-DSUPPORT_ADTV"],
+    cflags: [
+        "-DSUPPORT_ADTV",
+        "-DUSE_SYSTEM_CONTROL",
+    ],
     // endif
 
 }

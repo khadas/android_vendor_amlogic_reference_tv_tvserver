@@ -3285,15 +3285,20 @@ int CTv::SupportDlg()
     int ret = -1;
     char buf[1024] = {0};
     ret = tvReadSysfs(DLG_FUNC_PATH, buf);
+    LOGD("%s: %s\n", __FUNCTION__, buf);
     if (ret < 0) {
         LOGD("%s: read /sys/class/display/cap error, return!\n",__FUNCTION__);
         return ret;
     }
 
     std::string parm = buf;
-    std::string supportCap1 = "3840x1080";
-    std::string supportCap2 = "3840x2160";
-    if (parm.find(supportCap1) != -1 && parm.find(supportCap2) != -1) {
+    std::string group1Cap1 = "2160p60hz";
+    std::string group1Cap2 = "3840x1080p120hz";
+    std::string group2Cap1 = "3840x2160p120hz";
+    std::string group2Cap2 = "3840x1080p240hz";
+
+    if ((parm.find(group1Cap1) != -1 && parm.find(group1Cap2) != -1)
+        || (parm.find(group1Cap1) != -1 && parm.find(group1Cap2) != -1)) {
         LOGD("%s: find exist!\n",__FUNCTION__);
         ret = 0;
     }else{
