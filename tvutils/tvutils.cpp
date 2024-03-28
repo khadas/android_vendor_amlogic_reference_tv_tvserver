@@ -455,6 +455,28 @@ int tvGetDisplaymode(int source_input)
     return -1;
 }
 
+int tvSetDLGEnable(int enable)
+{
+    int s32Ret = -1;
+    const sp<SystemControlClient> &sws = getSystemControlService();
+    if (sws != nullptr) {
+        s32Ret = sws->setDLGEnable(enable, 1);
+        return s32Ret;
+    }
+    return -1;
+}
+
+int tvGetDLGEnable()
+{
+    int s32Ret = -1;
+    const sp<SystemControlClient> &sws = getSystemControlService();
+    if (sws != nullptr) {
+        s32Ret = sws->getDLGEnable();
+        return s32Ret;
+    }
+    return -1;
+}
+
 //PQ end
 
 int tvsetAudioParam(int param1, int param2, int param3, int param4)
@@ -1416,8 +1438,15 @@ int getKernelMinorVersion(void)
     }
     LOGD("%s: kernel minor version is %d.", __FUNCTION__, retVal);
     return retVal;
+}
 
-
-
+void setDlgControl()
+{
+    const sp<SystemControlClient> &sws = getSystemControlService();
+    if (sws != nullptr) {
+        sws->dlgControl();
+    } else {
+        LOGD("%s: getSystemControlService error ", __FUNCTION__);
+    }
 }
 

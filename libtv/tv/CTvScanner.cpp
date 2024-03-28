@@ -1780,9 +1780,9 @@ int CTvScanner::createDtvParas(AM_SCAN_DTVCreatePara_t &dtv_para, CFrontEnd::FEP
     LOGD("channel list size = %d", size);
 
     if (size == 0) {
-        if (scp.getMode() != TV_SCAN_DTVMODE_ALLBAND) {
-            LOGD("frequency: %d not found in channel list [%s], break", scp.getDtvFrequency1(), list_name);
-            return -1;
+        if (scp.getMode() == TV_SCAN_DTVMODE_ALLBAND) {
+            CTvDatabase::GetTvDb()->importXmlToDB(CTV_DATABASE_DEFAULT_XML_1);
+            CTvRegion::getChannelListByName((char *)list_name, vcp);
         }
         /*int kernelVersion = getKernelMajorVersion();
         if (kernelVersion > 4) {
@@ -1790,9 +1790,20 @@ int CTvScanner::createDtvParas(AM_SCAN_DTVCreatePara_t &dtv_para, CFrontEnd::FEP
         } else {
             CTvDatabase::GetTvDb()->importXmlToDB(CTV_DATABASE_DEFAULT_XML_0);
         }*/
-        CTvDatabase::GetTvDb()->importXmlToDB(CTV_DATABASE_DEFAULT_XML_1);
-        CTvRegion::getChannelListByName((char *)list_name, vcp);
+
+        if (scp.getDtvMode() == TV_SCAN_ATVMODE_MANUAL && scp.getDtvFrequency1() == scp.getDtvFrequency2()) {
+            int frequency = scp.getDtvFrequency1() / 1000000;
+            CTvRegion::getChannelListByNameAndFreqRange((char *)list_name, frequency * 1000000, (frequency + 1) * 1000000, vcp);
+            if (vcp.size() == 1) {
+                vcp[0]->setFrequency(scp.getDtvFrequency1());
+            }
+        }
         size = vcp.size();
+
+        if (size == 0) {
+            LOGD("frequency: %d not found in channel list [%s], break", scp.getDtvFrequency1(), list_name);
+            return -1;
+        }
     }
 
     int air_on_cable = getParamOption("air_on_cable.enable");

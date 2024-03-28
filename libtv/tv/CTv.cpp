@@ -1036,15 +1036,14 @@ void CTv::operateDeviceForScan(int type)
     CTvin::CheckSourceValidEvent evt;
     evt.source = SOURCE_TV;
     mpTvin->sendEvent(evt);
-    usleep(10000);
 
-    if (type & OPEN_DEV_FOR_SCAN_ATV) {
+    if (type == OPEN_DEV_FOR_SCAN_ATV) {
             mFrontDev->Open(TV_FE_AUTO);
             mFrontDev->SetAnalogFrontEndTimerSwitch(1);
-     }else if  (type & OPEN_DEV_FOR_SCAN_DTV) {
+     }else if  (type == OPEN_DEV_FOR_SCAN_DTV) {
             mFrontDev->Open(TV_FE_AUTO);
             mFrontDev->SetAnalogFrontEndTimerSwitch(0);
-     }else if  (type & CLOSE_DEV_FOR_SCAN) {
+     }else if  (type == CLOSE_DEV_FOR_SCAN) {
             mFrontDev->SetAnalogFrontEndTimerSwitch(0);
      }
 }
@@ -2129,10 +2128,9 @@ int CTv::StopTvLock ( void )
 
         tv_source_input_type_t current_source_type = CTvin::Tvin_SourceInputToSourceInputType(m_source_input);
         LOGD("%s current finish source type [%d]\n",__FUNCTION__,current_source_type);
-        //if (SOURCE_TYPE_HDMI == current_source_type ) {
-        //    CVpp::getInstance()->VPP_setVideoColor(true);
-        //}
-        ScreenColorControl(false, VIDEO_LAYER_COLOR_SHOW_ALWAYES);
+
+        //vt interface has delay,so use disable video layer instead of vt.
+        mAv.SetVideoLayerStatus(DISABLE_VIDEO_LAYER);
         mAv.SetVideoScreenColor(VIDEO_LAYER_BLACK);
         mpTvin->Tvin_StopDecoder();
         mpTvin->VDIN_ClosePort();
@@ -2154,7 +2152,6 @@ int CTv::StopTvLock ( void )
         mTvAction &= ~TV_ACTION_STOPING;
         mTvStatus = TV_STOP_ED;
         MnoNeedAutoSwitchToMonitorMode = false;
-        CVpp::getInstance()->VPP_setVideoColor(false);
         // if (m_bTsPlayerRls == false) {
         //     mAv.delPlayer();
         //     m_bTsPlayerRls = true;
@@ -3190,6 +3187,10 @@ int CTv::Tv_SetVdinForPQ (int gameStatus, int pcStatus, int autoSwitchFlag)
         ret = mpTvin->VDIN_SetGameMode((pq_status_update_e)gameStatus);
     }
 
+    if (m_source_input != SOURCE_INVALID) {
+        setDlgControl();
+    }
+
     if (autoSwitchFlag == PQ_MODE_SWITCH_TYPE_INIT) {
         MnoNeedAutoSwitchToMonitorMode = false;
     } else {
@@ -3217,13 +3218,16 @@ int CTv::Tv_SetDLGEnable(bool enable)
         int amdvEnableState = GetAmdvEnable();
         if ( enable ) {
             ret = LoadEdidData(1,amdvEnableState,1);
-             if ( 0 == ret ) SSMSaveDLGEnable(1);
+             if ( 0 == ret ) tvSetDLGEnable(1);
         } else {
             ret = LoadEdidData(1,amdvEnableState,0);
-            if ( 0 == ret ) SSMSaveDLGEnable(0);
+            if ( 0 == ret ) tvSetDLGEnable(0);
         }
 
         if ( 0 == ret ) {
+            if (m_source_input != SOURCE_INVALID) {
+                setDlgControl();
+            }
             LOGD("%s:update DLG EDID status success!\n",__FUNCTION__);
         } else {
             LOGD("%s:update DLG EDID status fail!\n",__FUNCTION__);
@@ -3237,8 +3241,7 @@ int CTv::Tv_SetDLGEnable(bool enable)
 
 int CTv::Tv_GetDLGEnable()
 {
-    int8_t dlgEnable = 0;
-    SSMReadDLGEnable(&dlgEnable);
+    int dlgEnable = tvGetDLGEnable();
     LOGD("%s:DLG status [%d] !\n",__FUNCTION__,dlgEnable);
     return dlgEnable;
 }
@@ -3288,8 +3291,9 @@ int CTv::SupportDlg()
     }
 
     std::string parm = buf;
-    std::string validstring = "3840x1080p120hz";
-    if (parm.find(validstring) != -1) {
+    std::string supportCap1 = "3840x1080";
+    std::string supportCap2 = "3840x2160";
+    if (parm.find(supportCap1) != -1 && parm.find(supportCap2) != -1) {
         LOGD("%s: find exist!\n",__FUNCTION__);
         ret = 0;
     }else{
@@ -3916,7 +3920,6 @@ void CTv::onVdinSignalChange()
 void CTv::onVdin2SignalChange() {
 
     LOGD("%s: source = %d \n", __FUNCTION__, m_pip_source_input);
-    if (m_pip_source_input < SOURCE_HDMI1) return;
     int ret = mpTvin->VDIN2_GetSignalInfo ( &m_cur_vdin2_sig_info );
     if (ret < 0) {
         LOGD("Get vdin2 Signal Info error!\n");
@@ -4553,12 +4556,13 @@ std::string CTv::request(const std::string& resource, const std::string& paras)
             mAv.SetVideoScreenColor(VIDEO_LAYER_BLACK);
         }
         return std::string("{\"ret\":0}");
-    } else if (std::string("ADTV.setNoneStaticChangetoCurrentProgram") == resource) {
+    } else if (std::string("ADTV.setNoneStaticChangeToCurrentProgram") == resource) {
         int Scrambled = paramGetInt(paras.c_str(), NULL, "Scrambled", 0);
         int RadioChannel = paramGetInt(paras.c_str(), NULL, "RadioChannel", 0);
+        int invalidService = paramGetInt(paras.c_str(), NULL, "invalidService", 0);
 
         mCurrentProgramIsScambled = (Scrambled?true:false);
-        if (Scrambled || RadioChannel) {
+        if (Scrambled || RadioChannel || invalidService) {
             mNoneStaticChange = true;
         } else {
             mNoneStaticChange = false;
