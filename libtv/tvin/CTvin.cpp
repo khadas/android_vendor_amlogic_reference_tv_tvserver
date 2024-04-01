@@ -2453,7 +2453,7 @@ int CTvin::Tvin_RemovePath ( tv_path_type_t pathtype )
         for ( i = 0; i < 50; i++ ) {
             ret = VDIN_RmDefPath();
 
-            if ( ret > 0 ) {
+            if ( ret >= 0 ) {
                 LOGD ( "%s, remove default path ok, %d ms gone.\n", CFG_SECTION_TV, ( dly * i ) );
                 break;
             } else {
@@ -2465,7 +2465,7 @@ int CTvin::Tvin_RemovePath ( tv_path_type_t pathtype )
         for ( i = 0; i < 50; i++ ) {
             ret = VDIN_RmTvPath();
 
-            if ( ret > 0 ) {
+            if ( ret >= 0 ) {
                 LOGD ( "%s, remove tvin path ok, %d ms gone.\n", CFG_SECTION_TV, ( dly * i ) );
                 break;
             } else {
@@ -2478,7 +2478,7 @@ int CTvin::Tvin_RemovePath ( tv_path_type_t pathtype )
         for ( i = 0; i < 50; i++ ) {
             ret = VDIN_RmTvPath2();
 
-            if ( ret > 0 ) {
+            if ( ret >= 0 ) {
                 LOGD ( "%s, remove tvin2 path ok, %d ms gone.\n", CFG_SECTION_TV, ( dly * i ) );
                 break;
             } else {

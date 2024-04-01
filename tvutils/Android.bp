@@ -65,7 +65,6 @@ cc_library_static {
     // ifeq ($(BOARD_HAS_ADTV),true)
     cflags: [
         "-DSUPPORT_ADTV",
-        "-DUSE_SYSTEM_CONTROL",
     ],
     // endif
 
