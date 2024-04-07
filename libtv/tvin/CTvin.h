@@ -938,6 +938,7 @@ private:
     char gVideoPath[256];
     bool mDecoderStarted;
     bool mbResolutionPriority;
+    bool mPortOpened;
 
     char config_tv_path[64];
     char config_default_path[64];

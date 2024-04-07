@@ -77,6 +77,7 @@ CTvin::CTvin() : mAfeDevFd(-1), mVdin0DevFd(-1), mVdin2DevFd(-1)
     memset(&gTvinVDINParam, 0, sizeof(gTvinVDINParam));
     memset(&gTvinVDINSignalInfo, 0, sizeof(gTvinVDINSignalInfo));
 
+    mPortOpened = false;
     mDecoderStarted = false;
     gVideoPath[0] = '\0';
 
@@ -327,9 +328,15 @@ int CTvin::VDIN_DeviceIOCtl ( int request, ... )
 
 int CTvin::VDIN_OpenPort ( tvin_port_t port )
 {
-    struct tvin_parm_s vdinParam;
 
     AutoMutex _l(mPortLock);
+
+    if (mPortOpened) {
+        LOGD ( "%s, port has opened!", __FUNCTION__);
+        return 1;
+    }
+
+    struct tvin_parm_s vdinParam;
 
     vdinParam.port = port;
     vdinParam.index = 0;
@@ -356,12 +363,19 @@ int CTvin::VDIN_OpenPort ( tvin_port_t port )
         LOGD ( "%s, set vendor.tv.vdin.opened [1], success", __FUNCTION__);
     }
 
+    mPortOpened = true;
+
     return rt;
 }
 
 int CTvin::VDIN_ClosePort()
 {
     AutoMutex _l(mPortLock);
+
+    if (!mPortOpened) {
+        LOGD ( "%s, port has closed!", __FUNCTION__);
+        return 1;
+    }
 
     if (mSupportResman && TVIN_PORT_CVBS0 <= m_tvin_param.port && m_tvin_param.port <= TVIN_PORT_CVBS7) {
         Resman_FreeRes(RESMAN_ID_ADC_PLL);
@@ -380,6 +394,8 @@ int CTvin::VDIN_ClosePort()
     } else {
         LOGD ( "%s, set vendor.tv.vdin.opened [0], success", __FUNCTION__);
     }
+
+    mPortOpened = false;
 
     return rt;
 }

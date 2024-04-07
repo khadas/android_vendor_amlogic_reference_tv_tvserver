@@ -2041,6 +2041,10 @@ int CTv::OpenTv ( void )
     mAv.Open();
     //mDevicesPollStatusDetectThread.startDetect();
     //ClearAnalogFrontEnd();
+
+    //for HDMI source connect detect
+       mpTvin->VDIN_OpenHDMIPinMuxOn(true);
+
     InitCurrentSignalInfo();
     InitCurrentVdin2SignalInfo();
     mTvStatus = TV_OPEN_ED;
@@ -2067,10 +2071,9 @@ int CTv::StartTvLock ()
 
     setDvbLogLevel();
     ScreenColorControl(false,VIDEO_LAYER_COLOR_SHOW_ALWAYES);
-    //mAv.SetVideoLayerStatus(DISABLE_VIDEO_LAYER);
-    TvMisc_EnableWDT ( gTvinConfig.kernelpet_disable, gTvinConfig.userpet, gTvinConfig.kernelpet_timeout, gTvinConfig.userpet_timeout, gTvinConfig.userpet_reset );
-    mpTvin->TvinApi_SetCompPhaseEnable ( 1 );
-    mpTvin->VDIN_EnableRDMA ( 1 );
+    //TvMisc_EnableWDT ( gTvinConfig.kernelpet_disable, gTvinConfig.userpet, gTvinConfig.kernelpet_timeout, gTvinConfig.userpet_timeout, gTvinConfig.userpet_reset );
+    //mpTvin->TvinApi_SetCompPhaseEnable ( 1 );
+    //mpTvin->VDIN_EnableRDMA ( 1 );
 
     mTvStatus = TV_START_ED;
     mTvAction &= ~TV_ACTION_STOPING;
@@ -2306,13 +2309,13 @@ int CTv::SetSourceSwitchInputLocked(tv_source_input_t virtual_input, tv_source_i
     //set front dev mode
     if ( source_input == SOURCE_TV ) {
         mFrontDev->Open(TV_FE_AUTO);
-        mFrontDev->SetAnalogFrontEndTimerSwitch(1);
+        //mFrontDev->SetAnalogFrontEndTimerSwitch(1);
     } else if ( source_input == SOURCE_DTV ) {
         mFrontDev->Open(TV_FE_AUTO);
-        mFrontDev->SetAnalogFrontEndTimerSwitch(0);
+        //mFrontDev->SetAnalogFrontEndTimerSwitch(0);
     } else {
         mFrontDev->Close();
-        mFrontDev->SetAnalogFrontEndTimerSwitch(0);
+        //mFrontDev->SetAnalogFrontEndTimerSwitch(0);
     }
 
     //ok
@@ -2334,15 +2337,15 @@ int CTv::SetSourceSwitchInputLocked(tv_source_input_t virtual_input, tv_source_i
         }
 
         //double confirm we set the main volume lut buffer to mpeg
-        mpTvin->setMpeg2Vdin(1);
-        mAv.setLookupPtsForDtmb(1);
+        //mpTvin->setMpeg2Vdin(1);
+        //mAv.setLookupPtsForDtmb(1);
         int ret = tvSetCurrentSourceInfo(m_source_input, TVIN_SIG_FMT_NULL, TVIN_TFMT_2D);
         if (ret < 0) {
             LOGE("%s Set CurrentSourceInfo error!\n", __FUNCTION__);
         }
     } else {
-        mpTvin->setMpeg2Vdin(0);
-        mAv.setLookupPtsForDtmb(0);
+        //mpTvin->setMpeg2Vdin(0);
+        //mAv.setLookupPtsForDtmb(0);
     }
 
     cur_port = mpTvin->Tvin_GetSourcePortBySourceInput ( source_input );
@@ -2359,7 +2362,7 @@ int CTv::SetSourceSwitchInputLocked(tv_source_input_t virtual_input, tv_source_i
                 mpTvin->AFE_SetCVBSStd ( ( tvin_sig_fmt_t ) fmt );
 
                 //for HDMI source connect detect
-                mpTvin->VDIN_OpenHDMIPinMuxOn(true);
+                //mpTvin->VDIN_OpenHDMIPinMuxOn(true);
                 //color range mode
                 tvin_color_range_t colorRangeMode = (tvin_color_range_t)GetHdmiColorRangeMode();
                 SetHdmiColorRangeMode(colorRangeMode);
