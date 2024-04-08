@@ -3295,13 +3295,16 @@ int CTv::SupportDlg()
     }
 
     std::string parm = buf;
+    /*
     std::string group1Cap1 = "2160p60hz";
     std::string group1Cap2 = "3840x1080p120hz";
     std::string group2Cap1 = "3840x2160p120hz";
     std::string group2Cap2 = "3840x1080p240hz";
-
-    if ((parm.find(group1Cap1) != -1 && parm.find(group1Cap2) != -1)
-        || (parm.find(group1Cap1) != -1 && parm.find(group1Cap2) != -1)) {
+    */
+    //if 4k1k && 4k2k exist,support dlg
+    std::string support4K1K = "3840x1080";
+    std::string support4K2K = "3840x2160";
+    if (parm.find(support4K1K) != -1 && parm.find(support4K2K) != -1) {
         LOGD("%s: find exist!\n",__FUNCTION__);
         ret = 0;
     }else{
