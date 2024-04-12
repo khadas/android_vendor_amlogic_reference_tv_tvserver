@@ -21,7 +21,7 @@ package {
 
 cc_library_shared {
     name: "libtv",
-    compile_multilib: "32",
+    compile_multilib: "both",
 
     arch: {
         x86: {
