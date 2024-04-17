@@ -2041,6 +2041,10 @@ int CTv::OpenTv ( void )
     mAv.Open();
     //mDevicesPollStatusDetectThread.startDetect();
     //ClearAnalogFrontEnd();
+
+    //for HDMI source connect detect
+       mpTvin->VDIN_OpenHDMIPinMuxOn(true);
+
     InitCurrentSignalInfo();
     InitCurrentVdin2SignalInfo();
     mTvStatus = TV_OPEN_ED;
@@ -2067,10 +2071,9 @@ int CTv::StartTvLock ()
 
     setDvbLogLevel();
     ScreenColorControl(false,VIDEO_LAYER_COLOR_SHOW_ALWAYES);
-    //mAv.SetVideoLayerStatus(DISABLE_VIDEO_LAYER);
-    TvMisc_EnableWDT ( gTvinConfig.kernelpet_disable, gTvinConfig.userpet, gTvinConfig.kernelpet_timeout, gTvinConfig.userpet_timeout, gTvinConfig.userpet_reset );
-    mpTvin->TvinApi_SetCompPhaseEnable ( 1 );
-    mpTvin->VDIN_EnableRDMA ( 1 );
+    //TvMisc_EnableWDT ( gTvinConfig.kernelpet_disable, gTvinConfig.userpet, gTvinConfig.kernelpet_timeout, gTvinConfig.userpet_timeout, gTvinConfig.userpet_reset );
+    //mpTvin->TvinApi_SetCompPhaseEnable ( 1 );
+    //mpTvin->VDIN_EnableRDMA ( 1 );
 
     mTvStatus = TV_START_ED;
     mTvAction &= ~TV_ACTION_STOPING;
@@ -2306,13 +2309,13 @@ int CTv::SetSourceSwitchInputLocked(tv_source_input_t virtual_input, tv_source_i
     //set front dev mode
     if ( source_input == SOURCE_TV ) {
         mFrontDev->Open(TV_FE_AUTO);
-        mFrontDev->SetAnalogFrontEndTimerSwitch(1);
+        //mFrontDev->SetAnalogFrontEndTimerSwitch(1);
     } else if ( source_input == SOURCE_DTV ) {
         mFrontDev->Open(TV_FE_AUTO);
-        mFrontDev->SetAnalogFrontEndTimerSwitch(0);
+        //mFrontDev->SetAnalogFrontEndTimerSwitch(0);
     } else {
         mFrontDev->Close();
-        mFrontDev->SetAnalogFrontEndTimerSwitch(0);
+        //mFrontDev->SetAnalogFrontEndTimerSwitch(0);
     }
 
     //ok
@@ -2334,15 +2337,15 @@ int CTv::SetSourceSwitchInputLocked(tv_source_input_t virtual_input, tv_source_i
         }
 
         //double confirm we set the main volume lut buffer to mpeg
-        mpTvin->setMpeg2Vdin(1);
-        mAv.setLookupPtsForDtmb(1);
+        //mpTvin->setMpeg2Vdin(1);
+        //mAv.setLookupPtsForDtmb(1);
         int ret = tvSetCurrentSourceInfo(m_source_input, TVIN_SIG_FMT_NULL, TVIN_TFMT_2D);
         if (ret < 0) {
             LOGE("%s Set CurrentSourceInfo error!\n", __FUNCTION__);
         }
     } else {
-        mpTvin->setMpeg2Vdin(0);
-        mAv.setLookupPtsForDtmb(0);
+        //mpTvin->setMpeg2Vdin(0);
+        //mAv.setLookupPtsForDtmb(0);
     }
 
     cur_port = mpTvin->Tvin_GetSourcePortBySourceInput ( source_input );
@@ -2359,7 +2362,7 @@ int CTv::SetSourceSwitchInputLocked(tv_source_input_t virtual_input, tv_source_i
                 mpTvin->AFE_SetCVBSStd ( ( tvin_sig_fmt_t ) fmt );
 
                 //for HDMI source connect detect
-                mpTvin->VDIN_OpenHDMIPinMuxOn(true);
+                //mpTvin->VDIN_OpenHDMIPinMuxOn(true);
                 //color range mode
                 tvin_color_range_t colorRangeMode = (tvin_color_range_t)GetHdmiColorRangeMode();
                 SetHdmiColorRangeMode(colorRangeMode);
@@ -3285,15 +3288,24 @@ int CTv::SupportDlg()
     int ret = -1;
     char buf[1024] = {0};
     ret = tvReadSysfs(DLG_FUNC_PATH, buf);
+    LOGD("%s: %s\n", __FUNCTION__, buf);
     if (ret < 0) {
         LOGD("%s: read /sys/class/display/cap error, return!\n",__FUNCTION__);
         return ret;
     }
 
     std::string parm = buf;
-    std::string supportCap1 = "3840x1080";
-    std::string supportCap2 = "3840x2160";
-    if (parm.find(supportCap1) != -1 && parm.find(supportCap2) != -1) {
+
+    //if 4k1k && 4k2k exist,support dlg
+    std::string support4K1K = "3840x1080";
+    //The format of 4K2K includes the following variants
+    std::string support4K2K_1 = "3840x2160";
+    std::string support4K2K_2 = "2160p60hz";
+    std::string support4K2K_3 = "4k2k60hz";
+    if ((parm.find(support4K1K) != -1)
+        && ((parm.find(support4K2K_1) != -1)
+        || (parm.find(support4K2K_2) != -1)
+        || (parm.find(support4K2K_3) != -1))) {
         LOGD("%s: find exist!\n",__FUNCTION__);
         ret = 0;
     }else{
@@ -3910,6 +3922,23 @@ void CTv::onVdinSignalChange()
             LOGD("%s: VRR change!\n", __FUNCTION__);
             setPictureModeBySignal(PQ_MODE_SWITCH_TYPE_AUTO);
             break;
+        case TVIN_SIG_CHG_QMS: {
+            LOGD("%s: QMS change!\n", __FUNCTION__);
+            vdin_qms_param_t qmsInfo;
+            memset(&qmsInfo, 0, sizeof(vdin_qms_param_t));
+            int ret = mpTvin->VDIN_GetQmsParm(&qmsInfo);
+            if (ret < 0) {
+                LOGD("%s: Get QMS Info error!\n", __FUNCTION__);
+            } else {
+                LOGD("%s: send QMS change event, new fps：%d!\n", __FUNCTION__, qmsInfo.qms_fr);
+                TvEvent::QMSEvent ev;
+                ev.qms_en = (int)qmsInfo.qms_en;
+                ev.qms_fps = (int)qmsInfo.qms_fr;
+                ev.qms_base_fps = (int)qmsInfo.qms_base_fr;
+                sendTvEvent ( ev );
+            }
+            break;
+        }
         default:
             LOGD("%s: invalid vdin event!\n", __FUNCTION__);
             break;

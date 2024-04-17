@@ -46,6 +46,7 @@ public:
     static const int TV_EVENT_TVIN_RES = 26;
     static const int TV_EVENT_CHECK_SOURCE_VALID = 27;
     static const int TV_EVENT_PLAY_INSTANCE = 28;
+    static const int TV_EVENT_QMS = 29;
 
     CTvEv(int type);
     virtual ~CTvEv() {};
@@ -337,6 +338,20 @@ namespace  TvEvent {
         ~CheckSourceValidEvent() {}
         int cmd;
         int source;
+    };
+
+        class QMSEvent: public CTvEv {
+        public:
+        QMSEvent() : CTvEv ( CTvEv::TV_EVENT_QMS)
+        {
+            qms_en = 0;
+            qms_fps = 0;
+            qms_base_fps= 0;
+        }
+        ~QMSEvent() {}
+        int qms_en;
+        int qms_fps;
+        int qms_base_fps;
     };
 };
 #endif

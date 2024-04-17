@@ -77,6 +77,7 @@ CTvin::CTvin() : mAfeDevFd(-1), mVdin0DevFd(-1), mVdin2DevFd(-1)
     memset(&gTvinVDINParam, 0, sizeof(gTvinVDINParam));
     memset(&gTvinVDINSignalInfo, 0, sizeof(gTvinVDINSignalInfo));
 
+    mPortOpened = false;
     mDecoderStarted = false;
     gVideoPath[0] = '\0';
 
@@ -327,9 +328,15 @@ int CTvin::VDIN_DeviceIOCtl ( int request, ... )
 
 int CTvin::VDIN_OpenPort ( tvin_port_t port )
 {
-    struct tvin_parm_s vdinParam;
 
     AutoMutex _l(mPortLock);
+
+    if (mPortOpened) {
+        LOGD ( "%s, port has opened!", __FUNCTION__);
+        return 1;
+    }
+
+    struct tvin_parm_s vdinParam;
 
     vdinParam.port = port;
     vdinParam.index = 0;
@@ -356,12 +363,19 @@ int CTvin::VDIN_OpenPort ( tvin_port_t port )
         LOGD ( "%s, set vendor.tv.vdin.opened [1], success", __FUNCTION__);
     }
 
+    mPortOpened = true;
+
     return rt;
 }
 
 int CTvin::VDIN_ClosePort()
 {
     AutoMutex _l(mPortLock);
+
+    if (!mPortOpened) {
+        LOGD ( "%s, port has closed!", __FUNCTION__);
+        return 1;
+    }
 
     if (mSupportResman && TVIN_PORT_CVBS0 <= m_tvin_param.port && m_tvin_param.port <= TVIN_PORT_CVBS7) {
         Resman_FreeRes(RESMAN_ID_ADC_PLL);
@@ -380,6 +394,8 @@ int CTvin::VDIN_ClosePort()
     } else {
         LOGD ( "%s, set vendor.tv.vdin.opened [0], success", __FUNCTION__);
     }
+
+    mPortOpened = false;
 
     return rt;
 }
@@ -2453,7 +2469,7 @@ int CTvin::Tvin_RemovePath ( tv_path_type_t pathtype )
         for ( i = 0; i < 50; i++ ) {
             ret = VDIN_RmDefPath();
 
-            if ( ret > 0 ) {
+            if ( ret >= 0 ) {
                 LOGD ( "%s, remove default path ok, %d ms gone.\n", CFG_SECTION_TV, ( dly * i ) );
                 break;
             } else {
@@ -2465,7 +2481,7 @@ int CTvin::Tvin_RemovePath ( tv_path_type_t pathtype )
         for ( i = 0; i < 50; i++ ) {
             ret = VDIN_RmTvPath();
 
-            if ( ret > 0 ) {
+            if ( ret >= 0 ) {
                 LOGD ( "%s, remove tvin path ok, %d ms gone.\n", CFG_SECTION_TV, ( dly * i ) );
                 break;
             } else {
@@ -2478,7 +2494,7 @@ int CTvin::Tvin_RemovePath ( tv_path_type_t pathtype )
         for ( i = 0; i < 50; i++ ) {
             ret = VDIN_RmTvPath2();
 
-            if ( ret > 0 ) {
+            if ( ret >= 0 ) {
                 LOGD ( "%s, remove tvin2 path ok, %d ms gone.\n", CFG_SECTION_TV, ( dly * i ) );
                 break;
             } else {
@@ -2696,6 +2712,16 @@ int CTvin::VDIN_GetHdmiFormatInfo(tvin_format_s *sourceFormatInfo)
 int CTvin::VDIN_GetVrrFreesyncParm(vdin_vrr_freesync_param_s *vrr_parm)
 {
     int ret = VDIN_DeviceIOCtl(TVIN_IOC_G_VRR_STATUS, vrr_parm);
+    if (ret < 0) {
+        LOGE("%s failed, error(%s)!", __FUNCTION__, strerror(errno));
+    }
+
+    return ret;
+}
+
+int CTvin::VDIN_GetQmsParm(vdin_qms_param_s *qms_parm)
+{
+    int ret = VDIN_DeviceIOCtl(TVIN_IOC_G_QMS_STATUS, qms_parm);
     if (ret < 0) {
         LOGE("%s failed, error(%s)!", __FUNCTION__, strerror(errno));
     }
