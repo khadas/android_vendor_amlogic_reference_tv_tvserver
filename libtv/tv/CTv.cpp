@@ -2132,9 +2132,14 @@ int CTv::StopTvLock ( void )
         tv_source_input_type_t current_source_type = CTvin::Tvin_SourceInputToSourceInputType(m_source_input);
         LOGD("%s current finish source type [%d]\n",__FUNCTION__,current_source_type);
 
-        //vt interface has delay,so use disable video layer instead of vt.
-        mAv.SetVideoLayerStatus(DISABLE_VIDEO_LAYER);
+        if (current_source_type > SOURCE_TYPE_HDMI ) {
+            //vt interface has delay,so use disable video layer instead of vt.
+            //AV && HDMI mute video by vdin, tvserver need not set
+            //avoid affect pip func
+            mAv.SetVideoLayerStatus(DISABLE_VIDEO_LAYER);
+        }
         mAv.SetVideoScreenColor(VIDEO_LAYER_BLACK);
+
         mpTvin->Tvin_StopDecoder();
         mpTvin->VDIN_ClosePort();
         //mFrontDev->SetAnalogFrontEndTimerSwitch(0);
