@@ -2405,8 +2405,9 @@ void CTv::onSigStatusChange()
         m_cur_sig_info.status = TVIN_SIG_STATUS_NULL;
     }
 
-    LOGD("%s: trans_fmt is %d, sig_fmt is %d, status is %d, isDVI is %d, hdr_info is 0x%x\n", __FUNCTION__,
-    m_cur_sig_info.trans_fmt, m_cur_sig_info.fmt, m_cur_sig_info.status, m_cur_sig_info.is_dvi, m_cur_sig_info.hdr_info);
+    LOGD("%s: trans_fmt: %d, sig_fmt: %d, status: %d, fps: %d, isDVI: %d, hdr_info: 0x%x\n",
+        __FUNCTION__, m_cur_sig_info.trans_fmt, m_cur_sig_info.fmt, m_cur_sig_info.status,
+        m_cur_sig_info.fps, m_cur_sig_info.is_dvi, m_cur_sig_info.hdr_info);
     if ( m_cur_sig_info.status == TVIN_SIG_STATUS_STABLE ) {
         onSigToStable();
         if (mVRRStatusChange) {
@@ -3933,13 +3934,16 @@ void CTv::onVdinSignalChange()
             int ret = mpTvin->VDIN_GetQmsParm(&qmsInfo);
             if (ret < 0) {
                 LOGD("%s: Get QMS Info error!\n", __FUNCTION__);
-            } else {
-                LOGD("%s: send QMS change event, new fps：%d!\n", __FUNCTION__, qmsInfo.qms_fr);
+            } else if (TVIN_SIG_STATUS_STABLE == m_cur_sig_info.status) {
+                LOGD("%s: send QMS change event,qms_en:%d, qms_fr：%d, qms_base_fr: %d, fps: %d!\n",
+                    __FUNCTION__,qmsInfo.qms_en, qmsInfo.qms_fr, qmsInfo.qms_base_fr, m_cur_sig_info.fps);
                 TvEvent::QMSEvent ev;
                 ev.qms_en = (int)qmsInfo.qms_en;
                 ev.qms_fps = (int)qmsInfo.qms_fr;
-                ev.qms_base_fps = (int)qmsInfo.qms_base_fr;
+                ev.qms_base_fps = qmsInfo.qms_en ? (int)qmsInfo.qms_base_fr:(int)(m_cur_sig_info.fps * 1000);
                 sendTvEvent ( ev );
+            } else {
+                LOGD("%s: invalid qms event!\n", __FUNCTION__);
             }
             break;
         }
