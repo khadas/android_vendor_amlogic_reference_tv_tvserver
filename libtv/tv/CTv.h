@@ -458,6 +458,7 @@ public:
 
     int ScreenColorControl(bool color, int freq);
     int IsSupportPIP();
+    void sendQmsEvent(void);
 private:
     int SendCmdToOffBoardFBCExternalDac(int, int);
     int KillMediaServerClient();

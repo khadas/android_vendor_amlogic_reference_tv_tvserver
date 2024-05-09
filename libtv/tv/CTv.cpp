@@ -2553,6 +2553,11 @@ void CTv::onSigStillStable()
     ev.mReserved = getHDMIFrameRate();
     sendTvEvent ( ev );
 
+    tv_source_input_type_t source_type = CTvin::Tvin_SourceInputToSourceInputType(m_source_input);
+    if (source_type == SOURCE_TYPE_HDMI) {
+        sendQmsEvent();
+    }
+
     if (isBlockedByChannelLock() || (mChannelBlockState == BLOCK_STATE_BLOCKED && mEnableLockModule)) {
         SendBlockEvt(true);
     }
@@ -3415,6 +3420,28 @@ int CTv::SetVRRStatusBySignal(void)
         mHDMIRxManager.HdmiRxEdidUpdate();
     }
     return ret;
+}
+
+void CTv::sendQmsEvent(void)
+{
+    LOGD("%s\n", __FUNCTION__);
+    vdin_qms_param_t qmsInfo;
+    memset(&qmsInfo, 0, sizeof(vdin_qms_param_t));
+    int ret = mpTvin->VDIN_GetQmsParm(&qmsInfo);
+    if (ret < 0) {
+        LOGD("%s: Get QMS Info error!\n", __FUNCTION__);
+    } else {
+        if ((int)qmsInfo.qms_en == 0) {
+            LOGD("%s: non-qms signal,return!\n", __FUNCTION__);
+            return;
+        }
+        LOGD("%s: send QMS change event, new fps：%d!\n", __FUNCTION__, qmsInfo.qms_fr);
+        TvEvent::QMSEvent ev;
+        ev.qms_en = (int)qmsInfo.qms_en;
+        ev.qms_fps = (int)qmsInfo.qms_fr;
+        ev.qms_base_fps = (int)qmsInfo.qms_base_fr;
+        sendTvEvent ( ev );
+    }
 }
 
 int CTv::Tv_SetWssStatus (int status)
