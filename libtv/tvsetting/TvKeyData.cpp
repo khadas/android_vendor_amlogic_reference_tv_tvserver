@@ -1349,7 +1349,7 @@ bool IsNeedLoadDolbyVisionEdid(int isDolbyVisionEnable)
     return isLoadDvEdid;
 }
 
-int SSMLoadHDMIEdidData(bool isLoadDvEdid , bool isLoadDLGEdid)
+int SSMLoadHDMIEdidData(bool isLoadDvEdid , bool isLoadDLGEdid, bool isLoadQMSEdid)
 {
     int ret = 0;
 
@@ -1360,11 +1360,27 @@ int SSMLoadHDMIEdidData(bool isLoadDvEdid , bool isLoadDLGEdid)
     const char *edidDirPath = config_get_str(CFG_SECTION_HDMI, CFG_HDMI_EDID_FILE_PATH, "/mnt/vendor/odm_ext/etc/tvconfig/hdmi");
     LOGD("%s: isCheckBinFileBySource = %d, edidDirPath is %s.\n", __FUNCTION__, isCheckBinFileBySource, edidDirPath);
 
+    char fileSuffix_14[32] = {0};
+    char fileSuffix_20[32] = {0};
+    if (isLoadDvEdid) {
+        strcat(fileSuffix_14, "_dv");
+        strcat(fileSuffix_20, "_dv");
+    }
+    if (isLoadDLGEdid) {
+        strcat(fileSuffix_20, "_dlg");
+    }
+
+    if (isLoadQMSEdid) {
+        strcat(fileSuffix_20, "_qms");
+    }
+
+    LOGD("%s: 1.4 edid suffix:[%s], 2.0 edid suffix:[%s]\n", __FUNCTION__, fileSuffix_14, fileSuffix_20);
+
     if (isCheckBinFileBySource == 1) {
         char edidFilePath[100] = {0};
         int loadNum = 1;
         for (loadNum=1;loadNum<7;loadNum++) {
-            if (isLoadDvEdid) {
+            /*if (isLoadDvEdid) {
                LOGD("%s: load amdolby_vision EDID!\n", __FUNCTION__);
                 if (loadNum%2 != 0) {
                     sprintf(edidFilePath, "%s/port%d_14_dv.bin", edidDirPath, loadNum/2 + 1);
@@ -1387,6 +1403,15 @@ int SSMLoadHDMIEdidData(bool isLoadDvEdid , bool isLoadDLGEdid)
                     } else {
                         sprintf(edidFilePath, "%s/port%d_20.bin", edidDirPath, loadNum/2);
                     }
+                }
+            }*/
+            if (loadNum%2 != 0) {
+                sprintf(edidFilePath, "%s/port%d_14%s.bin", edidDirPath, loadNum/2 + 1, fileSuffix_14);
+            } else {
+                if (isLoadDLGEdid) {
+                    sprintf(edidFilePath, "%s/port%d%s.bin", edidDirPath, loadNum/2, fileSuffix_20);
+                } else {
+                    sprintf(edidFilePath, "%s/port%d_20%s.bin", edidDirPath, loadNum/2, fileSuffix_20);
                 }
             }
             memset(hdmi_edid_data_read_buf, 0, SSM_HDMI_EDID_SIZE);
@@ -1415,7 +1440,7 @@ int SSMLoadHDMIEdidData(bool isLoadDvEdid , bool isLoadDLGEdid)
     return ret;
 }
 
-int SSMLoadHDMIEdidDataWithPort(bool isLoadDvEdid, bool isLoadDLGEdid) {
+int SSMLoadHDMIEdidDataWithPort(bool isLoadDvEdid, bool isLoadDLGEdid, bool isLoadQMSEdid) {
     int ret = 0;
     int edidSize1 = 0;
     int edidSize2 = 0;
@@ -1423,10 +1448,27 @@ int SSMLoadHDMIEdidDataWithPort(bool isLoadDvEdid, bool isLoadDLGEdid) {
     char edid2FilePath[100] = {0};
     int isCheckBinFileBySource = config_get_int(CFG_SECTION_HDMI, TV_CONFIG_HDMI_EDID_BIN_CHECKSOURCE_EN, 0);
     const char *edidDirPath = config_get_str(CFG_SECTION_HDMI, CFG_HDMI_EDID_FILE_PATH, "/mnt/vendor/odm_ext/etc/tvconfig/hdmi");
+
+    char fileSuffix_14[32] = {0};
+    char fileSuffix_20[32] = {0};
+    if (isLoadDvEdid) {
+        strcat(fileSuffix_14, "_dv");
+        strcat(fileSuffix_20, "_dv");
+    }
+    if (isLoadDLGEdid) {
+        strcat(fileSuffix_20, "_dlg");
+    }
+
+    if (isLoadQMSEdid) {
+        strcat(fileSuffix_20, "_qms");
+    }
+    LOGD("%s: 1.4 edid suffix:[%s], 2.0 edid suffix:[%s]\n", __FUNCTION__, fileSuffix_14, fileSuffix_20);
+
     for (int portId = 1; portId < 5; portId++) {
         LOGD("%s: port[%d], load EDID!\n", __FUNCTION__, portId);
         if (isCheckBinFileBySource) {
             for (int edidNum = 1; edidNum < 3; edidNum++) {
+                /*
                 if (isLoadDvEdid) {
                    LOGD("%s: load %s amdolby_vision EDID!\n", __FUNCTION__, edidNum%2 != 0?"1.4":"2.0");
                     if (edidNum%2 != 0) {
@@ -1452,6 +1494,16 @@ int SSMLoadHDMIEdidDataWithPort(bool isLoadDvEdid, bool isLoadDLGEdid) {
                         }
                     }
                 }
+                */
+                if (edidNum%2 != 0) {
+                    sprintf(edid1FilePath, "%s/port%d_14%s.bin", edidDirPath, portId, fileSuffix_14);
+                } else {
+                    if (isLoadDLGEdid) {
+                        sprintf(edid2FilePath, "%s/port%d%s.bin", edidDirPath, portId, fileSuffix_20);
+                    } else {
+                        sprintf(edid2FilePath, "%s/port%d_20%s.bin", edidDirPath, portId, fileSuffix_20);
+                    }
+                }
             }
         } else {
             sprintf(edid1FilePath, "%s", TV_CONFIG_EDID14_FILE_PATH);
@@ -1462,7 +1514,7 @@ int SSMLoadHDMIEdidDataWithPort(bool isLoadDvEdid, bool isLoadDLGEdid) {
         edidSize2 = getEdidFileSize(edid2FilePath);
         if (edidSize1 == -1 || edidSize2 == -1) {
             LOGD("%s: port:%d, edid bin no exist, return!\n", __FUNCTION__, portId);
-            continue;
+            return -1;
         }
 
         unsigned char hdmi_edid_data_load_buf[edidSize1+edidSize2];

@@ -104,6 +104,7 @@
 #define UBOOTENV_PORT_MAP                       "ubootenv.var.port_map"
 #define CFG_HDMI_EDID_FILE_PATH                 "edid.file.path"
 #define CFG_HDMI_EDID_AUTO_LOAD_EN              "edid.data.auto.load.en"
+#define CFG_HDMI_QMS_SUPPORT                    "hdmi.edid.qms.support"
 
 //for tv sysfs
 #define SYS_SPDIF_MODE_DEV_PATH                 "/sys/class/audiodsp/digital_raw"

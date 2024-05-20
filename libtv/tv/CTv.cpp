@@ -3444,6 +3444,34 @@ void CTv::sendQmsEvent(void)
     }
 }
 
+int CTv::TV_SetQMSEnable (int enable) {
+    LOGD("%s: Set QMS switch! enable = [%d]\n", __FUNCTION__, enable);
+    int ret = -1;
+
+    SSMSaveQMSEnable(enable);
+    int amdvEnableState = GetAmdvEnable();
+    int dlgEmableState = Tv_GetDLGEnable();
+    ret = LoadEdidData(1,amdvEnableState,dlgEmableState);
+
+    LOGD("%s: Set QMS success!\n", __FUNCTION__);
+    return 0;
+}
+
+int CTv::TV_GetQMSEnable(void) {
+    int qmsEnable = 0;
+    SSMReadQMSEnable(&qmsEnable);
+    LOGD("%s:QMS switch status [%d] !\n",__FUNCTION__,qmsEnable);
+    return qmsEnable;
+}
+
+int CTv::SupportQms()
+{
+    int ret = 0;
+    ret = config_get_int(CFG_SECTION_HDMI, CFG_HDMI_QMS_SUPPORT, 0);
+    LOGD("%s:%d !\n",__FUNCTION__, ret);
+    return ret;
+}
+
 int CTv::Tv_SetWssStatus (int status)
 {
     return mpTvin->VDIN_SetWssStatus(status);
@@ -3532,12 +3560,16 @@ int CTv::LoadEdidData(int isNeedBlackScreen, int isDolbyVisionEnable, int isDlgV
     }
 
     bool isLoadDvEdid = IsNeedLoadDolbyVisionEdid(isDolbyVisionEnable);
+    int isLoadQMSEdid = 0;
+    SSMReadQMSEnable(&isLoadQMSEdid);
+    LOGD("%s:isLoadQMSEdid:%d!\n", __FUNCTION__, isLoadQMSEdid);
+
     if (mIsLoadEdidWithPort) {
         LOGD("%s:Load edid with port!\n", __FUNCTION__);
-        ret = SSMLoadHDMIEdidDataWithPort(isLoadDvEdid, isDlgVisionEnable);
+        ret = SSMLoadHDMIEdidDataWithPort(isLoadDvEdid, isDlgVisionEnable, (bool)isLoadQMSEdid);
     } else {
         LOGD("%s:Load edid with hdmirx0/edid note!\n", __FUNCTION__);
-        ret = SSMLoadHDMIEdidData(isLoadDvEdid, isDlgVisionEnable);
+        ret = SSMLoadHDMIEdidData(isLoadDvEdid, isDlgVisionEnable, (bool)isLoadQMSEdid);
     }
 
     if (ret == 0) {
@@ -4632,6 +4664,22 @@ std::string CTv::request(const std::string& resource, const std::string& paras)
             mNoneStaticChange = false;
         }
         return std::string("{\"ret\":0}");
+    } else if (std::string("Set.TV_SetQMSEnable") == resource) {
+        int enable = paramGetInt(paras.c_str(), NULL, "enable", 0);
+        TV_SetQMSEnable(enable);
+        return std::string("{\"ret\":0}");
+    } else if (std::string("Get.TV_GetQMSEnable") == resource) {
+        char ret[32];
+        snprintf(ret, sizeof(ret), "{\"ret\":0,\"enabled\":%s}",
+            TV_GetQMSEnable() ? "true" : "false");
+        ret[sizeof(ret) -1] = '\0';
+        return std::string(ret);
+    } else if (std::string("Get.SupportQms") == resource) {
+        char ret[32];
+        snprintf(ret, sizeof(ret), "{\"ret\":0,\"support\":%s}",
+            SupportQms() ? "true" : "false");
+        ret[sizeof(ret) -1] = '\0';
+        return std::string(ret);
     }
     return std::string("{\"ret\":1}");
 }

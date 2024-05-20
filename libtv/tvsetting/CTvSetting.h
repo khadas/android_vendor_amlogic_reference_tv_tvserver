@@ -197,6 +197,8 @@ int SSMReadHDMIHdcpSwitcher(void);
 int SSMHDMIEdidRestoreDefault(tv_hdmi_edid_version_t edid_version);
 int SSMSaveChannelLockEnValue(int rw_val);
 int SSMReadChannelLockEnValue(void);
+int SSMSaveQMSEnable(int enable);
+int SSMReadQMSEnable(int *enable);
 
 #ifdef __cplusplus
 }

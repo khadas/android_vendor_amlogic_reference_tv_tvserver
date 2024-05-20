@@ -417,6 +417,9 @@ public:
     int SupportDlg(void);
     int TV_SetVRREnable (bool enable);
     int TV_GetVRREnable(void);
+    int SupportQms(void);
+    int TV_SetQMSEnable (int enable);
+    int TV_GetQMSEnable(void);
     int SetVRRStatusBySignal(void);
     int SetHdmiColorRangeMode(tvin_color_range_t range_mode);
     int GetHdmiColorRangeMode();

@@ -63,6 +63,7 @@ int MiscSSMRestoreDefault()
     SSMSaveBlackoutEnable(1);
     SSMSaveDLGEnable(0);
     SSMSaveVRREnable(0);
+    SSMSaveQMSEnable(0);
     return 0;
 }
 
@@ -1623,4 +1624,20 @@ int SSMReadChannelLockEnValue(void)
         return 0;
     }
     return switch_val;
+}
+
+int SSMSaveQMSEnable(int enable)
+{
+    int tmp_val = enable;
+    return TVSSMWriteNTypes(CUSTOMER_DATA_POS_HDMI_QMS_ENABLE_START, 1, tmp_val);
+}
+
+int SSMReadQMSEnable(int *enable)
+{
+    int tmp_val = 0;
+    int ret = 0;
+    ret = TVSSMReadNTypes(CUSTOMER_DATA_POS_HDMI_QMS_ENABLE_START, 1, &tmp_val);
+    *enable = tmp_val;
+
+    return ret;
 }
