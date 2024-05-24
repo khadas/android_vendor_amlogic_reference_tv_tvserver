@@ -70,11 +70,14 @@ int CTvRrt::StartRrtUpdate(void)
 int CTvRrt::StopRrtUpdate(void)
 {
     AM_ErrorCode_t ret;
-    ret = AM_EPG_ChangeMode(mRrtScanHandle, MODE_REMOVE, SCAN_RRT);
-    if (ret != AM_SUCCESS) {
-        LOGD("StopRrtUpdate failed!\n");
-    } else {
-        LOGD("StopRrtUpdate success!\n");
+    if (mRrtScanHandle != NULL) {
+         LOGD("mRrtScanHandle\n");
+        ret = AM_EPG_ChangeMode(mRrtScanHandle, MODE_REMOVE, SCAN_RRT);
+        if (ret != AM_SUCCESS) {
+            LOGD("StopRrtUpdate failed!\n");
+        } else {
+            LOGD("StopRrtUpdate success!\n");
+        }
     }
 
     int val = 0;

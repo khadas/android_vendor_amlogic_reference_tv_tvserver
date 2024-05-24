@@ -74,11 +74,14 @@ int CTvEas::StopEasUpdate()
 {
 #ifdef SUPPORT_ADTV
     AM_ErrorCode_t ret;
-    ret = AM_EPG_ChangeMode(mEasScanHandle, MODE_REMOVE, SCAN_PSIP_CEA);
-    if (ret != DVB_SUCCESS) {
-        LOGD("StopEasUpdate failed!\n");
-    } else {
-        LOGD("StopEasUpdate success!\n");
+    if (mEasScanHandle != NULL) {
+        LOGD("mRrtScanHandle\n");
+        ret = AM_EPG_ChangeMode(mEasScanHandle, MODE_REMOVE, SCAN_PSIP_CEA);
+        if (ret != DVB_SUCCESS) {
+            LOGD("StopEasUpdate failed!\n");
+        } else {
+            LOGD("StopEasUpdate success!\n");
+        }
     }
 
     int val = 0;

@@ -1511,13 +1511,16 @@ int CTv::setFrontEnd ( const char *paras, bool force )
         mFrontDev->Open(TV_FE_AUTO);
         mFrontDev->setMode(FEMode_Base);
         mFrontDev->setPara (paras, force);
+
+        Tv_RrtUpdate();
+        Tv_Easupdate();
     }
 
+    /*
     int mode, freq, para1, para2;
     mFrontDev->getPara(&mode, &freq, &para1, &para2);
     mode = (FEMode_Base == TV_FE_ANALOG);
-    Tv_RrtUpdate();
-    Tv_Easupdate();
+    */
     LOGD("%s setFrontEnd End SwitchSourceTime = %fs",__FUNCTION__,getUptimeSeconds());
     return 0;
 }
@@ -2115,6 +2118,9 @@ int CTv::StopTvLock ( void )
         AutoMutex _l( mLock );
         mTvAction |= TV_ACTION_STOPING;
         mTvAction &= ~TV_ACTION_IN_VDIN;
+
+        mTvRrt->StopRrtUpdate();
+        mTvEas->StopEasUpdate();
 
         /* release ATV/DTV early */
         mFrontDev->setMode(TV_FE_AUTO);
