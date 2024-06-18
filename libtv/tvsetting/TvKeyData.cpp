@@ -1514,7 +1514,7 @@ int SSMLoadHDMIEdidDataWithPort(bool isLoadDvEdid, bool isLoadDLGEdid, bool isLo
         edidSize2 = getEdidFileSize(edid2FilePath);
         if (edidSize1 == -1 || edidSize2 == -1) {
             LOGD("%s: port:%d, edid bin no exist, return!\n", __FUNCTION__, portId);
-            return -1;
+            continue;
         }
 
         unsigned char hdmi_edid_data_load_buf[edidSize1+edidSize2];
